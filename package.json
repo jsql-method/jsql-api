@@ -1,0 +1,14 @@
+{
+  "name": "jsql-dev-api",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+     "rsync:test": "rsync -rlzvc --stats --exclude-from '.rsync-ignore' --delete -e 'ssh -p 22' ./build/libs/ root@145.239.6.132:/home/deployments/rsync/jsqldevapi"
+  },
+  "author": "JSQL",
+  "license": "ISC",
+  "dependencies": {
+  },
+  "devDependencies": {
+  }
+}

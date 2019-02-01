@@ -1,0 +1,22 @@
+${Ansi.BLUE}                              ,-.             __
+${Ansi.BLUE}                             ,'   `---.___.---'  `.
+${Ansi.BLUE}                           ,'   ,-                 `-._
+${Ansi.BLUE}                         ,'    /                       \
+${Ansi.BLUE}                      ,\/     /                        \\
+${Ansi.BLUE}                  )`._)>)     |                         \\
+${Ansi.BLUE}                  `>,'    _   \                  /       |\
+${Ansi.BLUE}                    )      \   |   |            |        |\\
+${Ansi.BLUE}           .   ,   /        \  |    `.          |        | ))
+${Ansi.BLUE}           \`. \`-'          )-|      `.        |        /((
+${Ansi.BLUE}            \ `-`   a`     _/ ;\ _     )`-.___.--\      /  `'
+${Ansi.BLUE}             `._         ,'    \`j`.__/        \  `.    \
+${Ansi.BLUE}               / ,    ,'       _)\   /`        _) ( \   /
+${Ansi.BLUE}               \__   /        /nn_) (         /nn__\_) (
+${Ansi.BLUE}                 `--'           /nn__\             /nn__\
+${Ansi.BLUE}                     _____    ______      ___        _____
+${Ansi.BLUE}                    |_   _| .' ____ \   .'   `.     |_   _|
+${Ansi.BLUE}                      | |   | (___ \_| /  .-.  \      | |
+${Ansi.BLUE}                  _   | |    _.____`.  | |   | |      | |   _
+${Ansi.BLUE}                 | |__' |   | \____) | \  `-'  \_    _| |__/ |
+${Ansi.BLUE}                 `.____.'    \______.'  `.___.\__|  |________|
+${Ansi.WHITE}
