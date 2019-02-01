@@ -121,7 +121,6 @@ class PaymentService {
     }
 
     def getPlan() {
-
         User user = securityService.getCurrentAccount()
 
         if (user.role.authority != RoleTypeEnum.COMPANY_ADMIN) {

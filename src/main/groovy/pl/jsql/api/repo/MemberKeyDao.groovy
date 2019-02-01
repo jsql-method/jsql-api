@@ -12,6 +12,7 @@ interface MemberKeyDao extends CrudRepository<MemberKey, Long> {
     MemberKey findByUser(User user)
 
     MemberKey findByKey(String key)
+    void deleteByUser(User user)
 
 
 }

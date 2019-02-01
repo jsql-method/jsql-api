@@ -26,7 +26,7 @@ interface UserDao extends CrudRepository<User, Long> {
     @Query("delete from User u where u.role = :role")
     void removeAllByRole(@Param('role') Role role)
 
-    @Query("select count(u) from User u where u.company = :company")
+    @Query("select count(u) from User u where u.company = :company and u.role.id <> 3 and u.isFakeDeveloper <> true")
     Integer countByCompany(@Param('company') Company company)
 
 }

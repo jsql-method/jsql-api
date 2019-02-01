@@ -68,6 +68,8 @@ class User {
     @NotNull
     Boolean enabled
 
+    Boolean isFakeDeveloper = false
+
 
     /**
      *   Method sets field to desired value by string

@@ -1,11 +1,14 @@
 package pl.jsql.api.service
 
+import org.apache.commons.lang3.RandomStringUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import pl.jsql.api.dto.UserRequest
 import pl.jsql.api.enums.RoleTypeEnum
 import pl.jsql.api.model.hashing.Application
 import pl.jsql.api.model.hashing.ApplicationMembers
+import pl.jsql.api.model.hashing.MemberKey
 import pl.jsql.api.model.hashing.Options
 import pl.jsql.api.model.user.User
 import pl.jsql.api.repo.*
@@ -13,6 +16,8 @@ import pl.jsql.api.security.service.SecurityService
 import pl.jsql.api.utils.TokenUtil
 
 import static pl.jsql.api.enums.HttpMessageEnum.APPS_LIMIT_REACHED
+import static pl.jsql.api.enums.HttpMessageEnum.DEVS_LIMIT_REACHED
+import static pl.jsql.api.enums.HttpMessageEnum.DEVS_LIMIT_REACHED
 import static pl.jsql.api.enums.HttpMessageEnum.NO_SUCH_APP_OR_MEMBER
 import static pl.jsql.api.enums.HttpMessageEnum.SUCCESS
 
@@ -50,6 +55,12 @@ class ApplicationService {
     @Autowired
     PlansDao plansDao
 
+    @Autowired
+    AuthService authService
+
+    @Autowired
+    MemberKeyDao memberKeyDao
+
     def getAll() {
         User currentUser = securityService.getCurrentAccount()
         def data = []
@@ -59,11 +70,12 @@ class ApplicationService {
             List<ApplicationMembers> list = applicationMembersDao.findByUserQuery(currentUser)
 
             for (ApplicationMembers appMember : list) {
-
+                MemberKey key = memberKeyDao.findByUser(appMember.application.developer)
                 data << [
-                        id    : appMember.application.id,
-                        apiKey: appMember.application.apiKey,
-                        name  : appMember.application.name
+                        id          : appMember.application.id,
+                        apiKey      : appMember.application.apiKey,
+                        name        : appMember.application.name,
+                        developerKey: key != null ? key.key : null
                 ]
 
             }
@@ -78,14 +90,14 @@ class ApplicationService {
                 companyAdmin = userDao.findByCompanyAndRole(currentUser.company, roleDao.findByAuthority(RoleTypeEnum.COMPANY_ADMIN)).first()
 
             }
-
             List<Application> list = applicationDao.findByUserQuery(companyAdmin)
             for (Application app : list) {
-
+                MemberKey key = memberKeyDao.findByUser(app.developer)
                 data << [
-                        id    : app.id,
-                        apiKey: app.apiKey,
-                        name  : app.name
+                        id          : app.id,
+                        apiKey      : app.apiKey,
+                        name        : app.name,
+                        developerKey: key != null ? key.key : null
                 ]
 
             }
@@ -104,7 +116,7 @@ class ApplicationService {
 
         User currentUser = securityService.getCurrentAccount()
         Application currentApp = applicationDao.findById(id).get()
-
+        MemberKey key = memberKeyDao.findByUser(currentApp.developer)
         def data = []
 
         if (currentUser.role.authority == RoleTypeEnum.APP_DEV) {
@@ -118,9 +130,10 @@ class ApplicationService {
             } else {
 
                 data << [
-                        id    : appMember.application.id,
-                        apiKey: appMember.application.apiKey,
-                        name  : appMember.application.name
+                        id          : appMember.application.id,
+                        apiKey      : appMember.application.apiKey,
+                        name        : appMember.application.name,
+                        developerKey: key != null ? key.key : null
                 ]
 
             }
@@ -134,9 +147,10 @@ class ApplicationService {
             }
 
             data << [
-                    id    : currentApp.id,
-                    apiKey: currentApp.apiKey,
-                    name  : currentApp.name
+                    id          : currentApp.id,
+                    apiKey      : currentApp.apiKey,
+                    name        : currentApp.name,
+                    developerKey: key != null ? key.key : null
             ]
 
         }
@@ -163,9 +177,23 @@ class ApplicationService {
 
         }
 
+        UserRequest userRequest = new UserRequest()
+        userRequest.email = name + "@applicationDeveloper"
+        userRequest.firstName = "application"
+        userRequest.lastName = "developer"
+        userRequest.password = RandomStringUtils.randomAlphanumeric(10)
+        userRequest.company = companyAdmin.company.id
+        userRequest.role = RoleTypeEnum.APP_DEV.toString()
+        authService.register(userRequest)
+
+        User applicationDeveloper = userDao.findByEmail(name + "@applicationDeveloper")
+        applicationDeveloper.isFakeDeveloper = true
+        applicationDeveloper.activated = true
+        applicationDeveloper = userDao.save(applicationDeveloper)
+
         String apiKey = "==" + this.generateApplication(name)
 
-        Application application = createApplication(apiKey, companyAdmin, name)
+        Application application = createApplication(apiKey, companyAdmin, name, applicationDeveloper)
 
         assignUserToAppMember(companyAdmin, application)
 
@@ -187,7 +215,12 @@ class ApplicationService {
 
         Application application = applicationDao.findById(id).get()
 
-        application.active = !application.active
+        application.active = false
+
+        memberKeyDao.deleteByUser(application.developer)
+        applicationMembersDao.deleteAllByUser(application.developer)
+        userDao.delete(application.developer)
+        application.developer = null
         applicationDao.save(application)
 
         return [code: SUCCESS.getCode(), data: null]
@@ -259,7 +292,7 @@ class ApplicationService {
         optionsDao.save(options)
     }
 
-    Application createApplication(String apiKey, User user, String name) {
+    Application createApplication(String apiKey, User user, String name, User dev) {
         Application application = applicationDao.findByNameAndCompany(name, user.company)
 
         if (application == null) {
@@ -268,6 +301,7 @@ class ApplicationService {
             application.apiKey = apiKey
             application.user = user
             application.name = name
+            application.developer = dev
 
         }
 

@@ -26,4 +26,9 @@ class Application {
 
     Boolean active
 
+    @JsonIgnore
+    @OneToOne(optional = true, fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "developer_id")
+    User developer
+
 }

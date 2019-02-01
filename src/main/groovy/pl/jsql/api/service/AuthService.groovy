@@ -153,7 +153,7 @@ class AuthService {
     def validateLogin(LoginRequest loginRequest) {
 
         User user = userDao.findByEmail(loginRequest.email)
-        Plans plan = plansDao.findFirstByCompany(user.company)
+
 
         if (loginRequest.email == null) {
             return [code: EMPTY_EMAIL.getCode(), description: EMPTY_EMAIL.getDescription()]
@@ -182,7 +182,7 @@ class AuthService {
         if (user.blocked) {
             return [code: ACCOUNT_BLOCKED.getCode(), description: ACCOUNT_BLOCKED.getDescription()]
         }
-
+        Plans plan = plansDao.findFirstByCompany(user.company)
         if (!plan.active) {
             return [code: NO_ACTIVE_PLAN.getCode(), description: NO_ACTIVE_PLAN.getDescription()]
         }
@@ -231,6 +231,7 @@ class AuthService {
         user.lastName = request.lastName
         user.accountExpired = false
         user.accountLocked = false
+        user.isFakeDeveloper = false
         user.passwordExpired = false
         user.registerDate = new Date()
         user.enabled = true
