@@ -1,5 +1,9 @@
-FROM java:8
-WORKDIR /
-ADD jsql-api.jar jsql-api.jar
-EXPOSE 9026
-CMD java - jar jsql-api.jar
+FROM gradle:5.1-jdk as builder
+
+WORKDIR /home/gradle
+ADD . /home/gradle
+RUN gradle bootJar
+
+FROM openjdk:8u191-jre-alpine
+COPY --from=builder /home/gradle/build/libs/*.jar /tmp/jsql-api.jar
+CMD java -jar /tmp/jsql-api.jar
