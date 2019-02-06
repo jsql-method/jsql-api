@@ -64,7 +64,7 @@ deploy_service_dev:
    stage: deploy service
    script:
      - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-     - docker -H 172.32.1.31 pull registry.jsql.it:443/poligon-jsql/jsql-api:dev
+     - docker -H 172.32.1.31 pull registry.jsql.it:443/jsql/jsql-api:dev
      - docker -H 172.32.1.31 service scale dev_jsql_api=0
      - docker -H 172.32.1.31 service update --force dev_jsql_api
      - docker -H 172.32.1.31 service scale dev_jsql_api=0
@@ -78,7 +78,7 @@ deploy_service_test:
   stage: deploy service
   script:
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-    - docker -H 172.32.1.31 pull registry.jsql.it:443/poligon-jsql/jsql-api:test
+    - docker -H 172.32.1.31 pull registry.jsql.it:443/jsql/jsql-api:test
     - docker -H 172.32.1.31 service scale test_jsql_api=0
     - docker -H 172.32.1.31 service update --force test_jsql_api
     - docker -H 172.32.1.31 service scale test_jsql_api=0
