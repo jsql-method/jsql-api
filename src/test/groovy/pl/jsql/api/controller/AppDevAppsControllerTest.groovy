@@ -187,10 +187,10 @@ class AppDevAppsControllerTest extends IntegrationTest {
                 .andExpect(MockMvcResultMatchers.jsonPath('$.description', is("Account with given data not exist")))
     }
 
-    @DisplayName("when DELETE api/app-dev/application/unassign with valid session then should return success data")
+    @DisplayName("when POST api/app-dev/application/unassign with valid session then should return success data")
     @Test
     void test9() {
-        mockMvc.perform(delete(
+        mockMvc.perform(post(
                 "/api/app-dev/application/unassign")
                 .header("session", companyAdminSessionToken)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -203,10 +203,10 @@ class AppDevAppsControllerTest extends IntegrationTest {
                 .andExpect(jsonPath('$.data', nullValue()))
     }
 
-    @DisplayName("when DELETE api/app-dev/application/unassign with invalid session then should return error data")
+    @DisplayName("when POST api/app-dev/application/unassign with invalid session then should return error data")
     @Test
     void test10() {
-        mockMvc.perform(delete(
+        mockMvc.perform(post(
                 "/api/app-dev/application/unassign")
                 .header("session", "session")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -219,11 +219,11 @@ class AppDevAppsControllerTest extends IntegrationTest {
                 .andExpect(MockMvcResultMatchers.jsonPath('$.description', is("Unauthorized")))
     }
 
-    @DisplayName("when DELETE api/app-dev/application/unassign with valid session and invalid app id then should return error data")
+    @DisplayName("when POST api/app-dev/application/unassign with valid session and invalid app id then should return error data")
     @Test
     void test11() {
         companyAdminSessionToken = loginUserAndSaveSession()
-        mockMvc.perform(delete(
+        mockMvc.perform(post(
                 "/api/app-dev/application/unassign")
                 .header("session", companyAdminSessionToken)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -236,10 +236,10 @@ class AppDevAppsControllerTest extends IntegrationTest {
                 .andExpect(MockMvcResultMatchers.jsonPath('$.description', is("No such application or member")))
     }
 
-    @DisplayName("when DELETE api/app-dev/application/unassign with valid session and invalid member id then should return error data")
+    @DisplayName("when POST api/app-dev/application/unassign with valid session and invalid member id then should return error data")
     @Test
     void test12() {
-        mockMvc.perform(delete(
+        mockMvc.perform(post(
                 "/api/app-dev/application/unassign")
                 .header("session", loginUserAndSaveSession())
                 .contentType(MediaType.APPLICATION_JSON)

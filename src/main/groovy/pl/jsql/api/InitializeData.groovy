@@ -1,5 +1,6 @@
 package pl.jsql.api
 
+import org.apache.commons.lang3.RandomStringUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import pl.jsql.api.dto.LoginRequest
@@ -186,7 +187,22 @@ class InitializeData {
             companyAdmin = userDao.findByCompanyAndRole(currentUser.company, roleDao.findByAuthority(RoleTypeEnum.COMPANY_ADMIN)).get(0)
         }
 
-        Application application = applicationService.createApplication(apiKey, companyAdmin, name)
+
+        UserRequest userRequest = new UserRequest()
+        userRequest.email = name + "@applicationDeveloper"
+        userRequest.firstName = "application"
+        userRequest.lastName = "developer"
+        userRequest.password = RandomStringUtils.randomAlphanumeric(10)
+        userRequest.company = companyAdmin.company.id
+        userRequest.role = RoleTypeEnum.APP_DEV.toString()
+        authService.register(userRequest)
+
+        User applicationDeveloper = userDao.findByEmail(name + "@applicationDeveloper")
+        applicationDeveloper.isFakeDeveloper = true
+        applicationDeveloper.activated = true
+        applicationDeveloper = userDao.save(applicationDeveloper)
+
+        Application application = applicationService.createApplication(apiKey, companyAdmin, name, applicationDeveloper)
 
         applicationService.assignUserToAppMember(companyAdmin, application)
 
