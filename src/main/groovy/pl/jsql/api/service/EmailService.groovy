@@ -8,7 +8,7 @@ class EmailService {
     private static final String USERNAME = "notification@jsql.it"
     private static final String PASSWORD = "xogvhonzmnnxbess"
     private static final String HOST = "smtp.gmail.com"
-    private static final int PORT = 25
+    private static final int PORT = 587
     private static final String FROM = "notification@jsql.it"
 
 
