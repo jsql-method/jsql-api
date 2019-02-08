@@ -5,11 +5,11 @@ import org.apache.commons.mail.Email
 import org.apache.commons.mail.SimpleEmail
 
 class EmailService {
-    private static final String USERNAME = "mailer@softwarecartoon.com"
-    private static final String PASSWORD = "m_@_i_l_e_r#123"
-    private static final String HOST = "softwarecartoon.com"
+    private static final String USERNAME = "notification@jsql.it"
+    private static final String PASSWORD = "xogvhonzmnnxbess"
+    private static final String HOST = "smtp.gmail.com"
     private static final int PORT = 25
-    private static final String FROM = "mailer@softwarecartoon.com"
+    private static final String FROM = "notification@jsql.it"
 
 
     static void sendEmail(String subject, String message, String recipient) {
