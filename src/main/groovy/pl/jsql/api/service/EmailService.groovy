@@ -17,6 +17,7 @@ class EmailService {
             @Override
             void run() {
                 Email email = new SimpleEmail()
+                email.setStartTLSEnabled(true)
                 email.setSmtpPort(PORT)
                 email.setAuthenticator(new DefaultAuthenticator(USERNAME,
                         PASSWORD))
