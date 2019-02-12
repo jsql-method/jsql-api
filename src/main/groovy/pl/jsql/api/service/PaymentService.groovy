@@ -44,6 +44,9 @@ class PaymentService {
     @Autowired
     RoleDao roleDao
 
+    @Autowired
+    UserService userService
+
     private static final String SUBSCRIPTION_CREATE = "subscription_create"
     private static final String SUBSCRIPTION_ACTIVATE = "subscription_activate"
     private static final String PAYMENT_FAILURE = "payment_failure"
@@ -99,6 +102,7 @@ class PaymentService {
                 }
 
                 plansDao.save(plan)
+                userService.forgotPassword(user.email, settingsDao.findByType(SettingEnum.ORIGIN_URL).toString())
 
                 break
 
