@@ -101,8 +101,8 @@ class PaymentService {
 
                 }
 
+                userService.forgotPassword(user.email, settingsDao.findByType(SettingEnum.ORIGIN_URL).value)
                 plansDao.save(plan)
-                userService.forgotPassword(user.email, settingsDao.findByType(SettingEnum.ORIGIN_URL).toString())
 
                 break
 
