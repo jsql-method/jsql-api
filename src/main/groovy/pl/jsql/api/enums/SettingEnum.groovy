@@ -4,7 +4,7 @@ enum SettingEnum {
 
     RESET_PASSWORD_LINK_EXPIRATION(2),
     ACTIVATION_LINK_EXPIRATION(7),
-    ORIGIN_URL("http://softwarecartoon.com")
+    ORIGIN_URL("https://customer.jsql.it")
 
     def defaultValue
 
