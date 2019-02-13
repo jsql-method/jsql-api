@@ -69,7 +69,7 @@ class PaymentService {
                 if (user == null) {
 
                     UserRequest userRequest = new UserRequest(RandomStringUtils.randomAlphanumeric(8), userEmail, "John", "Doe")
-                    userRequest.origin = settingsDao.findByType(SettingEnum.ORIGIN_URL)
+                    userRequest.origin = settingsDao.findByType(SettingEnum.ORIGIN_URL).value
                     authService.register(userRequest)
                     user = userDao.findByEmail(userEmail)
 
