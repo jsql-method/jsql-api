@@ -52,7 +52,6 @@ class PaymentService {
     private static final String PAYMENT_FAILURE = "payment_failure"
 
     void activeOrUnactivePlan(def request) {
-                printn "zmiany zostały zaciągnięte"
 
         String eventType = request.event_type
 
