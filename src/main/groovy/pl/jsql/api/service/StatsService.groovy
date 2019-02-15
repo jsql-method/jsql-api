@@ -83,7 +83,7 @@ class StatsService {
     def getBuildsByUser(BuildsRequest buildRequest) {
         SimpleDateFormat simplify = new SimpleDateFormat("HH:mm:ss dd-MM-YYY")
         User user = securityService.getCurrentAccount()
-        if (buildRequest.applications == null){
+        if (buildRequest.applications == null || buildRequest.applications == []){
             return [code: SUCCESS.getCode(), data: ""]
         }
         List<Build> builds = buildDao.findByCompanyAndCreatedDateBetween(buildRequest.dateFrom, buildRequest.dateTo, user.company, buildRequest.applications, buildRequest.members)
