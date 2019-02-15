@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import pl.jsql.api.dto.UserRequest
+import pl.jsql.api.enums.HttpMessageEnum
 import pl.jsql.api.enums.RoleTypeEnum
 import pl.jsql.api.model.hashing.Application
 import pl.jsql.api.model.hashing.ApplicationMembers
@@ -16,6 +17,7 @@ import pl.jsql.api.security.service.SecurityService
 import pl.jsql.api.utils.TokenUtil
 
 import static pl.jsql.api.enums.HttpMessageEnum.APPS_LIMIT_REACHED
+import static pl.jsql.api.enums.HttpMessageEnum.APP_ALREADY_EXISTS
 import static pl.jsql.api.enums.HttpMessageEnum.DEVS_LIMIT_REACHED
 import static pl.jsql.api.enums.HttpMessageEnum.DEVS_LIMIT_REACHED
 import static pl.jsql.api.enums.HttpMessageEnum.NO_SUCH_APP_OR_MEMBER
@@ -161,8 +163,11 @@ class ApplicationService {
     def create(String name) {
 
         User currentUser = securityService.getCurrentAccount()
-
         User companyAdmin = currentUser
+        if (applicationDao.findByNameAndCompany(name, currentUser.company) != null){
+            return [code: APP_ALREADY_EXISTS.getCode(), description: APP_ALREADY_EXISTS.getDescription()]
+        }
+
 
         if (currentUser.role.authority == RoleTypeEnum.APP_ADMIN) {
 
