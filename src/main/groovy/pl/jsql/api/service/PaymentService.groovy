@@ -101,7 +101,7 @@ class PaymentService {
 
                 }
 
-                userService.forgotPassword(user.email, "https://customer.jsql.it/")
+                userService.forgotPassword(user.email, settingsDao.findByType(SettingEnum.ORIGIN_URL).value)
                 plansDao.save(plan)
 
                 break
