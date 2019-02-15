@@ -30,7 +30,8 @@ public enum HttpMessageEnum {
     COMPANY_NOT_FOUND(622, "Company with given id does not exist"),
     NO_ACTIVE_PLAN(623, "Your plan is not active. Make sure that your payment was successful or change your plan to `STARTER`"),
     APPS_LIMIT_REACHED(624, "You can not create more applications because of your plan"),
-    DEVS_LIMIT_REACHED(625, "You can not create more members because of your plan");
+    DEVS_LIMIT_REACHED(625, "You can not create more members because of your plan"),
+    APP_ALREADY_EXISTS(626, "There is an application with given name");
 
     Integer code;
     String description;
