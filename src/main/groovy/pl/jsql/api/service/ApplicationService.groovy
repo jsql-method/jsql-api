@@ -164,7 +164,11 @@ class ApplicationService {
 
         User currentUser = securityService.getCurrentAccount()
         User companyAdmin = currentUser
-        if (applicationDao.findByNameAndCompany(name, currentUser.company) != null){
+        Application app = applicationDao.findByNameAndCompany(name, currentUser.company)
+        if (app != null && !app.active) {
+            app.active = true
+            return [code: SUCCESS.getCode(), data: null]
+        } else if (app != null) {
             return [code: APP_ALREADY_EXISTS.getCode(), description: APP_ALREADY_EXISTS.getDescription()]
         }
 
