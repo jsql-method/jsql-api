@@ -22,6 +22,9 @@ interface UserDao extends CrudRepository<User, Long> {
     @Query("select u from User u where u.company = :company and u.role = :role and u.enabled = true")
     List<User> findByCompanyAndRole(@Param('company') Company company, @Param('role') Role role)
 
+    @Query("select u from User u where u.company = :company and u.role = :role and u.enabled = true and u.isFakeDeveloper <> true")
+    List<User> findyByCompanyAndRoleWithoutFake(@Param('company') Company company, @Param('role') Role role)
+
     @Modifying
     @Query("delete from User u where u.role = :role")
     void removeAllByRole(@Param('role') Role role)
