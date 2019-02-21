@@ -45,7 +45,7 @@ class AppDevService {
 
         Company company = securityService.getCurrentAccount().company
 
-        def list = userDao.findByCompanyAndRole(company, roleDao.findByAuthority(RoleTypeEnum.APP_DEV))
+        def list = userDao.findyByCompanyAndRoleWithoutFake(company, roleDao.findByAuthority(RoleTypeEnum.APP_DEV))
         def memberList = []
 
         for (User user : list) {
