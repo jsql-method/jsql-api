@@ -165,7 +165,10 @@ class ApplicationService {
         if (app != null && !app.active) {
             app.active = true
             User applicationDeveloper = createFakeDeveloper(name, companyAdmin)
-            assignUserToAppMember(applicationDeveloper, app)
+            app.developer = applicationDeveloper
+
+            applicationDao.save(app)
+            
             return [code: SUCCESS.getCode(), data: null]
         } else if (app != null) {
             return [code: APP_ALREADY_EXISTS.getCode(), description: APP_ALREADY_EXISTS.getDescription()]
