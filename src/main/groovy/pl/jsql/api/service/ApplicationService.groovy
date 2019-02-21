@@ -168,7 +168,7 @@ class ApplicationService {
             app.developer = applicationDeveloper
 
             applicationDao.save(app)
-            
+
             return [code: SUCCESS.getCode(), data: null]
         } else if (app != null) {
             return [code: APP_ALREADY_EXISTS.getCode(), description: APP_ALREADY_EXISTS.getDescription()]
