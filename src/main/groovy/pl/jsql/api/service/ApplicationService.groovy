@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import pl.jsql.api.dto.UserRequest
-import pl.jsql.api.enums.HttpMessageEnum
 import pl.jsql.api.enums.RoleTypeEnum
 import pl.jsql.api.model.hashing.Application
 import pl.jsql.api.model.hashing.ApplicationMembers
@@ -18,8 +17,6 @@ import pl.jsql.api.utils.TokenUtil
 
 import static pl.jsql.api.enums.HttpMessageEnum.APPS_LIMIT_REACHED
 import static pl.jsql.api.enums.HttpMessageEnum.APP_ALREADY_EXISTS
-import static pl.jsql.api.enums.HttpMessageEnum.DEVS_LIMIT_REACHED
-import static pl.jsql.api.enums.HttpMessageEnum.DEVS_LIMIT_REACHED
 import static pl.jsql.api.enums.HttpMessageEnum.NO_SUCH_APP_OR_MEMBER
 import static pl.jsql.api.enums.HttpMessageEnum.SUCCESS
 
@@ -167,6 +164,8 @@ class ApplicationService {
         Application app = applicationDao.findByNameAndCompany(name, currentUser.company)
         if (app != null && !app.active) {
             app.active = true
+            User applicationDeveloper = createFakeDeveloper(name, companyAdmin)
+            assignUserToAppMember(applicationDeveloper, app)
             return [code: SUCCESS.getCode(), data: null]
         } else if (app != null) {
             return [code: APP_ALREADY_EXISTS.getCode(), description: APP_ALREADY_EXISTS.getDescription()]
@@ -186,19 +185,7 @@ class ApplicationService {
 
         }
 
-        UserRequest userRequest = new UserRequest()
-        userRequest.email = name + "@applicationDeveloper"
-        userRequest.firstName = "application"
-        userRequest.lastName = "developer"
-        userRequest.password = RandomStringUtils.randomAlphanumeric(10)
-        userRequest.company = companyAdmin.company.id
-        userRequest.role = RoleTypeEnum.APP_DEV.toString()
-        authService.register(userRequest)
-
-        User applicationDeveloper = userDao.findByEmail(name + "@applicationDeveloper")
-        applicationDeveloper.isFakeDeveloper = true
-        applicationDeveloper.activated = true
-        applicationDeveloper = userDao.save(applicationDeveloper)
+        User applicationDeveloper = createFakeDeveloper(name, companyAdmin)
 
         String apiKey = "==" + this.generateApplication(name)
 
@@ -212,6 +199,23 @@ class ApplicationService {
 
         return [code: SUCCESS.getCode(), data: null]
 
+    }
+
+    private User createFakeDeveloper(String name, User companyAdmin) {
+        UserRequest userRequest = new UserRequest()
+        userRequest.email = name + "@applicationDeveloper"
+        userRequest.firstName = "application"
+        userRequest.lastName = "developer"
+        userRequest.password = RandomStringUtils.randomAlphanumeric(10)
+        userRequest.company = companyAdmin.company.id
+        userRequest.role = RoleTypeEnum.APP_DEV.toString()
+        authService.register(userRequest)
+
+        User applicationDeveloper = userDao.findByEmail(name + "@applicationDeveloper")
+        applicationDeveloper.isFakeDeveloper = true
+        applicationDeveloper.activated = true
+        applicationDeveloper = userDao.save(applicationDeveloper)
+        applicationDeveloper
     }
 
     def disable(Long id) {
