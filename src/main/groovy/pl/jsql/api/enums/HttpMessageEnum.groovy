@@ -1,6 +1,7 @@
 package pl.jsql.api.enums;
 
 public enum HttpMessageEnum {
+
     SUCCESS(200, ""),
     BAD_REQUEST(400, "Bad request"),
     UNAUTHORIZED(401, "Unauthorized"),
@@ -49,4 +50,5 @@ public enum HttpMessageEnum {
     public String getDescription() {
         return description;
     }
+
 }

@@ -4,51 +4,42 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import pl.jsql.api.dto.MemberAssignRequest
+import pl.jsql.api.controller.generic.ValidateController
+import pl.jsql.api.dto.request.MemberAssignRequest
+import pl.jsql.api.dto.response.BasicResponse
 import pl.jsql.api.enums.RoleTypeEnum
 import pl.jsql.api.security.annotation.Security
 import pl.jsql.api.service.AppDevAppsService
 
+import javax.validation.Valid
+
 @CrossOrigin
 @RestController
 @RequestMapping("/api/app-dev/application")
-class AppDevAppsController {
+class AppDevAppsController extends ValidateController {
 
     @Autowired
     AppDevAppsService appDevAppsService
 
-
     @Security(roles = [RoleTypeEnum.ADMIN, RoleTypeEnum.COMPANY_ADMIN, RoleTypeEnum.APP_ADMIN])
     @PostMapping
-    def assign(
-            @RequestBody MemberAssignRequest memberAssignRequest,
-            @RequestHeader(value = "Session", required = false) String session) {
-
+    BasicResponse assign(@RequestBody @Valid MemberAssignRequest memberAssignRequest) {
         def response = appDevAppsService.assign(memberAssignRequest)
-
-        return new ResponseEntity(response, HttpStatus.OK)
+        return new BasicResponse(status: 200, data: response)
     }
 
     @Security
     @GetMapping("/{id}")
-    def getAll(
-            @PathVariable("id") Long id,
-            @RequestHeader(value = "Session", required = false) String session) {
-
+    BasicResponse getAll(@PathVariable("id") Long id) {
         def response = appDevAppsService.getAll(id)
-
-        return new ResponseEntity(response, HttpStatus.OK)
+        return new BasicResponse(status: 200, data: response)
     }
 
     @Security(roles = [RoleTypeEnum.ADMIN, RoleTypeEnum.COMPANY_ADMIN, RoleTypeEnum.APP_ADMIN])
     @PostMapping("/unassign")
-    def unassign(
-            @RequestHeader(value = "Session", required = false) String session,
-            @RequestBody MemberAssignRequest memberAssignRequest) {
-
+    BasicResponse unassign(@RequestBody @Valid MemberAssignRequest memberAssignRequest) {
         def response = appDevAppsService.unassign(memberAssignRequest)
-
-        return new ResponseEntity(response, HttpStatus.OK)
+        return new BasicResponse(status: 200, data: response)
     }
 
 }

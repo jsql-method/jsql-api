@@ -10,10 +10,6 @@ import javax.transaction.Transactional
 
 @Transactional
 interface BuildDao extends CrudRepository<Build, Long> {
-    List<Build> findAllByOrderByHashingDateAsc()
-
-    @Query("select r from Build r where r.user.company = :company order by r.hashingDate asc")
-    List<Build> findByCompanyQuery(@Param("company") Company company)
 
     @Query("SELECT t FROM Build t where t.hashingDate >= :from and t.hashingDate <= :to and t.user.company = :company and t.application.id in :apps and t.user.id in :users")
     List<Build> findByCompanyAndCreatedDateBetween(

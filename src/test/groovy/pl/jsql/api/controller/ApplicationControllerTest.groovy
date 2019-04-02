@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
-import pl.jsql.api.dto.LoginRequest
+import pl.jsql.api.dto.request.LoginRequest
 import pl.jsql.api.enums.PlansEnum
 import pl.jsql.api.misc.IntegrationTest
 import pl.jsql.api.misc.TestUtils

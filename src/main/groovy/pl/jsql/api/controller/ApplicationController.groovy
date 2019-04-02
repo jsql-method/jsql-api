@@ -4,54 +4,49 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import pl.jsql.api.controller.generic.ValidateController
+import pl.jsql.api.dto.request.ApplicationCreateRequest
+import pl.jsql.api.dto.response.BasicResponse
 import pl.jsql.api.enums.RoleTypeEnum
 import pl.jsql.api.security.annotation.Security
 import pl.jsql.api.service.ApplicationService
 
+import javax.validation.Valid
+
 @CrossOrigin
 @RestController
 @RequestMapping("/api/application")
-class ApplicationController {
+class ApplicationController extends ValidateController {
 
     @Autowired
     ApplicationService applicationService
 
     @Security(roles = [RoleTypeEnum.ADMIN, RoleTypeEnum.COMPANY_ADMIN, RoleTypeEnum.APP_ADMIN])
     @PostMapping
-    def create(
-            @RequestBody def name,
-            @RequestHeader(value = "Session", required = false) String session) {
-
-        def response = applicationService.create(String.valueOf(name.name))
-
-        return new ResponseEntity(response, HttpStatus.OK)
+    BasicResponse create(@RequestBody @Valid ApplicationCreateRequest name) {
+        def response = applicationService.create(name.name)
+        return new BasicResponse(status: 200, data: response)
     }
 
     @Security
     @GetMapping
-    def getAll(@RequestHeader(value = "Session", required = false) String session) {
-
+    BasicResponse getAll() {
         def response = applicationService.getAll()
-
-        return new ResponseEntity(response, HttpStatus.OK)
+        return new BasicResponse(status: 200, data: response)
     }
 
     @Security
     @GetMapping("/{id}")
-    def get(@PathVariable("id") Long id, @RequestHeader(value = "Session", required = false) String session) {
-
-
+    BasicResponse get(@PathVariable("id") Long id) {
         def response = applicationService.getById(id)
-
-        return new ResponseEntity(response, HttpStatus.OK)
+        return new BasicResponse(status: 200, data: response)
     }
 
     @Security(roles = [RoleTypeEnum.ADMIN, RoleTypeEnum.COMPANY_ADMIN, RoleTypeEnum.APP_ADMIN])
     @PatchMapping("/{id}")
-    def disable(@PathVariable("id") Long id, @RequestHeader(value = "Session", required = false) String session) {
-
+    BasicResponse disable(@PathVariable("id") Long id) {
         def response = applicationService.disable(id)
-
-        return new ResponseEntity(response, HttpStatus.OK)
+        return new BasicResponse(status: 200, data: response)
     }
+
 }

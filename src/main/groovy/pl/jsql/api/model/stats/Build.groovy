@@ -1,5 +1,6 @@
 package pl.jsql.api.model.stats
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import pl.jsql.api.model.hashing.Application
 import pl.jsql.api.model.user.User
 
@@ -9,6 +10,7 @@ import javax.validation.constraints.NotNull
 @Entity
 @Table(name = "build")
 class Build {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id
@@ -22,6 +24,8 @@ class Build {
     User user
 
     @NotNull
+    @JsonFormat(pattern = "dd-MM-yyyy hh:mm:ss")
+    @Temporal(TemporalType.TIMESTAMP)
     Date hashingDate
 
     @NotNull

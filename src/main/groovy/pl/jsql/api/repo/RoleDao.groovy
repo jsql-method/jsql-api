@@ -10,5 +10,6 @@ import javax.transaction.Transactional
 interface RoleDao extends CrudRepository<Role, Long> {
 
     Role findByAuthority(RoleTypeEnum authority)
+
 }
 

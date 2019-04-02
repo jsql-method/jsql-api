@@ -8,12 +8,14 @@ import javax.validation.constraints.NotNull
 
 
 @Entity
-@Table(name = "webhook")
+@Table(name = "pabbly_webhook")
 class Webhook {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id
 
     @Type(type = "org.hibernate.type.TextType")
     String requestText
+
 }

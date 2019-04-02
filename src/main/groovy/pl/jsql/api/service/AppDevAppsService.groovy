@@ -2,7 +2,7 @@ package pl.jsql.api.service
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import pl.jsql.api.dto.MemberAssignRequest
+import pl.jsql.api.dto.request.MemberAssignRequest
 import pl.jsql.api.model.hashing.Application
 import pl.jsql.api.model.hashing.ApplicationMembers
 import pl.jsql.api.model.user.User

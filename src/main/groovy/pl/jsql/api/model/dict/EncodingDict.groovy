@@ -4,8 +4,9 @@ import javax.persistence.*
 import javax.validation.constraints.NotNull
 
 @Entity
-@Table(name = "encoding_enum")
+@Table(name = "encoding_dict")
 class EncodingDict {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id

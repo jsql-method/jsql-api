@@ -5,5 +5,4 @@ public enum EncodingEnum {
     MD5,
     SHA256
 
-
 }

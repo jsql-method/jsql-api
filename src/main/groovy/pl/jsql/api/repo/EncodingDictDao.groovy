@@ -11,5 +11,6 @@ interface EncodingDictDao extends CrudRepository<EncodingDict, Long> {
     EncodingDict findByName(String name)
 
     EncodingDict findByValue(String value)
+
 }
 

@@ -9,6 +9,7 @@ import javax.validation.constraints.NotNull
 @Entity
 @Table(name = "application")
 class Application {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id

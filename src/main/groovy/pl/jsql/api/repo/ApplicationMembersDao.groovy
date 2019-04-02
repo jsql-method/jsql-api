@@ -12,6 +12,7 @@ import javax.transaction.Transactional
 
 @Transactional
 interface ApplicationMembersDao extends CrudRepository<ApplicationMembers, Long> {
+
     @Query("SELECT t FROM ApplicationMembers t where t.member = :member and t.application.active = true")
     List<ApplicationMembers> findByUserQuery(@Param("member") User member)
 
@@ -37,5 +38,6 @@ interface ApplicationMembersDao extends CrudRepository<ApplicationMembers, Long>
     @Modifying
     @Query("delete from ApplicationMembers t where t.member = :member")
     void deleteAllByUser(@Param("member") User member)
+
 }
 

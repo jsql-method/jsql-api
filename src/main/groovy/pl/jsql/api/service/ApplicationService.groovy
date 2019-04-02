@@ -4,7 +4,7 @@ import org.apache.commons.lang3.RandomStringUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import pl.jsql.api.dto.UserRequest
+import pl.jsql.api.dto.request.UserRequest
 import pl.jsql.api.enums.RoleTypeEnum
 import pl.jsql.api.model.hashing.Application
 import pl.jsql.api.model.hashing.ApplicationMembers
@@ -35,9 +35,6 @@ class ApplicationService {
 
     @Autowired
     DatabaseDialectDictDao databaseDialectDao
-
-    @Autowired
-    ApplicationLanguageDictDao applicationLanguageDao
 
     @Autowired
     EncodingDictDao encodingEnumDao
@@ -215,7 +212,7 @@ class ApplicationService {
         authService.register(userRequest)
 
         User applicationDeveloper = userDao.findByEmail(name + "@applicationDeveloper")
-        applicationDeveloper.isFakeDeveloper = true
+        applicationDeveloper.isProductionDeveloper = true
         applicationDeveloper.activated = true
         applicationDeveloper = userDao.save(applicationDeveloper)
         applicationDeveloper
@@ -303,7 +300,6 @@ class ApplicationService {
         options.removeQueriesAfterBuild = true
 
         options.databaseDialect = databaseDialectDao.findByName('POSTGRES')
-        options.applicationLanguage = applicationLanguageDao.findByName('JAVA')
 
         optionsDao.save(options)
     }

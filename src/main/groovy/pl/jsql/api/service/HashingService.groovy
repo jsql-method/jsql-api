@@ -51,7 +51,6 @@ class HashingService {
                 hashMaxLenght          : options.hashMaxLength,
                 removeQueriesAfterBuild: options.removeQueriesAfterBuild,
                 databaseDialect        : options.databaseDialect.name,
-                applicationLanguage    : options.applicationLanguage.name,
                 allowedPlainQueries    : options.allowedPlainQueries,
                 prod                   : options.prod
         ]

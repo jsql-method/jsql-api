@@ -3,17 +3,13 @@ package pl.jsql.api.service
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import pl.jsql.api.dto.QueryUpdateRequest
-import pl.jsql.api.enums.RoleTypeEnum
-import pl.jsql.api.model.hashing.Application
+import pl.jsql.api.dto.request.QueryUpdateRequest
 import pl.jsql.api.model.hashing.Query
 import pl.jsql.api.model.user.User
 import pl.jsql.api.repo.ApplicationDao
 import pl.jsql.api.repo.MemberKeyDao
 import pl.jsql.api.repo.QueryDao
 import pl.jsql.api.utils.Utils
-
-import java.text.SimpleDateFormat
 
 import static pl.jsql.api.enums.HttpMessageEnum.*
 
@@ -46,8 +42,7 @@ class ApiService {
         def clientOptions = hashingService.getClientOptions(apiKey).data
 
         return [code: SUCCESS.getCode(), data: [
-                databaseDialect    : clientOptions.databaseDialect.toString(),
-                applicationLanguage: clientOptions.applicationLanguage.toString()]
+                databaseDialect    : clientOptions.databaseDialect.toString()]
         ]
     }
 

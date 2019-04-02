@@ -9,6 +9,7 @@ import javax.validation.constraints.NotNull
 @Entity
 @Table(name = "settings")
 class Settings {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id
@@ -21,8 +22,8 @@ class Settings {
     @NotNull
     String value
 
-    @Enumerated(EnumType.STRING)
     @NotNull
+    @Enumerated(EnumType.STRING)
     SettingEnum type
 
 }

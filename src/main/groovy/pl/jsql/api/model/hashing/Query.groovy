@@ -1,5 +1,6 @@
 package pl.jsql.api.model.hashing
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import pl.jsql.api.model.user.User
 
 import javax.persistence.*
@@ -8,6 +9,7 @@ import javax.validation.constraints.NotNull
 @Entity
 @Table(name = "query")
 class Query {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id
@@ -33,7 +35,8 @@ class Query {
     Boolean dynamic
 
     @NotNull
+    @JsonFormat(pattern = "dd-MM-yyyy hh:mm:ss")
+    @Temporal(TemporalType.TIMESTAMP)
     Date queryDate
-
 
 }

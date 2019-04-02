@@ -1,4 +1,4 @@
-package pl.jsql.api.dto
+package pl.jsql.api.dto.request
 
 class OptionsRequest {
 
@@ -14,10 +14,7 @@ class OptionsRequest {
     Integer hashMaxLength
     Boolean removeQueriesAfterBuild
     String databaseDialect
-    String applicationLanguage
     Boolean allowedPlainQueries
     Boolean prod
 
-    OptionsRequest() {
-    }
 }

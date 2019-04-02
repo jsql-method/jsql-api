@@ -8,6 +8,7 @@ import javax.transaction.Transactional
 
 @Transactional
 interface PlansDao extends CrudRepository<Plans, Long> {
+
     Plans findFirstByCompany(Company company)
 
 }

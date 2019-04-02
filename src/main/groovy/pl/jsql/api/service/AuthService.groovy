@@ -7,11 +7,10 @@ import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import pl.jsql.api.dto.LoginRequest
-import pl.jsql.api.dto.UserRequest
+import pl.jsql.api.dto.request.LoginRequest
+import pl.jsql.api.dto.request.UserRequest
 import pl.jsql.api.enums.PlansEnum
 import pl.jsql.api.enums.RoleTypeEnum
-import pl.jsql.api.enums.SettingEnum
 import pl.jsql.api.model.hashing.MemberKey
 import pl.jsql.api.model.payment.Plans
 import pl.jsql.api.model.user.Company
@@ -61,7 +60,7 @@ class AuthService {
 
         if (request.role && request.role != "COMPANY_ADMIN" && request.role != "ADMIN") {
 
-            user.role = roleDao.findByAuthority(RoleTypeEnum.fromString(request.role))
+            user.role = roleDao.findByAuthority(RoleTypeEnum.valueOf(request.role))
 
         } else {
 
@@ -231,7 +230,7 @@ class AuthService {
         user.lastName = request.lastName
         user.accountExpired = false
         user.accountLocked = false
-        user.isFakeDeveloper = false
+        user.isProductionDeveloper = false
         user.passwordExpired = false
         user.registerDate = new Date()
         user.enabled = true

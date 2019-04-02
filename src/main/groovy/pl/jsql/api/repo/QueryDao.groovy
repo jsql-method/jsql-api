@@ -16,12 +16,6 @@ interface QueryDao extends CrudRepository<Query, Long> {
 
     Query findByHashAndApplication(String hash, Application application)
 
-    List<Query> findAllByApplication(Application application)
-
-    List<Query> findAllByApplicationAndUser(Application application, User user)
-
-    Query findByHash(String hash)
-
     Query findByApplicationAndUserAndQuery(Application application, User user, String query)
 
     Query findByApplicationAndUserAndHash(Application application, User user, String hash)

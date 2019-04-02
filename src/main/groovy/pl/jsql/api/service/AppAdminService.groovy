@@ -3,7 +3,7 @@ package pl.jsql.api.service
 import org.apache.commons.lang3.RandomStringUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import pl.jsql.api.dto.UserRequest
+import pl.jsql.api.dto.request.UserRequest
 import pl.jsql.api.enums.RoleTypeEnum
 import pl.jsql.api.model.hashing.ApplicationMembers
 import pl.jsql.api.model.user.Company
@@ -105,12 +105,11 @@ class AppAdminService {
         def memberList = []
 
         for (User user : list) {
-
             memberList.add([id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName])
-
         }
 
         return [code: SUCCESS.getCode(), data: memberList]
+
     }
 
     def demote(UserRequest userRequest) {

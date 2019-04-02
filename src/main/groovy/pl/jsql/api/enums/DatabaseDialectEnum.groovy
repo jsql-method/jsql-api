@@ -5,5 +5,4 @@ public enum DatabaseDialectEnum {
     POSTGRES,
     MYSQL
 
-
 }

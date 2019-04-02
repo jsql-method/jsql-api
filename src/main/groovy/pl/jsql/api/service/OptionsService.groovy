@@ -3,7 +3,7 @@ package pl.jsql.api.service
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import pl.jsql.api.dto.OptionsRequest
+import pl.jsql.api.dto.request.OptionsRequest
 import pl.jsql.api.enums.RoleTypeEnum
 import pl.jsql.api.model.hashing.Application
 import pl.jsql.api.model.hashing.ApplicationMembers
@@ -26,9 +26,6 @@ class OptionsService {
 
     @Autowired
     DatabaseDialectDictDao databaseDialectDao
-
-    @Autowired
-    ApplicationLanguageDictDao applicationLanguageDao
 
     @Autowired
     EncodingDictDao encodingEnumDao
@@ -95,7 +92,6 @@ class OptionsService {
                             hashMaxLenght          : appOptions.hashMaxLength,
                             removeQueriesAfterBuild: appOptions.removeQueriesAfterBuild,
                             databaseDialect        : appOptions.databaseDialect.value,
-                            applicationLanguage    : appOptions.applicationLanguage.value,
                             allowedPlainQueries    : appOptions.allowedPlainQueries,
                             prod                   : appOptions.prod
                     ]
@@ -162,7 +158,6 @@ class OptionsService {
                 hashMaxLenght          : appOptions.hashMaxLength,
                 removeQueriesAfterBuild: appOptions.removeQueriesAfterBuild,
                 databaseDialect        : appOptions.databaseDialect.value,
-                applicationLanguage    : appOptions.applicationLanguage.value,
                 allowedPlainQueries    : appOptions.allowedPlainQueries,
                 prod                   : appOptions.prod
         ]
@@ -213,12 +208,6 @@ class OptionsService {
             appOptions.setDatabaseDialect(databaseDialectValue)
         }
 
-        def applicationLanguageValue = applicationLanguageDao.findByValue(optionsRequest.applicationLanguage)
-
-        if (applicationLanguageValue) {
-            appOptions.setApplicationLanguage(applicationLanguageValue)
-        }
-
         return [code: SUCCESS.getCode(), data: null]
     }
 
@@ -228,7 +217,6 @@ class OptionsService {
         list << [
                 encodingAlgorithmValues  : encodingEnumDao.findAll(),
                 databaseDialectValues    : databaseDialectDao.findAll(),
-                applicationLanguageValues: applicationLanguageDao.findAll()
         ]
 
         return [code: SUCCESS.getCode(), data: list]

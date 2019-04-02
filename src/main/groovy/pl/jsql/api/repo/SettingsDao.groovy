@@ -8,6 +8,8 @@ import javax.transaction.Transactional
 
 @Transactional
 interface SettingsDao extends CrudRepository<Settings, Long> {
+
     Settings findByType(SettingEnum type)
+
 }
 

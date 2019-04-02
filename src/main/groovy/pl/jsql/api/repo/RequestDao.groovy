@@ -13,9 +13,6 @@ import javax.transaction.Transactional
 @Transactional
 interface RequestDao extends CrudRepository<Request, Long> {
 
-    @Query("select r from Request r where r.user.company = :company order by r.requestDate asc")
-    List<Request> findByCompanyQuery(@Param("company") Company company)
-
     @Query("SELECT count(t), hour(t.requestDate) FROM Request t where day(t.requestDate) = :day and month(t.requestDate) = :month and year(t.requestDate) = :year and t.application = :application group by hour(t.requestDate)")
     List<List<Long>> countByHour(
             @Param("application") Application application,
@@ -26,5 +23,6 @@ interface RequestDao extends CrudRepository<Request, Long> {
                                                                @Param("to") Date to,
                                                                @Param("company") Company company,
                                                                @Param("apps") List<Long> apps)
+
 }
 

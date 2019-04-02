@@ -1,14 +1,12 @@
 package pl.jsql.api.service
 
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import pl.jsql.api.dto.BuildsRequest
-import pl.jsql.api.dto.QueriesRequest
-import pl.jsql.api.dto.RequestsRequest
-import pl.jsql.api.enums.RoleTypeEnum
+import pl.jsql.api.dto.request.BuildsRequest
+import pl.jsql.api.dto.request.QueriesRequest
+import pl.jsql.api.dto.request.RequestsRequest
 import pl.jsql.api.model.hashing.Application
 import pl.jsql.api.model.hashing.Query
 import pl.jsql.api.model.stats.Build
@@ -20,9 +18,7 @@ import pl.jsql.api.repo.QueryDao
 import pl.jsql.api.repo.RequestDao
 import pl.jsql.api.security.service.SecurityService
 
-import java.text.DateFormat
 import java.text.SimpleDateFormat
-import java.time.LocalDateTime
 
 import static pl.jsql.api.enums.HttpMessageEnum.SUCCESS
 

@@ -8,10 +8,13 @@ import javax.validation.constraints.NotNull
 @Entity
 @Table(name = "role")
 class Role {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     RoleTypeEnum authority
+
 }

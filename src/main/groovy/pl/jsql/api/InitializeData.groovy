@@ -3,11 +3,9 @@ package pl.jsql.api
 import org.apache.commons.lang3.RandomStringUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import pl.jsql.api.dto.LoginRequest
-import pl.jsql.api.dto.UserRequest
+import pl.jsql.api.dto.request.LoginRequest
+import pl.jsql.api.dto.request.UserRequest
 import pl.jsql.api.enums.*
-import pl.jsql.api.jobs.LicenseWatchJob
-import pl.jsql.api.model.dict.ApplicationLanguageDict
 import pl.jsql.api.model.dict.DatabaseDialectDict
 import pl.jsql.api.model.dict.EncodingDict
 import pl.jsql.api.model.dict.Settings
@@ -38,9 +36,6 @@ class InitializeData {
 
     @Autowired
     DatabaseDialectDictDao databaseDialectDao
-
-    @Autowired
-    ApplicationLanguageDictDao applicationLanguageDao
 
     @Autowired
     EncodingDictDao encodingEnumDao
@@ -82,21 +77,6 @@ class InitializeData {
             databaseDialect.name = dialect.toString()
             databaseDialect.value = dialect.toString()
             databaseDialectDao.save(databaseDialect)
-        }
-
-    }
-
-    def initApplicationLanguages() {
-
-        if (applicationLanguageDao.count() > 0) {
-            return
-        }
-
-        for (ApplicationLanguageEnum encoding : ApplicationLanguageEnum.values()) {
-            ApplicationLanguageDict applicationLanguage = new ApplicationLanguageDict()
-            applicationLanguage.name = encoding.toString()
-            applicationLanguage.value = encoding.toString()
-            applicationLanguageDao.save(applicationLanguage)
         }
 
     }
@@ -169,7 +149,6 @@ class InitializeData {
 
         initRoles()
         initDatabaseDialects()
-        initApplicationLanguages()
         initEncodings()
         initSettings()
         createFullCompanyAdmin()
@@ -198,7 +177,7 @@ class InitializeData {
         authService.register(userRequest)
 
         User applicationDeveloper = userDao.findByEmail(name + "@applicationDeveloper")
-        applicationDeveloper.isFakeDeveloper = true
+        applicationDeveloper.isProductionDeveloper = true
         applicationDeveloper.activated = true
         applicationDeveloper = userDao.save(applicationDeveloper)
 

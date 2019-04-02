@@ -4,8 +4,9 @@ import javax.persistence.*
 import javax.validation.constraints.NotNull
 
 @Entity
-@Table(name = "database_dialect")
+@Table(name = "database_dialect_dict")
 class DatabaseDialectDict {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id

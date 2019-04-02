@@ -7,7 +7,7 @@ import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import pl.jsql.api.dto.UserRequest
+import pl.jsql.api.dto.request.UserRequest
 import pl.jsql.api.enums.RoleTypeEnum
 import pl.jsql.api.enums.SettingEnum
 import pl.jsql.api.model.user.Company

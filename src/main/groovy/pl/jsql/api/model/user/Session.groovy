@@ -1,5 +1,6 @@
 package pl.jsql.api.model.user
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
 import org.hibernate.annotations.Type
 
@@ -28,10 +29,12 @@ class Session {
     String ipAddress
 
     @NotNull
-    @Temporal(TemporalType.DATE)
+    @JsonFormat(pattern = "dd-MM-yyyy hh:mm:ss")
+    @Temporal(TemporalType.TIMESTAMP)
     Date createdDate
 
-    @Temporal(TemporalType.DATE)
+    @JsonFormat(pattern = "dd-MM-yyyy hh:mm:ss")
+    @Temporal(TemporalType.TIMESTAMP)
     Date closedDate
 
 }
