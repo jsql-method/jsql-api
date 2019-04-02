@@ -15,7 +15,9 @@ import pl.jsql.api.model.user.Company
 import pl.jsql.api.model.user.Role
 import pl.jsql.api.model.user.User
 import pl.jsql.api.repo.*
-import pl.jsql.api.service.*
+import pl.jsql.api.service.ApplicationService
+import pl.jsql.api.service.AuthService
+import pl.jsql.api.service.UserService
 
 import javax.annotation.PostConstruct
 

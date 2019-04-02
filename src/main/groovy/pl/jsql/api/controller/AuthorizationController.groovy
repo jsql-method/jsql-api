@@ -1,8 +1,6 @@
 package pl.jsql.api.controller
 
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import pl.jsql.api.controller.generic.ValidateController
 import pl.jsql.api.dto.request.LoginRequest
@@ -10,13 +8,9 @@ import pl.jsql.api.dto.request.UserRequest
 import pl.jsql.api.dto.response.BasicResponse
 import pl.jsql.api.security.annotation.Security
 import pl.jsql.api.service.AuthService
-import pl.jsql.api.service.SessionService
 
 import javax.servlet.http.HttpServletRequest
 import javax.validation.Valid
-
-import static pl.jsql.api.enums.HttpMessageEnum.ALREADY_AUTHORIZED
-import static pl.jsql.api.enums.HttpMessageEnum.SUCCESS
 
 @CrossOrigin
 @RestController
@@ -25,9 +19,6 @@ class AuthorizationController extends ValidateController {
 
     @Autowired
     AuthService authService
-
-    @Autowired
-    SessionService sessionService
 
     @Security(requireActiveSession = false)
     @PostMapping("/login")
@@ -41,7 +32,7 @@ class AuthorizationController extends ValidateController {
     @Security
     @DeleteMapping("/logout")
     BasicResponse logout() {
-        sessionService.removeSession()
+        authService.logout()
         return new BasicResponse(status: 200, data: null)
     }
 

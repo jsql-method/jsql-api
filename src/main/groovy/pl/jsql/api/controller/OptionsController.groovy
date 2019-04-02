@@ -1,8 +1,6 @@
 package pl.jsql.api.controller
 
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import pl.jsql.api.controller.generic.ValidateController
 import pl.jsql.api.dto.request.OptionsRequest

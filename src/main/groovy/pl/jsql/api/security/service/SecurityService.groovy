@@ -10,6 +10,7 @@ import pl.jsql.api.exceptions.SecurityException
 import pl.jsql.api.model.user.Session
 import pl.jsql.api.model.user.User
 import pl.jsql.api.repo.SessionDao
+import pl.jsql.api.security.interceptor.HashingSecurityInterceptor
 
 import javax.servlet.http.HttpServletRequest
 
@@ -63,17 +64,58 @@ class SecurityService {
      * Zwraca kod autoryzacyjny aktualnie autoryzowanego
      * @return
      */
-    private Session getAuthorizationToken() {
+    Session getAuthorizationToken() {
 
         String sessionToken = request.getHeader("session")
 
         if (sessionToken != null && !sessionToken.isEmpty()) {
-
             return sessionDao.findBySessionHash(sessionToken)
-
         }
 
         return null
+    }
+
+    String getApiKey(){
+        return request.getHeader(HashingSecurityInterceptor.API_KEY_HEADER)
+    }
+
+
+    String getMemberKey(){
+        return request.getHeader(HashingSecurityInterceptor.MEMBER_KEY_HEADER)
+    }
+
+    Boolean isLogged(){
+
+        String sessionToken = this.getAuthorizationToken()
+
+        if(sessionToken == null){
+            return false;
+        }
+
+        Session session = sessionDao.findBySessionHash(sessionToken)
+
+        return session == null ? false : session.closedDate == null
+
+    }
+
+    void removeSession() {
+
+        String sessionToken = this.getAuthorizationToken()
+
+        if(sessionToken == null){
+            return
+        }
+
+        Session session = sessionDao.findBySessionHash(sessionToken)
+
+        if(session == null){
+            return
+        }
+
+        session.closedDate = new Date()
+
+        sessionDao.save(session)
+
     }
 
 }

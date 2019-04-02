@@ -35,8 +35,8 @@ class HashingSecurityInterceptor {
     @Autowired
     ApplicationMembersDao applicationMembersDao
 
-    private final String API_KEY_HEADER = "ApiKey"
-    private final String MEMBER_KEY_HEADER = "MemberKey"
+    final String API_KEY_HEADER = "ApiKey"
+    final String MEMBER_KEY_HEADER = "MemberKey"
 
     @Pointcut("@annotation(pl.jsql.api.security.annotation.HashingSecurity)")
     private void hashingSecurityAnnotation() {}

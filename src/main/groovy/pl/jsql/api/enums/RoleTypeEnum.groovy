@@ -1,19 +1,17 @@
-package pl.jsql.api.enums;
+package pl.jsql.api.enums
 
-public enum RoleTypeEnum {
+enum RoleTypeEnum {
 
-    APP_DEV(100, "APP_DEV"),
-    APP_ADMIN(200, "APP_ADMIN"),
-    COMPANY_ADMIN(300, "COMPANY_ADMIN"),
-    ADMIN(400, "ADMIN"),
-    PUBLIC(500, "PUBLIC");
+    APP_DEV("APP_DEV"),
+    APP_ADMIN("APP_ADMIN"),
+    COMPANY_ADMIN("COMPANY_ADMIN"),
+    ADMIN("ADMIN"),
+    PUBLIC("PUBLIC")
 
-    public int id;
-    public String name;
+    public String name
 
-    RoleTypeEnum(int id, String name) {
-        this.id = id;
-        this.name = name;
+    RoleTypeEnum(String name) {
+        this.name = name
     }
 
 }

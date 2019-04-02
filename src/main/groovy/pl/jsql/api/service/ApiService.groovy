@@ -9,6 +9,9 @@ import pl.jsql.api.model.user.User
 import pl.jsql.api.repo.ApplicationDao
 import pl.jsql.api.repo.MemberKeyDao
 import pl.jsql.api.repo.QueryDao
+import pl.jsql.api.service.HashingService
+import pl.jsql.api.service.QueryService
+import pl.jsql.api.service.StatsService
 import pl.jsql.api.utils.Utils
 
 import static pl.jsql.api.enums.HttpMessageEnum.*
@@ -38,12 +41,12 @@ class ApiService {
 
     def getClientDatabaseOptions(String memberKey, String apiKey) {
 
-
         def clientOptions = hashingService.getClientOptions(apiKey).data
 
-        return [code: SUCCESS.getCode(), data: [
-                databaseDialect    : clientOptions.databaseDialect.toString()]
+        return [
+                databaseDialect: clientOptions.databaseDialect.toString()
         ]
+
     }
 
     def updateQueriesById(Long id, QueryUpdateRequest queryUpdateRequest) {
@@ -132,7 +135,7 @@ class ApiService {
 
     }
 
-    def getRequestHashesResult(String memberKey, String apiKey, def request) {
+    def getRequestHashesResult(def request) {
 
         def clientOptions = hashingService.getClientOptions(apiKey).data
         def requestQueryList = request

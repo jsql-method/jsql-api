@@ -3,47 +3,42 @@ package pl.jsql.api.controller
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
 import pl.jsql.api.controller.generic.ValidateController
-import pl.jsql.api.dto.request.ApplicationCreateRequest
+import pl.jsql.api.dto.request.UserRequest
 import pl.jsql.api.dto.response.BasicResponse
 import pl.jsql.api.enums.RoleTypeEnum
 import pl.jsql.api.security.annotation.Security
-import pl.jsql.api.service.ApplicationService
+import pl.jsql.api.service.AppDevService
 
+import javax.servlet.http.HttpServletRequest
 import javax.validation.Valid
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api/application")
-class ApplicationController extends ValidateController {
+@RequestMapping("/api/app-dev")
+class AppDevController extends ValidateController {
 
     @Autowired
-    ApplicationService applicationService
+    AppDevService appDevService
 
-    @Security
+    @Security(roles = [RoleTypeEnum.ADMIN, RoleTypeEnum.COMPANY_ADMIN, RoleTypeEnum.APP_ADMIN])
     @GetMapping
     BasicResponse getAll() {
-        def response = applicationService.getAll()
+        def response = appDevService.getAll()
         return new BasicResponse(status: 200, data: response)
     }
 
     @Security(roles = [RoleTypeEnum.ADMIN, RoleTypeEnum.COMPANY_ADMIN, RoleTypeEnum.APP_ADMIN])
     @PostMapping
-    BasicResponse create(@RequestBody @Valid ApplicationCreateRequest name) {
-        def response = applicationService.create(name.name)
-        return new BasicResponse(status: 200, data: response)
-    }
-
-    @Security
-    @GetMapping("/{id}")
-    BasicResponse get(@PathVariable("id") Long id) {
-        def response = applicationService.getById(id)
+    BasicResponse create(@RequestBody @Valid UserRequest userRequest, HttpServletRequest request) {
+        userRequest.origin = request.getHeader('origin')
+        def response = appDevService.register(userRequest)
         return new BasicResponse(status: 200, data: response)
     }
 
     @Security(roles = [RoleTypeEnum.ADMIN, RoleTypeEnum.COMPANY_ADMIN, RoleTypeEnum.APP_ADMIN])
-    @PatchMapping("/{id}")
-    BasicResponse disable(@PathVariable("id") Long id) {
-        def response = applicationService.disable(id)
+    @DeleteMapping("/{id}")
+    BasicResponse delete(@PathVariable("id") Long id) {
+        def response = appDevService.delete(id)
         return new BasicResponse(status: 200, data: response)
     }
 

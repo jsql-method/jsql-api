@@ -2,8 +2,6 @@ package pl.jsql.api.controller
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.format.annotation.DateTimeFormat
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import pl.jsql.api.controller.generic.ValidateController
 import pl.jsql.api.dto.request.BuildsRequest
@@ -17,7 +15,7 @@ import javax.validation.Valid
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/stats")
 class StatsController extends ValidateController {
 
     @Autowired
