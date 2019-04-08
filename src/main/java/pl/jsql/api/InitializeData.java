@@ -8,9 +8,9 @@ import pl.jsql.api.dto.request.UserRequest;
 import pl.jsql.api.enums.*;
 import pl.jsql.api.model.dict.DatabaseDialectDict;
 import pl.jsql.api.model.dict.EncodingDict;
-import pl.jsql.api.model.dict.Settings;
+import pl.jsql.api.model.dict.Setting;
 import pl.jsql.api.model.hashing.Application;
-import pl.jsql.api.model.payment.Plans;
+import pl.jsql.api.model.payment.Plan;
 import pl.jsql.api.model.user.Company;
 import pl.jsql.api.model.user.Role;
 import pl.jsql.api.model.user.User;
@@ -102,7 +102,7 @@ public class  InitializeData {
 
         for (SettingEnum s : SettingEnum.values()) {
             if (settingsDao.findByType(s) == null) {
-                Settings setting = new Settings()
+                Setting setting = new Setting()
                 setting.name = s.toString()
                 setting.type = s
                 setting.value = s.defaultValue
@@ -118,7 +118,7 @@ public class  InitializeData {
         String password = "test123"
         User user = userService.userDao.findByEmail(email)
         if (user != null) {
-            Plans plan = plansDao.findFirstByCompany(user.company)
+            Plan plan = plansDao.findFirstByCompany(user.company)
             plan.isTrial = false
             plan.active = true
             plan.plan = PlansEnum.LARGE
@@ -134,7 +134,7 @@ public class  InitializeData {
         company.isLicensed = true
         companyDao.save(company)
 
-        Plans plan = plansDao.findFirstByCompany(company)
+        Plan plan = plansDao.findFirstByCompany(company)
         plan.isTrial = false
         plan.active = true
         plan.plan = PlansEnum.LARGE

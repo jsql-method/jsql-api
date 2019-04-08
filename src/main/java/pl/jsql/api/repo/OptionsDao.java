@@ -1,15 +1,16 @@
-package pl.jsql.api.repo
+package pl.jsql.api.repo;
 
-import org.springframework.data.repository.CrudRepository
-import pl.jsql.api.model.hashing.Application
-import pl.jsql.api.model.hashing.Options
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
+import pl.jsql.api.model.hashing.Application;
+import pl.jsql.api.model.hashing.Options;
 
-import javax.transaction.Transactional
+import java.util.Optional;
 
-@Transactional
+@Repository
 interface OptionsDao extends CrudRepository<Options, Long> {
 
-    Options findByApplication(Application application)
+    Optional<Options> findByApplication(Application application);
 
 }
 

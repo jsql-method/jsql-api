@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import pl.jsql.api.dto.request.UserRequest
 import pl.jsql.api.enums.RoleTypeEnum
-import pl.jsql.api.model.hashing.ApplicationMembers
+import pl.jsql.api.model.hashing.ApplicationDevelopers
 import pl.jsql.api.model.user.Company
 import pl.jsql.api.model.user.User
 import pl.jsql.api.repo.ApplicationMembersDao
@@ -43,7 +43,7 @@ public class  AppAdminService {
     def register(UserRequest userRequest) {
 
         User companyAdmin = securityService.getCurrentAccount()
-        List<ApplicationMembers> list = applicationMembersDao.findByUserQuery(companyAdmin)
+        List<ApplicationDevelopers> list = applicationMembersDao.findByUserQuery(companyAdmin)
 
         User appAdmin = userDao.findByEmail(userRequest.email)
 
@@ -79,14 +79,14 @@ public class  AppAdminService {
 
         }
 
-        for (ApplicationMembers applicationMembers : list) {
+        for (ApplicationDevelopers applicationDevelopers : list) {
 
-            ApplicationMembers appM = applicationMembersDao.findByUserAndAppQuery(appAdmin, applicationMembers.application)
+            ApplicationDevelopers appM = applicationMembersDao.findByUserAndAppQuery(appAdmin, applicationDevelopers.application)
 
             if (appM == null) {
 
-                appM = new ApplicationMembers()
-                appM.application = applicationMembers.application
+                appM = new ApplicationDevelopers()
+                appM.application = applicationDevelopers.application
                 appM.member = appAdmin
 
                 applicationMembersDao.save(appM)

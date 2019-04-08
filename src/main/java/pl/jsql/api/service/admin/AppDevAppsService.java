@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import pl.jsql.api.dto.request.MemberAssignRequest
 import pl.jsql.api.model.hashing.Application
-import pl.jsql.api.model.hashing.ApplicationMembers
+import pl.jsql.api.model.hashing.ApplicationDevelopers
 import pl.jsql.api.model.user.User
 import pl.jsql.api.repo.ApplicationDao
 import pl.jsql.api.repo.ApplicationMembersDao
@@ -44,15 +44,15 @@ public class  AppDevAppsService {
 
         }
 
-        ApplicationMembers applicationMembers = applicationMembersDao.findByUserAndAppQuery(member, application)
+        ApplicationDevelopers applicationDevelopers = applicationMembersDao.findByUserAndAppQuery(member, application)
 
-        if (applicationMembers == null) {
+        if (applicationDevelopers == null) {
 
-            applicationMembers = new ApplicationMembers()
-            applicationMembers.application = application
-            applicationMembers.member = member
+            applicationDevelopers = new ApplicationDevelopers()
+            applicationDevelopers.application = application
+            applicationDevelopers.member = member
 
-            applicationMembersDao.save(applicationMembers)
+            applicationMembersDao.save(applicationDevelopers)
         }
 
         return [code: SUCCESS.getCode(), data: null]

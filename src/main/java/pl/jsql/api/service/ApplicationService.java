@@ -7,8 +7,8 @@ import org.springframework.transaction.annotation.Transactional
 import pl.jsql.api.dto.request.UserRequest
 import pl.jsql.api.enums.RoleTypeEnum
 import pl.jsql.api.model.hashing.Application
-import pl.jsql.api.model.hashing.ApplicationMembers
-import pl.jsql.api.model.hashing.MemberKey
+import pl.jsql.api.model.hashing.ApplicationDevelopers
+import pl.jsql.api.model.hashing.DeveloperKey
 import pl.jsql.api.model.hashing.Options
 import pl.jsql.api.model.user.User
 import pl.jsql.api.repo.*
@@ -63,10 +63,10 @@ public class  ApplicationService {
         //Pobieranie danych w zależności od roli
         if (currentUser.role.authority == RoleTypeEnum.APP_DEV) {
 
-            List<ApplicationMembers> list = applicationMembersDao.findByUserQuery(currentUser)
+            List<ApplicationDevelopers> list = applicationMembersDao.findByUserQuery(currentUser)
 
-            for (ApplicationMembers appMember : list) {
-                MemberKey key = memberKeyDao.findByUser(appMember.application.developer)
+            for (ApplicationDevelopers appMember : list) {
+                DeveloperKey key = memberKeyDao.findByUser(appMember.application.developer)
                 data << [
                         id          : appMember.application.id,
                         apiKey      : appMember.application.apiKey,
@@ -88,7 +88,7 @@ public class  ApplicationService {
             }
             List<Application> list = applicationDao.findByUserQuery(companyAdmin)
             for (Application app : list) {
-                MemberKey key = memberKeyDao.findByUser(app.developer)
+                DeveloperKey key = memberKeyDao.findByUser(app.developer)
                 data << [
                         id          : app.id,
                         apiKey      : app.apiKey,
@@ -112,12 +112,12 @@ public class  ApplicationService {
 
         User currentUser = securityService.getCurrentAccount()
         Application currentApp = applicationDao.findById(id).get()
-        MemberKey key = memberKeyDao.findByUser(currentApp.developer)
+        DeveloperKey key = memberKeyDao.findByUser(currentApp.developer)
         def data = []
 
         if (currentUser.role.authority == RoleTypeEnum.APP_DEV) {
 
-            ApplicationMembers appMember = applicationMembersDao.findByUserAndAppQuery(currentUser, currentApp)
+            ApplicationDevelopers appMember = applicationMembersDao.findByUserAndAppQuery(currentUser, currentApp)
 
             if (appMember == null) {
 
@@ -252,13 +252,13 @@ public class  ApplicationService {
     }
 
     void assignUserToAppMember(User user, Application app) {
-        ApplicationMembers applicationMembers = applicationMembersDao.findByUserAndAppQuery(user, app)
-        if (applicationMembers == null) {
-            applicationMembers = new ApplicationMembers()
-            applicationMembers.application = app
-            applicationMembers.member = user
+        ApplicationDevelopers applicationDevelopers = applicationMembersDao.findByUserAndAppQuery(user, app)
+        if (applicationDevelopers == null) {
+            applicationDevelopers = new ApplicationDevelopers()
+            applicationDevelopers.application = app
+            applicationDevelopers.member = user
 
-            applicationMembersDao.save(applicationMembers)
+            applicationMembersDao.save(applicationDevelopers)
         }
     }
 

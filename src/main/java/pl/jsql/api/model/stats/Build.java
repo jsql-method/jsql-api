@@ -6,29 +6,30 @@ import pl.jsql.api.model.user.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 @Entity
 @Table(name = "build")
-public class  Build {
+public class Build {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id;
+    public Long id;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "application_id")
-    Application application;
+    public Application application;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
-    User user;
+    public User user;
 
     @NotNull
     @JsonFormat(pattern = "dd-MM-yyyy hh:mm:ss")
     @Temporal(TemporalType.TIMESTAMP)
-    Date hashingDate;
+    public Date hashingDate;
 
     @NotNull
-    Integer queriesCount;
+    public Integer queriesCount;
 
 }

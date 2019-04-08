@@ -9,5 +9,5 @@ public class  BasicResponse<T> {
         this.status = status;
         this.data = data;
     }
-    
+
 }

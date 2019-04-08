@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional
 import pl.jsql.api.dto.request.UserRequest
 import pl.jsql.api.enums.RoleTypeEnum
 import pl.jsql.api.model.hashing.Application
-import pl.jsql.api.model.hashing.ApplicationMembers
+import pl.jsql.api.model.hashing.ApplicationDevelopers
 import pl.jsql.api.model.user.Company
 import pl.jsql.api.model.user.User
 import pl.jsql.api.repo.ApplicationMembersDao
@@ -116,7 +116,7 @@ public class  AppDevService {
             return [code: NO_SUCH_APP_OR_MEMBER.getCode(), description: NO_SUCH_APP_OR_MEMBER.getDescription()]
         }
 
-        ApplicationMembers appMember = applicationMembersDao.findByUserAndAppQuery(user, app)
+        ApplicationDevelopers appMember = applicationMembersDao.findByUserAndAppQuery(user, app)
 
         //this if clears record links, saves empty record and removes it from database
         if (appMember != null) {

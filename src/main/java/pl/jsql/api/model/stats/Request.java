@@ -1,34 +1,35 @@
-package pl.jsql.api.model.stats
+package pl.jsql.api.model.stats;
 
-import com.fasterxml.jackson.annotation.JsonFormat
-import pl.jsql.api.model.hashing.Application
-import pl.jsql.api.model.user.User
+import com.fasterxml.jackson.annotation.JsonFormat;
+import pl.jsql.api.model.hashing.Application;
+import pl.jsql.api.model.user.User;
 
-import javax.persistence.*
-import javax.validation.constraints.NotNull
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 @Entity
 @Table(name = "request")
-public class  Request {
+public class Request {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id
+    public Long id;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "application_id")
-    Application application
+    public Application application;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
-    User user
+    public User user;
 
     @NotNull
-    String queryHash
+    public String queryHash;
 
     @NotNull
     @JsonFormat(pattern = "dd-MM-yyyy hh:mm:ss")
     @Temporal(TemporalType.TIMESTAMP)
-    Date requestDate
+    public Date requestDate;
 
 }

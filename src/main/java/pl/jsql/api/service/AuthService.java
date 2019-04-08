@@ -11,8 +11,8 @@ import pl.jsql.api.dto.request.LoginRequest
 import pl.jsql.api.dto.request.UserRequest
 import pl.jsql.api.enums.PlansEnum
 import pl.jsql.api.enums.RoleTypeEnum
-import pl.jsql.api.model.hashing.MemberKey
-import pl.jsql.api.model.payment.Plans
+import pl.jsql.api.model.hashing.DeveloperKey
+import pl.jsql.api.model.payment.Plan
 import pl.jsql.api.model.user.Company
 import pl.jsql.api.model.user.Session
 import pl.jsql.api.model.user.User
@@ -185,7 +185,7 @@ public class  AuthService {
         if (user.blocked) {
             return [code: ACCOUNT_BLOCKED.getCode(), description: ACCOUNT_BLOCKED.getDescription()]
         }
-        Plans plan = plansDao.findFirstByCompany(user.company)
+        Plan plan = plansDao.findFirstByCompany(user.company)
         if (!plan.active) {
             return [code: NO_ACTIVE_PLAN.getCode(), description: NO_ACTIVE_PLAN.getDescription()]
         }
@@ -218,11 +218,11 @@ public class  AuthService {
 
     def createMemberKey(User member) {
 
-        MemberKey memberKey = new MemberKey()
-        memberKey.user = member
-        memberKey.key = HashingUtil.encode(member.role.toString() + member.email + member.firstName)
+        DeveloperKey developerKey = new DeveloperKey()
+        developerKey.user = member
+        developerKey.key = HashingUtil.encode(member.role.toString() + member.email + member.firstName)
 
-        memberKeyDao.save(memberKey)
+        memberKeyDao.save(developerKey)
 
     }
 
@@ -284,7 +284,7 @@ public class  AuthService {
     }
 
     def createPlan(User user, UserRequest request) {
-        Plans plan = new Plans()
+        Plan plan = new Plan()
 
         plan.company = user.company
         plan.activationDate = new Date()

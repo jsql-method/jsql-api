@@ -1,14 +1,15 @@
-package pl.jsql.api.repo
+package pl.jsql.api.repo;
 
-import org.springframework.data.repository.CrudRepository
-import pl.jsql.api.model.user.Session
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
+import pl.jsql.api.model.user.Session;
 
-import javax.transaction.Transactional
+import java.util.Optional;
 
-@Transactional
+@Repository
 interface SessionDao extends CrudRepository<Session, Long> {
 
-    Session findBySessionHash(String sessionHash)
+    Optional<Session> findBySessionHash(String sessionHash);
 
 }
 

@@ -11,7 +11,7 @@ import pl.jsql.api.enums.PlansEnum
 import pl.jsql.api.misc.IntegrationTest
 import pl.jsql.api.misc.TestUtils
 import pl.jsql.api.model.hashing.Application
-import pl.jsql.api.model.payment.Plans
+import pl.jsql.api.model.payment.Plan
 import pl.jsql.api.repo.ApplicationDao
 import pl.jsql.api.repo.PlansDao
 import pl.jsql.api.repo.SessionDao
@@ -159,7 +159,7 @@ class ApplicationControllerTest extends IntegrationTest {
     private String loginAndGetSession() {
         LoginRequest loginRequest = new LoginRequest('test@test', 'test123', 'test@test')
         String session = loginService.login(loginRequest).data.sessionToken
-        Plans plan = plansDao.findFirstByCompany(sessionDao.findBySessionHash(session).user.company)
+        Plan plan = plansDao.findFirstByCompany(sessionDao.findBySessionHash(session).user.company)
         plan.plan = PlansEnum.LARGE
         plan.active = true
         plan.isTrial = false

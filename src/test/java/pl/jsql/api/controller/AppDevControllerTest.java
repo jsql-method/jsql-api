@@ -12,7 +12,7 @@ import pl.jsql.api.enums.PlansEnum
 import pl.jsql.api.enums.RoleTypeEnum
 import pl.jsql.api.misc.IntegrationTest
 import pl.jsql.api.model.hashing.Application
-import pl.jsql.api.model.payment.Plans
+import pl.jsql.api.model.payment.Plan
 import pl.jsql.api.model.user.User
 import pl.jsql.api.repo.*
 import pl.jsql.api.service.ApplicationService
@@ -196,7 +196,7 @@ class AppDevControllerTest extends IntegrationTest {
         companyAdmin.role = roleDao.findByAuthority(RoleTypeEnum.COMPANY_ADMIN)
         userDao.save(companyAdmin)
 
-        Plans plan = plansDao.findFirstByCompany(companyAdmin.company)
+        Plan plan = plansDao.findFirstByCompany(companyAdmin.company)
         plan.plan = PlansEnum.LARGE
         plan.active = true
         plan.isTrial = false

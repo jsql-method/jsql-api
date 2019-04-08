@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional
 import pl.jsql.api.dto.request.OptionsRequest
 import pl.jsql.api.enums.RoleTypeEnum
 import pl.jsql.api.model.hashing.Application
-import pl.jsql.api.model.hashing.ApplicationMembers
+import pl.jsql.api.model.hashing.ApplicationDevelopers
 import pl.jsql.api.model.hashing.Options
 import pl.jsql.api.model.user.User
 import pl.jsql.api.repo.*
@@ -51,9 +51,9 @@ public class  OptionsService {
 
         if (currentUser.role.authority == RoleTypeEnum.APP_DEV) {
 
-            List<ApplicationMembers> appMembers = applicationMembersDao.findByUserQuery(currentUser)
+            List<ApplicationDevelopers> appMembers = applicationMembersDao.findByUserQuery(currentUser)
 
-            for (ApplicationMembers am : appMembers) {
+            for (ApplicationDevelopers am : appMembers) {
 
                 applicationList.add(am.application)
 
@@ -118,7 +118,7 @@ public class  OptionsService {
 
         if (currentUser.role.authority == RoleTypeEnum.APP_DEV) {
 
-            ApplicationMembers appMember = applicationMembersDao.findByUserAndAppQuery(currentUser, currentApp)
+            ApplicationDevelopers appMember = applicationMembersDao.findByUserAndAppQuery(currentUser, currentApp)
 
             if (appMember == null) {
 

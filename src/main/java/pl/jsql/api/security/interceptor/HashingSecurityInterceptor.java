@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import pl.jsql.api.model.hashing.Application
-import pl.jsql.api.model.hashing.MemberKey
+import pl.jsql.api.model.hashing.DeveloperKey
 import pl.jsql.api.repo.ApplicationDao
 import pl.jsql.api.repo.ApplicationMembersDao
 import pl.jsql.api.repo.MemberKeyDao
@@ -46,7 +46,7 @@ public class  HashingSecurityInterceptor {
 
         String apiKey = request.getHeader(API_KEY_HEADER)
         String memberKey = request.getHeader(DEV_KEY_HEADER)
-        MemberKey member
+        DeveloperKey member
         Application application
 
         if (apiKey == null) {
