@@ -8,7 +8,7 @@ import pl.jsql.api.model.dict.Setting;
 import java.util.Optional;
 
 @Repository
-interface SettingDao extends CrudRepository<Setting, Long> {
+public interface SettingDao extends CrudRepository<Setting, Long> {
 
     Optional<Setting> findByType(SettingEnum type);
 

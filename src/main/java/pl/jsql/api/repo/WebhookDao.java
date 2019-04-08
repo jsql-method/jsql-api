@@ -5,7 +5,7 @@ import org.springframework.stereotype.Repository;
 import pl.jsql.api.model.payment.Webhook;
 
 @Repository
-interface WebhookDao extends CrudRepository<Webhook, Long> {
+public interface WebhookDao extends CrudRepository<Webhook, Long> {
 
 }
 

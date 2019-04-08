@@ -7,7 +7,7 @@ import pl.jsql.api.model.user.Company;
 import java.util.Optional;
 
 @Repository
-interface CompanyDao extends CrudRepository<Company, Long> {
+public interface CompanyDao extends CrudRepository<Company, Long> {
 
     Optional<Company> findById(Long id);
 

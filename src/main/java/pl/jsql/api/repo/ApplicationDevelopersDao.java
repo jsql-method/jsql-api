@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-interface ApplicationDevelopersDao extends CrudRepository<ApplicationDevelopers, Long> {
+public interface ApplicationDevelopersDao extends CrudRepository<ApplicationDevelopers, Long> {
 
     @Query("SELECT t FROM ApplicationDevelopers t where t.member = :member and t.application.active = true")
     List<ApplicationDevelopers> findByUserQuery(@Param("member") User member);

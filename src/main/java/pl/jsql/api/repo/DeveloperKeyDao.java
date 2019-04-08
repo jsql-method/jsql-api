@@ -8,7 +8,7 @@ import pl.jsql.api.model.user.User;
 import java.util.Optional;
 
 @Repository
-interface DeveloperKeyDao extends CrudRepository<DeveloperKey, Long> {
+public interface DeveloperKeyDao extends CrudRepository<DeveloperKey, Long> {
 
     Optional<DeveloperKey> findByUser(User user);
 

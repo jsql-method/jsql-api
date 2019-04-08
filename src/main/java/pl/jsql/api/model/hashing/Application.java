@@ -1,6 +1,7 @@
 package pl.jsql.api.model.hashing;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.Type;
 import pl.jsql.api.model.user.User;
 
 import javax.persistence.*;
@@ -14,6 +15,7 @@ public class  Application {
     @GeneratedValue(strategy = GenerationType.AUTO)
     public Long id;
 
+    @Type(type = "org.hibernate.type.TextType")
     @NotNull
     public String apiKey;
 
@@ -23,6 +25,7 @@ public class  Application {
     public User user; //company admin
 
     @NotNull
+    @Column(length = 250)
     public String name;
 
     public Boolean active;

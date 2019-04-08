@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-interface RequestDao extends CrudRepository<Request, Long> {
+public interface RequestDao extends CrudRepository<Request, Long> {
 
     @Query("SELECT count(t), hour(t.requestDate) FROM Request t where day(t.requestDate) = :day and month(t.requestDate) = :month and year(t.requestDate) = :year and t.application = :application group by hour(t.requestDate)")
     List<List<Long>> countByHour(@Param("application") Application application, @Param("day") Integer day, @Param("month") Integer month, @Param("year") Integer year);

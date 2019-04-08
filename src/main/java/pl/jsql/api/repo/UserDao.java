@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-interface UserDao extends CrudRepository<User, Long> {
+public interface UserDao extends CrudRepository<User, Long> {
 
     Optional<User> findByEmail(String email);
 

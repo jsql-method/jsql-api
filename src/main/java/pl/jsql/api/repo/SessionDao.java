@@ -7,7 +7,7 @@ import pl.jsql.api.model.user.Session;
 import java.util.Optional;
 
 @Repository
-interface SessionDao extends CrudRepository<Session, Long> {
+public interface SessionDao extends CrudRepository<Session, Long> {
 
     Optional<Session> findBySessionHash(String sessionHash);
 

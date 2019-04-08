@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.List;
 
 @Repository
-interface BuildDao extends CrudRepository<Build, Long> {
+public interface BuildDao extends CrudRepository<Build, Long> {
 
     @Query("SELECT t FROM Build t where t.hashingDate >= :from and t.hashingDate <= :to and t.user.company = :company and t.application.id in :apps and t.user.id in :users")
     List<Build> findByCompanyAndCreatedDateBetween(

@@ -14,16 +14,13 @@ public class Setting {
     @GeneratedValue(strategy = GenerationType.AUTO)
     public Long id;
 
-    @Column(unique = true)
+    @Column(unique = true, length = 100)
     @NotNull
-    public String name;
+    @Enumerated(EnumType.STRING)
+    public SettingEnum type;
 
     @Type(type = "org.hibernate.type.TextType")
     @NotNull
     public String value;
-
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    public SettingEnum type;
 
 }

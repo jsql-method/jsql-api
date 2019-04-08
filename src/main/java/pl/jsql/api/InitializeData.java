@@ -6,8 +6,6 @@ import org.springframework.stereotype.Component;
 import pl.jsql.api.dto.request.LoginRequest;
 import pl.jsql.api.dto.request.UserRequest;
 import pl.jsql.api.enums.*;
-import pl.jsql.api.model.dict.DatabaseDialectDict;
-import pl.jsql.api.model.dict.EncodingDict;
 import pl.jsql.api.model.dict.Setting;
 import pl.jsql.api.model.hashing.Application;
 import pl.jsql.api.model.payment.Plan;

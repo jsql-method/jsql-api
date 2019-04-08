@@ -8,7 +8,7 @@ import pl.jsql.api.model.hashing.Options;
 import java.util.Optional;
 
 @Repository
-interface OptionsDao extends CrudRepository<Options, Long> {
+public interface OptionsDao extends CrudRepository<Options, Long> {
 
     Optional<Options> findByApplication(Application application);
 

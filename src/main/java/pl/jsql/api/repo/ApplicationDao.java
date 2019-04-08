@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-interface ApplicationDao extends CrudRepository<Application, Long> {
+public interface ApplicationDao extends CrudRepository<Application, Long> {
 
     @Query("SELECT t FROM Application t where t.apiKey = :apiKey and active = true")
     Optional<Application> findByApiKey(@Param("apiKey") String apiKey);

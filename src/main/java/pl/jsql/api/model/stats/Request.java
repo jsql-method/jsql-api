@@ -1,6 +1,7 @@
 package pl.jsql.api.model.stats;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.hibernate.annotations.Type;
 import pl.jsql.api.model.hashing.Application;
 import pl.jsql.api.model.user.User;
 
@@ -24,6 +25,7 @@ public class Request {
     @JoinColumn(name = "user_id")
     public User user;
 
+    @Type(type = "org.hibernate.type.TextType")
     @NotNull
     public String queryHash;
 

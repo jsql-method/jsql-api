@@ -21,11 +21,11 @@ public class Session {
     @JsonIgnore
     public User user;
 
-    @Lob
     @Type(type = "org.hibernate.type.TextType")
     @NotNull
     public String sessionHash;
 
+    @Column(length = 20)
     @NotNull
     public String ipAddress;
 

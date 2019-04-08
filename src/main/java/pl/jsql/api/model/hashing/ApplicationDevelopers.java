@@ -5,7 +5,7 @@ import pl.jsql.api.model.user.User;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "application_members")
+@Table(name = "application_developers")
 public class ApplicationDevelopers {
 
     @Id
@@ -14,7 +14,7 @@ public class ApplicationDevelopers {
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "user_id")
-    public User member;
+    public User developer;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "application_id")

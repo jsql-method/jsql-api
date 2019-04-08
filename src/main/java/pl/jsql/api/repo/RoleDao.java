@@ -8,7 +8,7 @@ import pl.jsql.api.model.user.Role;
 import java.util.Optional;
 
 @Repository
-interface RoleDao extends CrudRepository<Role, Long> {
+public interface RoleDao extends CrudRepository<Role, Long> {
 
     Optional<Role> findByAuthority(RoleTypeEnum authority);
 

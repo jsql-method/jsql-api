@@ -3,6 +3,7 @@ package pl.jsql.api.model.user;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Entity
@@ -13,15 +14,8 @@ public class Company {
     @GeneratedValue(strategy = GenerationType.AUTO)
     public Long id;
 
+    @NotNull
     public String name;
-
-    public String street;
-
-    public String city;
-
-    public String postalCode;
-
-    public String country;
 
     public Boolean isLicensed;
 

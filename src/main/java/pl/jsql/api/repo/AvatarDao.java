@@ -8,7 +8,7 @@ import pl.jsql.api.model.user.User;
 import java.util.Optional;
 
 @Repository
-interface AvatarDao extends CrudRepository<Avatar, Long> {
+public interface AvatarDao extends CrudRepository<Avatar, Long> {
 
     Optional<Avatar> findByUser(User user);
 

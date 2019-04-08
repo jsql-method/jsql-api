@@ -8,7 +8,7 @@ import pl.jsql.api.model.user.Company;
 import java.util.Optional;
 
 @Repository
-interface PlanDao extends CrudRepository<Plan, Long> {
+public interface PlanDao extends CrudRepository<Plan, Long> {
 
     Optional<Plan> findFirstByCompany(Company company);
 

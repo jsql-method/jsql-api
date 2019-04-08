@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-interface QueryDao extends CrudRepository<Query, Long> {
+public interface QueryDao extends CrudRepository<Query, Long> {
 
     Optional<Query> findByHashAndApplication(String hash, Application application);
 
