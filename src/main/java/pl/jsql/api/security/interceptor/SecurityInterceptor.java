@@ -1,20 +1,20 @@
-package pl.jsql.api.security.interceptor
+package pl.jsql.api.security.interceptor;
 
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.web.method.HandlerMethod
-import org.springframework.web.servlet.ModelAndView
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter
-import pl.jsql.api.enums.RoleTypeEnum
-import pl.jsql.api.exceptions.SecurityException
-import pl.jsql.api.model.user.Session
-import pl.jsql.api.repo.SessionDao
-import pl.jsql.api.security.annotation.Security
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+import pl.jsql.api.enums.RoleTypeEnum;
+import pl.jsql.api.exceptions.SecurityException;
+import pl.jsql.api.model.user.Session;
+import pl.jsql.api.repo.SessionDao;
+import pl.jsql.api.security.annotation.Security;
 
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
-import java.lang.annotation.Annotation
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.lang.annotation.Annotation;
 
-import static pl.jsql.api.enums.HttpMessageEnum.*
+import static pl.jsql.api.enums.HttpMessageEnum.*;
 
 /**
  * Interceptor metod kontrolerów implementujący logikę zabezpieczeń
@@ -23,74 +23,65 @@ import static pl.jsql.api.enums.HttpMessageEnum.*
  */
 public class  SecurityInterceptor extends HandlerInterceptorAdapter {
 
-    private final static String AUTH_HEADER = "Session"
+    private final static String AUTH_HEADER = "Session";
 
     @Autowired
-    SessionDao sessionDao
+    private SessionDao sessionDao;
 
     /**
      * Pobiera annotację Security metody wejściowej
-     * @param handler
-     * @return
      */
-    protected Security getMethodAnnotation(HandlerMethod handler) {
+    private Security getMethodAnnotation(HandlerMethod handler) {
 
-        HandlerMethod handlerMethod = (HandlerMethod) handler
+        HandlerMethod handlerMethod = (HandlerMethod) handler;
 
-        Annotation annotation = handlerMethod.getMethodAnnotation(Security.class )
+        Annotation annotation = handlerMethod.getMethodAnnotation(Security.class );
 
         if (annotation != null) {
 
-            return (Security) annotation
+            return (Security) annotation;
         }
 
-        return null
+        return null;
     }
 
     /**
      * Sprawdza czy aktualna sesja nie wygasła. Tylko dla administracji
-     * @param request
-     * @param session
-     * @return
      */
-    protected Boolean isSessionActive(HttpServletRequest request, Session session) {
-
-        return session == null ? false : session.closedDate == null
-
+    private Boolean isSessionActive(Session session) {
+        return session != null && session.closedDate == null;
     }
 
     /**
      * Sprawdza autoryzację logującego, rzuca wyjątek w razie niepowodzenia
-     * @param request
-     * @param handler
      */
-    protected void authorize(HttpServletRequest request, HandlerMethod handler) throws Exception {
+    private void authorize(HttpServletRequest request, HandlerMethod handler) throws Exception {
 
-        Boolean isAuthorized = false
-        Boolean sessionInactive = false
+        Boolean isAuthorized = false;
+        Boolean sessionInactive = false;
 
-        String innerCause = ''
+        String innerCause = "";
 
-        Session session
+        Session session;
 
-        if (handler.getpublic class () == HandlerMethod.class ) {
+        if (handler.getClass() == HandlerMethod.class ) {
 
-            Security securityLevel = this.getMethodAnnotation(handler)
+            Security securityLevel = this.getMethodAnnotation(handler);
 
             if (securityLevel != null) {
                 if (securityLevel.role() == RoleTypeEnum.PUBLIC && !securityLevel.requireActiveSession()) {
-                    isAuthorized = true
+                    isAuthorized = true;
                 } else {
 
-                    String tokenHeader = request.getHeader(AUTH_HEADER)
+                    String tokenHeader = request.getHeader(AUTH_HEADER);
 
                     if (tokenHeader != null && !tokenHeader.isEmpty()) {
 
-                        session = sessionDao.findBySessionHash(tokenHeader)
+                        session = sessionDao.findBySessionHash(tokenHeader).orElse(null);
 
                         if (session != null) {
 
-                            if (this.isSessionActive(request, session)) {
+                            if (this.isSessionActive(session)) {
 
                                 if (securityLevel.roles().length > 0) {
 
@@ -98,70 +89,66 @@ public class  SecurityInterceptor extends HandlerInterceptorAdapter {
 
                                         if (session.user.role.authority == role || role == RoleTypeEnum.PUBLIC) {
 
-                                            isAuthorized = true
+                                            isAuthorized = true;
                                         }
                                     }
                                 } else {
                                     if (session.user.role.authority == securityLevel.role() || securityLevel.role() == RoleTypeEnum.PUBLIC) {
 
-                                        isAuthorized = true
+                                        isAuthorized = true;
 
                                     }
                                 }
 
                             } else {
 
-                                sessionInactive = true
+                                sessionInactive = true;
 
                             }
                         } else {
-                            sessionInactive = true
+                            sessionInactive = true;
                         }
                     } else {
-                        throw new SecurityException(MISSING_HEADER.getCode() + "," + MISSING_HEADER.getDescription() + AUTH_HEADER)
+                        throw new SecurityException();
                     }
                 }
             }
         }
 
         if (sessionInactive) {
-            throw new SecurityException(UNAUTHORIZED.getCode() + "," + UNAUTHORIZED.getDescription())
+            throw new SecurityException();
         }
 
         if (!isAuthorized) {
-            throw new SecurityException(FORBIDDEN.getCode() + "," + FORBIDDEN.getDescription())
+            throw new SecurityException();
         }
 
     }
 
-    /**
-     * Wykonuje się przed metodą kontrolera
-     */
-    Boolean preHandle(HttpServletRequest request,
-                             HttpServletResponse response, Object handler)
-            throws Exception {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws
+            Exception {
 
-        if (request.getHeader('origin')) {
-            String origin = request.getHeader('origin')
-            response.addHeader('Access-Control-Allow-Origin', origin)
-            response.addHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS')
-            response.addHeader('Access-Control-Allow-Credentials', 'true')
-            response.addHeader('Access-Control-Allow-Headers',
-                    request.getHeader('Access-Control-Request-Headers'))
-        }
-        if (request.method == 'OPTIONS') {
-            response.writer.print('OK')
-            response.writer.flush()
-            return
-        }
-        this.authorize(request, handler)
+//        if (request.getHeader('origin')) {
+//            String origin = request.getHeader('origin')
+//            response.addHeader('Access-Control-Allow-Origin', origin)
+//            response.addHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS')
+//            response.addHeader('Access-Control-Allow-Credentials', 'true')
+//            response.addHeader('Access-Control-Allow-Headers',
+//                    request.getHeader('Access-Control-Request-Headers'))
+//        }
+//        if (request.method == 'OPTIONS') {
+//            response.writer.print('OK')
+//            response.writer.flush()
+//            return
+//        }
 
-        return true
+        this.authorize(request, (HandlerMethod) handler);
+
+        return true;
+
     }
 
-    void postHandle(
-            HttpServletRequest request, HttpServletResponse response,
-            Object handler, ModelAndView modelAndView)
-            throws Exception {
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
     }
+
 }

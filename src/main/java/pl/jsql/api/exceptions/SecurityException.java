@@ -1,12 +1,13 @@
-package pl.jsql.api.exceptions
+package pl.jsql.api.exceptions;
 
-public class  SecurityException extends Exception {
+public class SecurityException extends Exception {
 
-    SecurityException() {
-        super()
+    public SecurityException() {
+        super();
     }
 
-    SecurityException(String message) {
-        super(message)
+    public SecurityException(String message) {
+        super(message);
     }
+
 }

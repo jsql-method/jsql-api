@@ -13,18 +13,13 @@ import pl.jsql.api.model.hashing.Application;
 import pl.jsql.api.model.hashing.DeveloperKey;
 import pl.jsql.api.repo.ApplicationDao;
 import pl.jsql.api.repo.ApplicationDevelopersDao;
-import pl.jsql.api.repo.ApplicationMembersDao;
 import pl.jsql.api.repo.DeveloperKeyDao;
-import pl.jsql.api.repo.devKeyDao;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static pl.jsql.api.enums.HttpMessageEnum.MISSING_HEADER;
-import static pl.jsql.api.enums.HttpMessageEnum.NO_SUCH_APP_OR_MEMBER;
-
 @Aspect
 @Component
-public class  HashingSecurityInterceptor {
+public class HashingSecurityInterceptor {
 
     @Autowired
     private HttpServletRequest request;
@@ -38,36 +33,36 @@ public class  HashingSecurityInterceptor {
     @Autowired
     private ApplicationDevelopersDao applicationDevelopersDao;
 
-    private final String API_KEY_HEADER = "ApiKey";
-    private final String DEV_KEY_HEADER = "DevKey";
-
     @Pointcut("@annotation(pl.jsql.api.security.annotation.HashingSecurity)")
-    private void hashingSecurityAnnotation() {}
+    private void hashingSecurityAnnotation() {
+    }
 
     @Around("pl.jsql.api.security.interceptor.HashingSecurityInterceptor.hashingSecurityAnnotation()")
-    ResponseEntity<MessageResponse> doSomething(ProceedingJoinPoint pjp) throws Throwable {
+    Object doSomething(ProceedingJoinPoint pjp) throws Throwable {
+
+        String API_KEY_HEADER = "ApiKey";
+        String DEV_KEY_HEADER = "DevKey";
 
         String apiKey = request.getHeader(API_KEY_HEADER);
         String devKey = request.getHeader(DEV_KEY_HEADER);
 
         if (apiKey == null || devKey == null) {
-            return new ResponseEntity<>(new MessageResponse(), HttpStatus.OK);
+            return new ResponseEntity<>(new MessageResponse("Unauthorized"), HttpStatus.UNAUTHORIZED);
         }
 
-        Application application = applicationDao.findByApiKey(apiKey);
-        DeveloperKey member = developerKeyDao.findByKey(devKey);
+        Application application = applicationDao.findByApiKey(apiKey).orElse(null);
+        DeveloperKey developerKey = developerKeyDao.findByKey(devKey).orElse(null);
 
-
-        if (application == null || member == null) {
-            return new ResponseEntity([code: NO_SUCH_APP_OR_MEMBER.getCode(), description: NO_SUCH_APP_OR_MEMBER.getDescription()], HttpStatus.OK)
+        if (application == null || developerKey == null) {
+            return new ResponseEntity<>(new MessageResponse("Unauthorized"), HttpStatus.UNAUTHORIZED);
         }
 
-
-        if (applicationDevelopersDao.findByUserAndAppQuery(member.user, application) == null) {
-            return new ResponseEntity([code: NO_SUCH_APP_OR_MEMBER.getCode(), description: NO_SUCH_APP_OR_MEMBER.getDescription()], HttpStatus.OK)
+        if (applicationDevelopersDao.findByUserAndAppQuery(developerKey.user, application).orElse(null) == null) {
+            return new ResponseEntity<>(new MessageResponse("Unauthorized"), HttpStatus.UNAUTHORIZED);
         }
 
-        return pjp.proceed()
+        return pjp.proceed();
+
     }
 
 }
