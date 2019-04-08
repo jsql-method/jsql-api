@@ -1,8 +1,7 @@
-package pl.jsql.api.dto.request
+package pl.jsql.api.dto.request;
 
 public class  MemberAssignRequest {
 
-    Long member
-    Long application
-
+    public Long member;
+    public Long application;
 }

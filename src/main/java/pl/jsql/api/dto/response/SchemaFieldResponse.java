@@ -1,9 +1,8 @@
-package pl.jsql.api.dto.response
+package pl.jsql.api.dto.response;
 
 public class  SchemaFieldResponse {
 
-    String type
-    String name
-    Object value
-
+    public String type;
+    public String name;
+    public Object value;
 }

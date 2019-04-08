@@ -1,9 +1,8 @@
-package pl.jsql.api.dto.request
+package pl.jsql.api.dto.request;
 
 public class  LoginRequest {
 
-    String email
-    String password
-    String ipAddress
-
+    public String email;
+    public String password;
+    public String ipAddress;
 }

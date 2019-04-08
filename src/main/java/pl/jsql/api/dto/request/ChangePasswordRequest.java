@@ -1,8 +1,7 @@
-package pl.jsql.api.dto.request
+package pl.jsql.api.dto.request;
 
-public class  ChangePasswordRequest {
+public class ChangePasswordRequest {
 
-    String newPassword
-    String oldPassword
-
+    public String newPassword;
+    public String oldPassword;
 }

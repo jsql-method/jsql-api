@@ -1,11 +1,13 @@
-package pl.jsql.api.dto.request
+package pl.jsql.api.dto.request;
 
 
-public class  BuildsRequest {
+import java.util.Date;
+import java.util.List;
 
-    Date dateFrom
-    Date dateTo
-    List<Long> applications
-    List<Long> members
+public class BuildsRequest {
 
+    public Date dateFrom;
+    public Date dateTo;
+    public List<Long> applications;
+    public List<Long> members;
 }

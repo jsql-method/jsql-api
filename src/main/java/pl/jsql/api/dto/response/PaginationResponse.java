@@ -1,21 +1,20 @@
-package pl.jsql.api.dto.response
+package pl.jsql.api.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-import org.springframework.data.domain.PageRequest
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.data.domain.PageRequest;
 
 public class  PaginationResponse {
 
-    Integer totalPages
+    public Integer totalPages;
 
     @JsonIgnore
-    Integer offset
+    public Integer offset;
 
-    Integer page
-
-    @JsonIgnore
-    Integer limit
+    public Integer page;
 
     @JsonIgnore
-    PageRequest pageRequest
+    public Integer limit;
 
+    @JsonIgnore
+    public PageRequest pageRequest;
 }

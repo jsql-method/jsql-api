@@ -1,8 +1,7 @@
-package pl.jsql.api.dto.request
+package pl.jsql.api.dto.request;
 
 public class  ChangeEmailRequest {
 
-    String oldEmail
-    String newEmail
-
+    public String oldEmail;
+    public String newEmail;
 }
