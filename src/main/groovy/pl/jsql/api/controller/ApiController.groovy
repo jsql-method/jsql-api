@@ -27,7 +27,7 @@ class ApiController extends ValidateController {
     @Security(requireActiveSession = false)
     @HashingSecurity
     @GetMapping("/options")
-    BasicResponse getOptions(@RequestHeader(value = "memberKey", required = true) String memberKey, @RequestHeader(value = "apiKey", required = true) String apiKey) {
+    BasicResponse getOptions(@RequestHeader(value = "devKey", required = true) String devKey, @RequestHeader(value = "apiKey", required = true) String apiKey) {
         def response = apiService.getClientDatabaseOptions()
         return new BasicResponse(status: 200, data: response)
     }
@@ -35,7 +35,7 @@ class ApiController extends ValidateController {
     @Security(requireActiveSession = false)
     @HashingSecurity
     @GetMapping("/options/all")
-    BasicResponse getAllOptions(@RequestHeader(value = "memberKey", required = true) String memberKey, @RequestHeader(value = "apiKey", required = true) String apiKey) {
+    BasicResponse getAllOptions(@RequestHeader(value = "devKey", required = true) String devKey, @RequestHeader(value = "apiKey", required = true) String apiKey) {
         def response = hashingService.getClientOptions()
         return new BasicResponse(status: 200, data: response)
     }
@@ -43,7 +43,7 @@ class ApiController extends ValidateController {
     @Security(requireActiveSession = false)
     @HashingSecurity
     @PostMapping("/hashes")
-    BasicResponse hashQuery(@RequestBody @Valid def request, @RequestHeader(value = "memberKey", required = true) String memberKey, @RequestHeader(value = "apiKey", required = true) String apiKey) {
+    BasicResponse hashQuery(@RequestBody @Valid List<String> request, @RequestHeader(value = "devKey", required = true) String devKey, @RequestHeader(value = "apiKey", required = true) String apiKey) {
         def response = apiService.getRequestHashesResult(request)
         return new BasicResponse(status: 200, data: response)
     }
@@ -51,7 +51,7 @@ class ApiController extends ValidateController {
     @Security(requireActiveSession = false)
     @HashingSecurity
     @PostMapping("/queries")
-    BasicResponse getHashedAsQuery(@RequestBody def request, @RequestHeader(value = "memberKey", required = true) String memberKey, @RequestHeader(value = "apiKey", required = true) String apiKey) {
+    BasicResponse getHashedAsQuery(@RequestBody List<String> request, @RequestHeader(value = "devKey", required = true) String devKey, @RequestHeader(value = "apiKey", required = true) String apiKey) {
         def response = apiService.getRequestQueriesResult(request)
         return new BasicResponse(status: 200, data: response)
     }
@@ -59,8 +59,8 @@ class ApiController extends ValidateController {
     @Security(requireActiveSession = false)
     @HashingSecurity
     @PostMapping("/queries/grouped")
-    BasicResponse getHashedAsQueryGrouped(@RequestBody def request, @RequestHeader(value = "memberKey", required = true) String memberKey, @RequestHeader(value = "apiKey", required = true) String apiKey) {
-        def response = apiService.getRequestQueriesResult(memberKey, apiKey, request, true)
+    BasicResponse getHashedAsQueryGrouped(@RequestBody List<String> request, @RequestHeader(value = "devKey", required = true) String devKey, @RequestHeader(value = "apiKey", required = true) String apiKey) {
+        def response = apiService.getRequestQueriesResult(request, true)
         return new BasicResponse(status: 200, data: response)
     }
 

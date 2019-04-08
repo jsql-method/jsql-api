@@ -81,7 +81,7 @@ class SecurityService {
 
 
     String getMemberKey(){
-        return request.getHeader(HashingSecurityInterceptor.MEMBER_KEY_HEADER)
+        return request.getHeader(HashingSecurityInterceptor.DEV_KEY_HEADER)
     }
 
     Boolean isLogged(){

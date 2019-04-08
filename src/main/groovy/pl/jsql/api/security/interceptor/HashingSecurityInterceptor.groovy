@@ -36,7 +36,7 @@ class HashingSecurityInterceptor {
     ApplicationMembersDao applicationMembersDao
 
     final String API_KEY_HEADER = "ApiKey"
-    final String MEMBER_KEY_HEADER = "MemberKey"
+    final String DEV_KEY_HEADER = "DevKey"
 
     @Pointcut("@annotation(pl.jsql.api.security.annotation.HashingSecurity)")
     private void hashingSecurityAnnotation() {}
@@ -45,42 +45,32 @@ class HashingSecurityInterceptor {
     Object doSomething(ProceedingJoinPoint pjp) throws Throwable {
 
         String apiKey = request.getHeader(API_KEY_HEADER)
-        String memberKey = request.getHeader(MEMBER_KEY_HEADER)
+        String memberKey = request.getHeader(DEV_KEY_HEADER)
         MemberKey member
         Application application
 
         if (apiKey == null) {
-
             return new ResponseEntity([code: MISSING_HEADER.getCode(), description: MISSING_HEADER.getDescription() + API_KEY_HEADER], HttpStatus.OK)
-
         } else {
-
             application = applicationDao.findByApiKey(apiKey)
-
         }
 
         if (memberKey == null) {
-
-            return new ResponseEntity([code: MISSING_HEADER.getCode(), description: MISSING_HEADER.getDescription() + MEMBER_KEY_HEADER], HttpStatus.OK)
-
+            return new ResponseEntity([code: MISSING_HEADER.getCode(), description: MISSING_HEADER.getDescription() + DEV_KEY_HEADER], HttpStatus.OK)
         } else {
-
             member = memberKeyDao.findByKey(memberKey)
-
         }
 
         if (application == null || member == null) {
-
             return new ResponseEntity([code: NO_SUCH_APP_OR_MEMBER.getCode(), description: NO_SUCH_APP_OR_MEMBER.getDescription()], HttpStatus.OK)
-
         }
 
 
         if (applicationMembersDao.findByUserAndAppQuery(member.user, application) == null) {
-
             return new ResponseEntity([code: NO_SUCH_APP_OR_MEMBER.getCode(), description: NO_SUCH_APP_OR_MEMBER.getDescription()], HttpStatus.OK)
-
         }
+
         return pjp.proceed()
     }
+
 }

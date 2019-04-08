@@ -39,9 +39,9 @@ class ApiService {
     MemberKeyDao memberKeyDao
 
 
-    def getClientDatabaseOptions(String memberKey, String apiKey) {
+    def getClientDatabaseOptions() {
 
-        def clientOptions = hashingService.getClientOptions(apiKey).data
+        def clientOptions = hashingService.getClientOptions().data
 
         return [
                 databaseDialect: clientOptions.databaseDialect.toString()
@@ -82,11 +82,11 @@ class ApiService {
     }
 
 
-    def getRequestQueriesResult(String memberKey, String apiKey, def request) {
-        return this.getRequestQueriesResult(memberKey, apiKey, request, false)
+    def getRequestQueriesResult(List<String> request) {
+        return this.getRequestQueriesResult(request, false)
     }
 
-    def getRequestQueriesResult(String memberKey, String apiKey, def request, def grouped) {
+    def getRequestQueriesResult(List<String> request, Boolean grouped) {
 
 
         def clientOptions = hashingService.getClientOptions(apiKey).data
