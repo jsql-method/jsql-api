@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "member_key")
-public class  MemberKey {
+public class DeveloperKey {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

@@ -1,16 +1,17 @@
-package pl.jsql.api.repo
+package pl.jsql.api.repo;
 
-import org.springframework.data.repository.CrudRepository
-import pl.jsql.api.model.dict.EncodingDict
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
+import pl.jsql.api.model.dict.EncodingDict;
 
-import javax.transaction.Transactional
+import java.util.Optional;
 
-@Transactional
+@Repository
 interface EncodingDictDao extends CrudRepository<EncodingDict, Long> {
 
-    EncodingDict findByName(String name)
+    Optional<EncodingDict> findByName(String name);
 
-    EncodingDict findByValue(String value)
+    Optional<EncodingDict> findByValue(String value);
 
 }
 

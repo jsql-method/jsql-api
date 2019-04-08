@@ -1,13 +1,10 @@
-package pl.jsql.api.repo
+package pl.jsql.api.repo;
 
-import org.springframework.data.repository.CrudRepository
-import pl.jsql.api.enums.RoleTypeEnum
-import pl.jsql.api.model.payment.Webhook
-import pl.jsql.api.model.user.Role
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
+import pl.jsql.api.model.payment.Webhook;
 
-import javax.transaction.Transactional
-
-@Transactional
+@Repository
 interface WebhookDao extends CrudRepository<Webhook, Long> {
 
 }

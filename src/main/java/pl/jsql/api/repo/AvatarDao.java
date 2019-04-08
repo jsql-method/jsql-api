@@ -1,16 +1,16 @@
-package pl.jsql.api.repo
+package pl.jsql.api.repo;
 
-import org.springframework.data.repository.CrudRepository
-import pl.jsql.api.model.payment.Webhook
-import pl.jsql.api.model.user.Avatar
-import pl.jsql.api.model.user.User
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
+import pl.jsql.api.model.user.Avatar;
+import pl.jsql.api.model.user.User;
 
-import javax.transaction.Transactional
+import java.util.Optional;
 
-@Transactional
+@Repository
 interface AvatarDao extends CrudRepository<Avatar, Long> {
 
-    Avatar findByUser(User user)
+    Optional<Avatar> findByUser(User user);
 
 }
 

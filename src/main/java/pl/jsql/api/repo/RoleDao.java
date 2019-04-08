@@ -1,15 +1,16 @@
-package pl.jsql.api.repo
+package pl.jsql.api.repo;
 
-import org.springframework.data.repository.CrudRepository
-import pl.jsql.api.enums.RoleTypeEnum
-import pl.jsql.api.model.user.Role
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
+import pl.jsql.api.enums.RoleTypeEnum;
+import pl.jsql.api.model.user.Role;
 
-import javax.transaction.Transactional
+import java.util.Optional;
 
-@Transactional
+@Repository
 interface RoleDao extends CrudRepository<Role, Long> {
 
-    Role findByAuthority(RoleTypeEnum authority)
+    Optional<Role> findByAuthority(RoleTypeEnum authority);
 
 }
 

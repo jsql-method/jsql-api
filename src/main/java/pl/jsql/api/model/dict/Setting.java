@@ -7,8 +7,8 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "settings")
-public class  Settings {
+@Table(name = "setting")
+public class Setting {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

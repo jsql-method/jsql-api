@@ -7,7 +7,7 @@ import pl.jsql.api.dto.request.UserRequest
 import pl.jsql.api.enums.PlansEnum
 import pl.jsql.api.enums.RoleTypeEnum
 import pl.jsql.api.enums.SettingEnum
-import pl.jsql.api.model.payment.Plans
+import pl.jsql.api.model.payment.Plan
 import pl.jsql.api.model.user.User
 import pl.jsql.api.repo.*
 import pl.jsql.api.security.service.SecurityService
@@ -74,7 +74,7 @@ public class  PaymentService {
 
                 }
 
-                Plans plan = plansDao.findFirstByCompany(user.company)
+                Plan plan = plansDao.findFirstByCompany(user.company)
 
                 switch (planDescription.toLowerCase()) {
 
@@ -134,7 +134,7 @@ public class  PaymentService {
 
         int usersCount = userDao.countByCompany(user.company)
         int activeApplications = applicationDao.countByUser(user)
-        Plans plan = plansDao.findFirstByCompany(user.company)
+        Plan plan = plansDao.findFirstByCompany(user.company)
         SimpleDateFormat simplify = new SimpleDateFormat("dd-MM-YYY")
         def data = [
                 activationDate    : simplify.format(plan.activationDate),

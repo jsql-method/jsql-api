@@ -1,27 +1,27 @@
-package pl.jsql.api.model.user
+package pl.jsql.api.model.user;
 
-import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import javax.persistence.*
-import javax.validation.constraints.NotNull
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "avatar")
-public class  Avatar {
+public class Avatar {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id
+    public Long id;
 
     @NotNull
-    String name
+    public String name;
 
     @NotNull
-    String originalName
+    public String originalName;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "user_id")
     @JsonIgnore
-    User user
+    public User user;
 
 }

@@ -1,31 +1,32 @@
-package pl.jsql.api.model.user
+package pl.jsql.api.model.user;
 
-import com.fasterxml.jackson.annotation.JsonFormat
+import com.fasterxml.jackson.annotation.JsonFormat;
 
-import javax.persistence.*
+import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Table(name = "company")
-public class  Company {
+public class Company {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id
+    public Long id;
 
-    String name
+    public String name;
 
-    String street
+    public String street;
 
-    String city
+    public String city;
 
-    String postalCode
+    public String postalCode;
 
-    String country
+    public String country;
 
-    Boolean isLicensed
+    public Boolean isLicensed;
 
     @JsonFormat(pattern = "dd-MM-yyyy hh:mm:ss")
     @Temporal(TemporalType.TIMESTAMP)
-    Date creationDate
+    public Date creationDate;
 
 }

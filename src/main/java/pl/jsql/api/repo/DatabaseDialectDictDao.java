@@ -1,15 +1,16 @@
-package pl.jsql.api.repo
+package pl.jsql.api.repo;
 
-import org.springframework.data.repository.CrudRepository
-import pl.jsql.api.model.dict.DatabaseDialectDict
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
+import pl.jsql.api.model.dict.DatabaseDialectDict;
 
-import javax.transaction.Transactional
+import java.util.Optional;
 
-@Transactional
+@Repository
 interface DatabaseDialectDictDao extends CrudRepository<DatabaseDialectDict, Long> {
 
-    DatabaseDialectDict findByName(String name)
+    Optional<DatabaseDialectDict> findByName(String name);
 
-    DatabaseDialectDict findByValue(String value)
+    Optional<DatabaseDialectDict> findByValue(String value);
 }
 

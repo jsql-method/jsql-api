@@ -5,7 +5,7 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import pl.jsql.api.enums.RoleTypeEnum
-import pl.jsql.api.model.payment.Plans
+import pl.jsql.api.model.payment.Plan
 import pl.jsql.api.model.user.User
 import pl.jsql.api.repo.PlansDao
 import pl.jsql.api.repo.RoleDao
@@ -32,9 +32,9 @@ public class  LicenseWatchJob {
     @Scheduled(cron = "0 0 0 * * ?")
     def scheduleJob() {
 
-        List<Plans> plans = plansDao.findAll()
+        List<Plan> plans = plansDao.findAll()
 
-        for (Plans plan : plans) {
+        for (Plan plan : plans) {
 
             if (plan.isTrial) {
 
