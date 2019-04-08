@@ -137,7 +137,7 @@ public class  SecurityInterceptor extends HandlerInterceptorAdapter {
     /**
      * Wykonuje się przed metodą kontrolera
      */
-    boolean preHandle(HttpServletRequest request,
+    Boolean preHandle(HttpServletRequest request,
                              HttpServletResponse response, Object handler)
             throws Exception {
 

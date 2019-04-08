@@ -1,10 +1,10 @@
-package pl.jsql.api.model.dict
+package pl.jsql.api.model.dict;
 
-import org.hibernate.annotations.Type
-import pl.jsql.api.enums.SettingEnum
+import org.hibernate.annotations.Type;
+import pl.jsql.api.enums.SettingEnum;
 
-import javax.persistence.*
-import javax.validation.constraints.NotNull
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "settings")
@@ -12,18 +12,18 @@ public class  Settings {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id
+    public Long id;
 
     @Column(unique = true)
     @NotNull
-    String name
+    public String name;
 
     @Type(type = "org.hibernate.type.TextType")
     @NotNull
-    String value
+    public String value;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    SettingEnum type
+    public SettingEnum type;
 
 }

@@ -15,6 +15,6 @@ import java.lang.annotation.Target
 
     RoleTypeEnum[] roles() default []
 
-    boolean requireActiveSession() default true
+    Boolean requireActiveSession() default true
 
 }

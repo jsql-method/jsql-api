@@ -1,21 +1,17 @@
-package pl.jsql.api.model.payment
+package pl.jsql.api.model.payment;
 
-import org.hibernate.annotations.Type
-import pl.jsql.api.model.user.Company
-
-import javax.persistence.*
-import javax.validation.constraints.NotNull
-
+import org.hibernate.annotations.Type;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "pabbly_webhook")
-public class  Webhook {
+public class Webhook {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id
+    public Long id;
 
     @Type(type = "org.hibernate.type.TextType")
-    String requestText
+    public String requestText;
 
 }

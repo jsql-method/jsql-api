@@ -22,7 +22,7 @@ public class  Company {
 
     String country
 
-    boolean isLicensed
+    Boolean isLicensed
 
     @JsonFormat(pattern = "dd-MM-yyyy hh:mm:ss")
     @Temporal(TemporalType.TIMESTAMP)

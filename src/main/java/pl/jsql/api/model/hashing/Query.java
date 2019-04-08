@@ -1,10 +1,11 @@
-package pl.jsql.api.model.hashing
+package pl.jsql.api.model.hashing;
 
-import com.fasterxml.jackson.annotation.JsonFormat
-import pl.jsql.api.model.user.User
+import com.fasterxml.jackson.annotation.JsonFormat;
+import pl.jsql.api.model.user.User;
 
-import javax.persistence.*
-import javax.validation.constraints.NotNull
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 @Entity
 @Table(name = "query")
@@ -12,31 +13,31 @@ public class  Query {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id
+    public Long id;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "application_id")
-    Application application
+    public Application application;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
-    User user
+    public User user;
 
     @NotNull
-    String query
+    public String query;
 
     @NotNull
-    String hash
+    public String hash;
 
     @NotNull
-    Boolean used
+    public Boolean used;
 
     @NotNull
-    Boolean dynamic
+    public Boolean dynamic;
 
     @NotNull
     @JsonFormat(pattern = "dd-MM-yyyy hh:mm:ss")
     @Temporal(TemporalType.TIMESTAMP)
-    Date queryDate
+    public Date queryDate;
 
 }

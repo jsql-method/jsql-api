@@ -1,8 +1,13 @@
-package pl.jsql.api.dto.response
+package pl.jsql.api.dto.response;
 
-public class  BasicResponse {
+public class  BasicResponse<T> {
 
-    Integer status
-    def data
+    public Integer status;
+    public T data;
 
+    public BasicResponse(Integer status, T data) {
+        this.status = status;
+        this.data = data;
+    }
+    
 }

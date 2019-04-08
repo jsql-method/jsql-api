@@ -1,10 +1,12 @@
 package pl.jsql.api.controller
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*
 import pl.jsql.api.controller.generic.ValidateController
 import pl.jsql.api.dto.request.QueryUpdateRequest
 import pl.jsql.api.dto.response.BasicResponse
+import pl.jsql.api.dto.response.DatabaseOptionsResponse;
 import pl.jsql.api.enums.RoleTypeEnum
 import pl.jsql.api.security.annotation.HashingSecurity
 import pl.jsql.api.security.annotation.Security
@@ -27,9 +29,9 @@ public class  ApiController extends ValidateController {
     @Security(requireActiveSession = false)
     @HashingSecurity
     @GetMapping("/options")
-    BasicResponse getOptions(@RequestHeader(value = "devKey", required = true) String devKey, @RequestHeader(value = "apiKey", required = true) String apiKey) {
-        def response = apiService.getClientDatabaseOptions()
-        return new BasicResponse(status: 200, data: response)
+    BasicResponse<DatabaseOptionsResponse> getOptions(@RequestHeader(value = "devKey", required = true) String devKey, @RequestHeader(value = "apiKey", required = true) String apiKey) {
+        DatabaseOptionsResponse databaseOptionsResponse = apiService.getClientDatabaseOptions()
+        return new BasicResponse(200, databaseOptionsResponse);
     }
 
     @Security(requireActiveSession = false)

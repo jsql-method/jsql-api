@@ -1,7 +1,7 @@
-package pl.jsql.api.model.dict
+package pl.jsql.api.model.dict;
 
-import javax.persistence.*
-import javax.validation.constraints.NotNull
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "database_dialect_dict")
@@ -9,14 +9,14 @@ public class  DatabaseDialectDict {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id
+    public Long id;
 
     @Column(unique = true)
     @NotNull
-    String name
+    public String name;
 
     @Column(unique = true)
     @NotNull
-    String value
+    public String value;
 
 }

@@ -1,12 +1,12 @@
-package pl.jsql.api.model.hashing
+package pl.jsql.api.model.hashing;
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-import org.hibernate.annotations.ColumnDefault
-import pl.jsql.api.model.dict.DatabaseDialectDict
-import pl.jsql.api.model.dict.EncodingDict
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.ColumnDefault;
+import pl.jsql.api.model.dict.DatabaseDialectDict;
+import pl.jsql.api.model.dict.EncodingDict;
 
-import javax.persistence.*
-import javax.validation.constraints.NotNull
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "options")
@@ -14,56 +14,56 @@ public class  Options {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id
+    public Long id;
 
     @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "application_id")
-    Application application
+    public Application application;
 
     @NotNull
-    boolean encodeQuery
+    public Boolean encodeQuery;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "encoding_enum_id")
-    EncodingDict encodingAlgorithm
+    public EncodingDict encodingAlgorithm;
 
     @NotNull
-    boolean isSalt
+    public Boolean isSalt;
 
     @NotNull
-    String salt
+    public String salt;
 
     @NotNull
-    boolean saltBefore
+    public Boolean saltBefore;
 
     @NotNull
-    boolean saltAfter
+    public Boolean saltAfter;
 
     @NotNull
-    boolean saltRandomize
+    public Boolean saltRandomize;
 
     @NotNull
-    boolean hashLengthLikeQuery
+    public Boolean hashLengthLikeQuery;
 
     @NotNull
-    Integer hashMinLength
+    public Integer hashMinLength;
 
     @NotNull
-    Integer hashMaxLength
+    public Integer hashMaxLength;
 
     @NotNull
-    boolean removeQueriesAfterBuild
+    public Boolean removeQueriesAfterBuild;
 
     @Column
     @ColumnDefault("false")
-    boolean allowedPlainQueries
+    public Boolean allowedPlainQueries;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "database_dialect_dict_id")
-    DatabaseDialectDict databaseDialect
+    public DatabaseDialectDict databaseDialect;
 
     @NotNull
-    boolean prod = false
+    public Boolean prod = false;
 
 }

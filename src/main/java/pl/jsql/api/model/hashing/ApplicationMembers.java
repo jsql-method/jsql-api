@@ -1,8 +1,8 @@
-package pl.jsql.api.model.hashing
+package pl.jsql.api.model.hashing;
 
-import pl.jsql.api.model.user.User
+import pl.jsql.api.model.user.User;
 
-import javax.persistence.*
+import javax.persistence.*;
 
 @Entity
 @Table(name = "application_members")
@@ -10,14 +10,14 @@ public class  ApplicationMembers {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id
+    public Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "user_id")
-    User member
+    public User member;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "application_id")
-    Application application
+    public Application application;
 
 }
