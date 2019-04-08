@@ -1,7 +1,8 @@
-package pl.jsql.api.dto.response
+package pl.jsql.api.dto.response;
+
+import java.util.HashMap;
 
 public class  SchemaResponse {
 
-    HashMap<String, HashMap<String, SchemaFieldResponse>> schema = new HashMap<>()
-
+    public HashMap<String, HashMap<String, SchemaFieldResponse>> schema = new HashMap<>();
 }

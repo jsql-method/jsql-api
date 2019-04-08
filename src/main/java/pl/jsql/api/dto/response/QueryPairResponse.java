@@ -1,8 +1,7 @@
-package pl.jsql.api.dto.response
+package pl.jsql.api.dto.response;
 
 public class  QueryPairResponse {
 
-    String token;
-    String query;
-
+    public String token;
+    public String query;
 }

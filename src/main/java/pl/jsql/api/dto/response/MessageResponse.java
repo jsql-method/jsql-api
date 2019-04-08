@@ -1,8 +1,10 @@
-package pl.jsql.api.dto.response
+package pl.jsql.api.dto.response;
+
+import java.util.HashMap;
 
 public class  MessageResponse {
 
-    String message
-    HashMap<String, String> messages
+    public String message;
+    public HashMap<String, String> messages;
 
 }

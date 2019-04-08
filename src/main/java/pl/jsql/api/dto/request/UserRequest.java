@@ -1,15 +1,15 @@
-package pl.jsql.api.dto.request
+package pl.jsql.api.dto.request;
 
 public class  UserRequest {
 
-    String password
-    String email
-    String firstName
-    String lastName
-    String role
-    Long company
-    String application
-    String origin
-    String plan
+    public String password;
+    public String email;
+    public String firstName;
+    public String lastName;
+    public String role;
+    public Long company;
+    public String application;
+    public String origin;
+    public String plan;
 
 }

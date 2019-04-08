@@ -1,9 +1,11 @@
-package pl.jsql.api.dto.request
+package pl.jsql.api.dto.request;
+
+import java.util.Date;
+import java.util.List;
 
 public class  RequestsRequest {
 
-    Date dateFrom
-    Date dateTo
-    List<Long> applications
-
+    public Date dateFrom;
+    public Date dateTo;
+    public List<Long> applications;
 }

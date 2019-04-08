@@ -1,20 +1,19 @@
-package pl.jsql.api.dto.request
+package pl.jsql.api.dto.request;
 
 public class  OptionsRequest {
 
-    Boolean encodeQuery
-    String encodingAlgorithm
-    Boolean isSalt
-    String salt
-    Boolean saltBefore
-    Boolean saltAfter
-    Boolean saltRandomize
-    Boolean hashLengthLikeQuery
-    Integer hashMinLength
-    Integer hashMaxLength
-    Boolean removeQueriesAfterBuild
-    String databaseDialect
-    Boolean allowedPlainQueries
-    Boolean prod
-
+   public Boolean encodeQuery;
+   public String encodingAlgorithm;
+   public Boolean isSalt;
+   public String salt;
+   public Boolean saltBefore;
+   public Boolean saltAfter;
+   public Boolean saltRandomize;
+   public Boolean hashLengthLikeQuery;
+   public Integer hashMinLength;
+   public Integer hashMaxLength;
+   public Boolean removeQueriesAfterBuild;
+   public String databaseDialect;
+   public Boolean allowedPlainQueries;
+   public Boolean prod;
 }

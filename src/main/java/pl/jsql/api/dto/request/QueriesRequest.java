@@ -1,12 +1,14 @@
-package pl.jsql.api.dto.request
+package pl.jsql.api.dto.request;
+
+import java.util.Date;
+import java.util.List;
 
 public class  QueriesRequest {
 
-    Date dateFrom
-    Date dateTo
-    List<Long> applications
-    List<Long> members
-    Boolean used
-    Boolean dynamic
-
+    public Date dateFrom;
+    public Date dateTo;
+    public List<Long> applications;
+    public List<Long> members;
+    public Boolean used;
+    public Boolean dynamic;
 }
