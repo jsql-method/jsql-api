@@ -1,7 +1,13 @@
 package pl.jsql.api.dto.request;
 
+import javax.validation.constraints.NotNull;
+
 public class  QueryUpdateRequest {
 
+    @NotNull
     public String query;
-    public String apiKey;
+
+    @NotNull
+    public Long applicationId;
+
 }

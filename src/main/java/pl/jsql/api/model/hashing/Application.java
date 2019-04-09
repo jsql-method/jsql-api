@@ -15,24 +15,26 @@ public class  Application {
     @GeneratedValue(strategy = GenerationType.AUTO)
     public Long id;
 
+    @JsonIgnore
     @Type(type = "org.hibernate.type.TextType")
     @NotNull
     public String apiKey;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
-    @JoinColumn(name = "user_id")
-    public User user; //company admin
+    @JoinColumn(name = "company_admin_id")
+    public User companyAdmin; //company admin
 
     @NotNull
     @Column(length = 250)
     public String name;
 
+    @JsonIgnore
     public Boolean active;
 
     @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "developer_id")
-    public User developer;
+    @JoinColumn(name = "production_developer_id")
+    public User productionDeveloper;
 
 }

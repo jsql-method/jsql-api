@@ -77,7 +77,7 @@ public class  SecurityInterceptor extends HandlerInterceptorAdapter {
 
                     if (tokenHeader != null && !tokenHeader.isEmpty()) {
 
-                        session = sessionDao.findBySessionHash(tokenHeader).orElse(null);
+                        session = sessionDao.findBySessionHash(tokenHeader);
 
                         if (session != null) {
 

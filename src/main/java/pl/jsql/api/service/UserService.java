@@ -77,7 +77,7 @@ public class  UserService {
         userRequest.application = null
 
         User user = securityService.getCurrentAccount()
-        User beingUpdated = userDao.findById(id).orElse(null)
+        User beingUpdated = userDao.findById(id)
 
         if (!beingUpdated) {
 
@@ -278,7 +278,7 @@ public class  UserService {
 
         if (id != null) {
 
-            beingDeleted = userDao.findById(id).orElse(null)
+            beingDeleted = userDao.findById(id)
 
             if (beingDeleted == null) {
 

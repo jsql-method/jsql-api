@@ -19,7 +19,7 @@ public interface ApplicationDevelopersDao extends CrudRepository<ApplicationDeve
     List<ApplicationDevelopers> findByUserQuery(@Param("member") User member);
 
     @Query("SELECT t FROM ApplicationDevelopers t where t.member = :member and t.application = :application and t.application.active = true")
-    Optional<ApplicationDevelopers> findByUserAndAppQuery(@Param("member") User member, @Param("application") Application application);
+    ApplicationDevelopers findByUserAndAppQuery(@Param("member") User member, @Param("application") Application application);
 
     @Query("select t from ApplicationDevelopers t where t.application.active = true and t.member = :member")
     List<ApplicationDevelopers> findByApplicationActive(@Param("member") User member);

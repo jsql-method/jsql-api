@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import pl.jsql.api.dto.request.LoginRequest
 import pl.jsql.api.dto.request.UserRequest
+import pl.jsql.api.dto.response.MessageResponse;
 import pl.jsql.api.enums.PlansEnum
 import pl.jsql.api.enums.RoleTypeEnum
 import pl.jsql.api.model.hashing.DeveloperKey
@@ -52,7 +53,7 @@ public class  AuthService {
     @Autowired
     SecurityService securityService
 
-    def register(UserRequest request) {
+    public MessageResponse register(UserRequest request) {
 
         def validation = validateRegister(request)
 
@@ -76,7 +77,7 @@ public class  AuthService {
 
         if (request.company) {
 
-            company = companyDao.findById(request.company).orElse(null)
+            company = companyDao.findById(request.company)
 
             if (company == null) {
 

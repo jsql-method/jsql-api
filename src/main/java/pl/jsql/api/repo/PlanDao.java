@@ -10,6 +10,6 @@ import java.util.Optional;
 @Repository
 public interface PlanDao extends CrudRepository<Plan, Long> {
 
-    Optional<Plan> findFirstByCompany(Company company);
+    Plan findFirstByCompany(Company company);
 
 }

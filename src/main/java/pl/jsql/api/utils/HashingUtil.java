@@ -1,6 +1,10 @@
-package pl.jsql.api.utils
+package pl.jsql.api.utils;
 
-import java.security.MessageDigest
+import pl.jsql.api.model.hashing.Options;
+
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * Usługa zabezpieczająca hasła użytkowników
@@ -9,14 +13,32 @@ import java.security.MessageDigest
  */
 public class  HashingUtil {
 
-    static String encode(def options, String query) {
+    public static String encode(Options options, String query) {
 
-        return MessageDigest.getInstance(options.encodingAlgorithm).digest(query.getBytes("UTF-8")).encodeBase64().toString()
+        try {
+            return MessageDigest.getInstance(options.encodingAlgorithm.toString()).digest(query.getBytes("UTF-8")).toString();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+
     }
 
-    static String encode(String name) {
+    public static String encode(String name) {
 
-        return MessageDigest.getInstance("MD5").digest(name.getBytes("UTF-8")).encodeBase64().toString()
+        try {
+            return MessageDigest.getInstance("SHA256").digest(name.getBytes("UTF-8")).toString();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+
     }
 
 }

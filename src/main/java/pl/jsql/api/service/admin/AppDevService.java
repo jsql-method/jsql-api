@@ -1,141 +1,135 @@
-package pl.jsql.api.service.admin
+package pl.jsql.api.service.admin;
 
-import org.apache.commons.codec.digest.DigestUtils
-import org.apache.commons.lang3.RandomStringUtils
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
-import pl.jsql.api.dto.request.UserRequest
-import pl.jsql.api.enums.RoleTypeEnum
-import pl.jsql.api.model.hashing.Application
-import pl.jsql.api.model.hashing.ApplicationDevelopers
-import pl.jsql.api.model.user.Company
-import pl.jsql.api.model.user.User
-import pl.jsql.api.repo.ApplicationMembersDao
-import pl.jsql.api.repo.PlansDao
-import pl.jsql.api.repo.RoleDao
-import pl.jsql.api.repo.UserDao
-import pl.jsql.api.security.service.SecurityService
-import pl.jsql.api.service.AuthService
+import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import pl.jsql.api.dto.request.AppDeveloperRequest;
+import pl.jsql.api.dto.request.UserRequest;
+import pl.jsql.api.dto.response.AppDeveloperResponse;
+import pl.jsql.api.dto.response.MessageResponse;
+import pl.jsql.api.enums.RoleTypeEnum;
+import pl.jsql.api.model.hashing.Application;
+import pl.jsql.api.model.hashing.ApplicationDevelopers;
+import pl.jsql.api.model.user.Company;
+import pl.jsql.api.model.user.User;
+import pl.jsql.api.repo.*;
+import pl.jsql.api.security.service.SecurityService;
+import pl.jsql.api.service.AuthService;
+import pl.jsql.api.utils.TokenUtil;
 
-import static pl.jsql.api.enums.HttpMessageEnum.*
+import java.util.List;
 
 @Transactional
 @Service
-public class  AppDevService {
+public class AppDevService {
 
     @Autowired
-    AuthService authService
+    private AuthService authService;
 
     @Autowired
-    UserDao userDao
+    private UserDao userDao;
 
     @Autowired
-    RoleDao roleDao
+    private RoleDao roleDao;
 
     @Autowired
-    ApplicationMembersDao applicationMembersDao
+    private ApplicationDao applicationDao;
 
     @Autowired
-    SecurityService securityService
+    private ApplicationDevelopersDao applicationDevelopersDao;
 
     @Autowired
-    PlansDao plansDao
+    private SecurityService securityService;
 
-    def getAll() {
+    @Autowired
+    private PlanDao planDao;
 
-        Company company = securityService.getCurrentAccount().company
+    public List<AppDeveloperResponse> list() {
 
-        def list = userDao.findyByCompanyAndRoleWithoutFake(company, roleDao.findByAuthority(RoleTypeEnum.APP_DEV))
-        def memberList = []
+        Company company = securityService.getCurrentAccount().company;
+        return userDao.findyByCompanyAndRoleWithoutFake(company, roleDao.findByAuthority(RoleTypeEnum.APP_DEV));
 
-        for (User user : list) {
-
-            memberList.add([id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName])
-
-        }
-
-        return [code: SUCCESS.getCode(), data: memberList]
     }
 
-    def register(UserRequest userRequest) {
+    public MessageResponse register(AppDeveloperRequest appDeveloperRequest) {
 
-        User user = securityService.getCurrentAccount()
+        User user = securityService.getCurrentAccount();
 
-        int usersCount = userDao.countByCompany(user.company)
-        int allowedUsers = plansDao.findFirstByCompany(user.company).plan.userQty
+        int usersCount = userDao.countByCompany(user.company);
+        int allowedUsers = planDao.findFirstByCompany(user.company).plan.userQty;
 
         if (allowedUsers <= usersCount) {
-
-            return [code: DEVS_LIMIT_REACHED.getCode(), description: DEVS_LIMIT_REACHED.getDescription()]
-
+            return new MessageResponse("developers_limit_reached");
         }
 
-        userRequest.password = RandomStringUtils.randomAlphanumeric(10)
+        UserRequest userRequest = new UserRequest();
+        userRequest.email = appDeveloperRequest.email;
+        userRequest.firstName = appDeveloperRequest.firstName;
+        userRequest.lastName = appDeveloperRequest.lastName;
+        userRequest.password = RandomStringUtils.randomAlphanumeric(10);
+        userRequest.company = user.company.id;
+        userRequest.role = RoleTypeEnum.APP_DEV.toString();
 
-        userRequest.company = user.company.id
+        return authService.register(userRequest);
 
-        userRequest.role = RoleTypeEnum.APP_DEV.toString()
-
-        def result = authService.register(userRequest)
-
-        if (result.code != 200) {
-            return result
-        }
-
-        return [code: SUCCESS.getCode(), data: null]
     }
 
-    def delete(Long id) {
-        User user = userDao.findById(id).orElse(null)
+    public MessageResponse delete(Long id) {
+        User user = userDao.findById(id).orElse(null);
 
         if (user == null) {
-
-            return [code: ACCOUNT_NOT_EXIST.getCode(), description: ACCOUNT_NOT_EXIST.getDescription()]
-
+            return new MessageResponse("developer_does_not_exists");
         }
 
-        applicationMembersDao.clearJoinsByUser(user)
-        applicationMembersDao.deleteAllByUser(user)
+        applicationDevelopersDao.clearJoinsByUser(user);
+        applicationDevelopersDao.deleteAllByUser(user);
 
-        user.email = DigestUtils.md5Hex(user.email + System.currentTimeMillis())
-        user.firstName = DigestUtils.md5Hex(user.firstName + System.currentTimeMillis())
-        user.lastName = DigestUtils.md5Hex(user.lastName + System.currentTimeMillis())
-        user.lastName = DigestUtils.md5Hex(user.password + System.currentTimeMillis())
-        user.enabled = false
-        user.activated = false
-        user.company = null
+        user.email = TokenUtil.hash(user.email);
+        user.firstName = TokenUtil.hash(user.firstName);
+        user.lastName = TokenUtil.hash(user.lastName);
+        user.lastName = TokenUtil.hash(user.password);
+        user.enabled = false;
+        user.activated = false;
+        user.company = null;
 
-        userDao.save(user)
+        userDao.save(user);
 
-        return [code: SUCCESS.getCode(), data: null]
+        return new MessageResponse();
+
     }
 
-    def unassignMember(User user, Application app) {
+    public MessageResponse unassignMember(User user, Application app) {
+
         if (user == null || app == null) {
-            return [code: NO_SUCH_APP_OR_MEMBER.getCode(), description: NO_SUCH_APP_OR_MEMBER.getDescription()]
+            return new MessageResponse("developer_or_application_does_not_exists");
         }
 
-        ApplicationDevelopers appMember = applicationMembersDao.findByUserAndAppQuery(user, app)
+        ApplicationDevelopers appMember = applicationDevelopersDao.findByUserAndAppQuery(user, app);
 
-        //this if clears record links, saves empty record and removes it from database
         if (appMember != null) {
-            appMember.application = null
-            appMember.member = null
 
-            applicationMembersDao.save(appMember)
-            applicationMembersDao.delete(appMember)
+            appMember.application = null;
+            appMember.developer = null;
+            applicationDevelopersDao.save(appMember);
+            applicationDevelopersDao.delete(appMember);
+
         }
-        return [code: SUCCESS.getCode(), data: null]
+
+        return new MessageResponse();
 
     }
 
-    def unassignAllAppsFromMember(User user) {
-        List<Application> list = applicationMembersDao.findByUserQuery(user).application
+    public MessageResponse unassignAllAppsFromMember(User user) {
+
+        List<Application> list = applicationDao.findByUserQuery(user);
 
         for (Application application : list) {
-            unassignMember(user, application)
+            unassignMember(user, application);
         }
 
+        return new MessageResponse();
+
     }
+
 }

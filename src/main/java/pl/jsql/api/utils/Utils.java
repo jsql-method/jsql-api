@@ -1,42 +1,31 @@
-package pl.jsql.api.utils
+package pl.jsql.api.utils;
 
-import java.text.SimpleDateFormat
-import java.util.regex.Matcher
-import java.util.regex.Pattern
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Random;
 
 /**
  * Klasa metod nieprzyporządkowanych
- * @author Dawid
  *
+ * @author Dawid
  */
-public class  Utils {
-
-    public static final Pattern VALID_EMAIL_ADDRESS_REGEX =
-            Pattern.compile('^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$', Pattern.CASE_INSENSITIVE)
-
-    static Boolean isEmail(String emailStr) {
-        Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(emailStr)
-        return matcher.find()
-    }
+public class Utils {
 
     /**
      * Zwraca obecną datę w formacie JSON
-     * @return
      */
-    static String getCurrentDate() {
-        Utils.getDate(new Date())
+    public static String getCurrentDate() {
+        return Utils.getDate(new Date());
     }
 
     /**
      * Formatuje podaną datę do formatu JSON
-     * @param date
-     * @return
      */
-    static String getDate(Date date) {
-        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXX").format(date)
+    public static String getDate(Date date) {
+        return new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(date);
     }
 
-    static int randInt(int min, int max) {
+    public static int randInt(int min, int max) {
 
         // NOTE: This will (intentionally) not run as written so that folks
         // copy-pasting have to think about how to initialize their
@@ -44,17 +33,16 @@ public class  Utils {
         // the main scope of the question, but some decent options are to have
         // a field that is initialized once and then re-used as needed or to
         // use ThreadLocalRandom (if using at least Java 1.7).
-        Random rand
+        Random rand = new Random();
 
         // nextInt is normally exclusive of the top value,
         // so add 1 to make it inclusive
-        int randomNum = rand.nextInt((max - min) + 1) + min
+        return rand.nextInt((max - min) + 1) + min;
 
-        return randomNum
     }
 
-    static Boolean containsIgnoreCase(String str, String contain) {
-        return str.toLowerCase().contains(contain.toLowerCase())
+    public static Boolean containsIgnoreCase(String str, String contain) {
+        return str.toLowerCase().contains(contain.toLowerCase());
     }
 
 }

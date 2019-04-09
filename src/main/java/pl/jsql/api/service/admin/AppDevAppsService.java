@@ -1,93 +1,85 @@
-package pl.jsql.api.service
+package pl.jsql.api.service.admin;
 
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Service
-import pl.jsql.api.dto.request.MemberAssignRequest
-import pl.jsql.api.model.hashing.Application
-import pl.jsql.api.model.hashing.ApplicationDevelopers
-import pl.jsql.api.model.user.User
-import pl.jsql.api.repo.ApplicationDao
-import pl.jsql.api.repo.ApplicationMembersDao
-import pl.jsql.api.repo.UserDao
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import pl.jsql.api.dto.request.MemberAssignRequest;
+import pl.jsql.api.dto.response.AppDeveloperApplicationsResponse;
+import pl.jsql.api.dto.response.MessageResponse;
+import pl.jsql.api.model.hashing.Application;
+import pl.jsql.api.model.hashing.ApplicationDevelopers;
+import pl.jsql.api.model.user.User;
+import pl.jsql.api.repo.ApplicationDao;
+import pl.jsql.api.repo.ApplicationDevelopersDao;
+import pl.jsql.api.repo.UserDao;
 
-import javax.transaction.Transactional
-
-import static pl.jsql.api.enums.HttpMessageEnum.*
+import javax.transaction.Transactional;
 
 @Transactional
 @Service
-public class  AppDevAppsService {
+public class AppDevAppsService {
 
     @Autowired
-    ApplicationDao applicationDao
+    private ApplicationDao applicationDao;
 
     @Autowired
-    UserDao userDao
+    private UserDao userDao;
 
     @Autowired
-    ApplicationMembersDao applicationMembersDao
+    private ApplicationDevelopersDao applicationDevelopersDao;
 
-    def assign(MemberAssignRequest memberAssignRequest) {
+    public MessageResponse assign(MemberAssignRequest memberAssignRequest) {
 
-        if (memberAssignRequest.member == null || memberAssignRequest.application == null) {
+        Application application = applicationDao.findById(memberAssignRequest.application).orElse(null);
+        User developer = userDao.findById(memberAssignRequest.member).orElse(null);
 
-            return [code: BAD_REQUEST.getCode(), description: BAD_REQUEST.getDescription()]
-
+        if (application == null || developer == null) {
+            return new MessageResponse("no_such_developer");
         }
 
-        Application application = applicationDao.findById(memberAssignRequest.application).orElse(null)
-        User member = userDao.findById(memberAssignRequest.member).orElse(null)
-
-        if (application == null || member == null) {
-
-            return [code: NO_SUCH_APP_OR_MEMBER.getCode(), description: NO_SUCH_APP_OR_MEMBER.getDescription()]
-
-        }
-
-        ApplicationDevelopers applicationDevelopers = applicationMembersDao.findByUserAndAppQuery(member, application)
+        ApplicationDevelopers applicationDevelopers = applicationDevelopersDao.findByUserAndAppQuery(developer, application);
 
         if (applicationDevelopers == null) {
 
-            applicationDevelopers = new ApplicationDevelopers()
-            applicationDevelopers.application = application
-            applicationDevelopers.member = member
+            applicationDevelopers = new ApplicationDevelopers();
+            applicationDevelopers.application = application;
+            applicationDevelopers.developer = developer;
 
-            applicationMembersDao.save(applicationDevelopers)
+            applicationDevelopersDao.save(applicationDevelopers);
         }
 
-        return [code: SUCCESS.getCode(), data: null]
+        return new MessageResponse();
+
     }
 
-    def getAll(Long id) {
+    public AppDeveloperApplicationsResponse getById(Long id) {
 
-        User user = userDao.findById(id).orElse(null)
+        User user = userDao.findById(id).orElse(null);
 
         if (user == null) {
-
-            return [code: ACCOUNT_NOT_EXIST.getCode(), description: ACCOUNT_NOT_EXIST.getDescription()]
-
+            return null;
         }
 
-        return [code: SUCCESS.getCode(), data: [
-                userEmail    : user.email,
-                applicationId: applicationMembersDao.findByApplicationActive(user).application.id
-        ]]
+        AppDeveloperApplicationsResponse appDeveloperApplicationsResponse = new AppDeveloperApplicationsResponse();
+        appDeveloperApplicationsResponse.email = user.email;
+        appDeveloperApplicationsResponse.applications = applicationDevelopersDao.findByApplicationActive(user);
+
+        return appDeveloperApplicationsResponse;
+
     }
 
-    def unassign(MemberAssignRequest memberAssignRequest) {
+    public MessageResponse unassign(MemberAssignRequest memberAssignRequest) {
 
-        User user = userDao.findById(memberAssignRequest.member).orElse(null)
-        Application app = applicationDao.findById(memberAssignRequest.application).orElse(null)
+        User user = userDao.findById(memberAssignRequest.member).orElse(null);
+        Application app = applicationDao.findById(memberAssignRequest.application).orElse(null);
 
         if (user == null || app == null) {
-
-            return [code: NO_SUCH_APP_OR_MEMBER.getCode(), description: NO_SUCH_APP_OR_MEMBER.getDescription()]
-
+            return new MessageResponse("no_such_developer");
         }
 
-        applicationMembersDao.clearJoinsByUserAndApp(user, app)
-        applicationMembersDao.deleteByUserAndApp(user, app)
+        applicationDevelopersDao.clearJoinsByUserAndApp(user, app);
+        applicationDevelopersDao.deleteByUserAndApp(user, app);
 
-        return [code: SUCCESS.getCode(), data: null]
+        return new MessageResponse();
+
     }
 }

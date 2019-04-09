@@ -10,7 +10,7 @@ import java.util.Optional;
 @Repository
 public interface AvatarDao extends CrudRepository<Avatar, Long> {
 
-    Optional<Avatar> findByUser(User user);
+    Avatar findByUser(User user);
 
 }
 

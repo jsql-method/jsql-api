@@ -21,6 +21,9 @@ import javax.servlet.http.HttpServletRequest;
 @Component
 public class HashingSecurityInterceptor {
 
+    public static final String API_KEY_HEADER = "ApiKey";
+    public static final String DEV_KEY_HEADER = "DevKey";
+
     @Autowired
     private HttpServletRequest request;
 
@@ -40,9 +43,6 @@ public class HashingSecurityInterceptor {
     @Around("pl.jsql.api.security.interceptor.HashingSecurityInterceptor.hashingSecurityAnnotation()")
     Object doSomething(ProceedingJoinPoint pjp) throws Throwable {
 
-        String API_KEY_HEADER = "ApiKey";
-        String DEV_KEY_HEADER = "DevKey";
-
         String apiKey = request.getHeader(API_KEY_HEADER);
         String devKey = request.getHeader(DEV_KEY_HEADER);
 
@@ -50,14 +50,14 @@ public class HashingSecurityInterceptor {
             return new ResponseEntity<>(new MessageResponse("Unauthorized"), HttpStatus.UNAUTHORIZED);
         }
 
-        Application application = applicationDao.findByApiKey(apiKey).orElse(null);
-        DeveloperKey developerKey = developerKeyDao.findByKey(devKey).orElse(null);
+        Application application = applicationDao.findByApiKey(apiKey);
+        DeveloperKey developerKey = developerKeyDao.findByKey(devKey);
 
         if (application == null || developerKey == null) {
             return new ResponseEntity<>(new MessageResponse("Unauthorized"), HttpStatus.UNAUTHORIZED);
         }
 
-        if (applicationDevelopersDao.findByUserAndAppQuery(developerKey.user, application).orElse(null) == null) {
+        if (applicationDevelopersDao.findByUserAndAppQuery(developerKey.user, application) == null) {
             return new ResponseEntity<>(new MessageResponse("Unauthorized"), HttpStatus.UNAUTHORIZED);
         }
 

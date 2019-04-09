@@ -10,7 +10,7 @@ import java.util.Optional;
 @Repository
 public interface SettingDao extends CrudRepository<Setting, Long> {
 
-    Optional<Setting> findByType(SettingEnum type);
+    Setting findByType(SettingEnum type);
 
 }
 

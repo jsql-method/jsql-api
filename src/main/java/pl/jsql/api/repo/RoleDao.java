@@ -10,7 +10,7 @@ import java.util.Optional;
 @Repository
 public interface RoleDao extends CrudRepository<Role, Long> {
 
-    Optional<Role> findByAuthority(RoleTypeEnum authority);
+    Role findByAuthority(RoleTypeEnum authority);
 
 }
 

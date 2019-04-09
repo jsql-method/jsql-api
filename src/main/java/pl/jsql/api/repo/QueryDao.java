@@ -16,11 +16,11 @@ import java.util.Optional;
 @Repository
 public interface QueryDao extends CrudRepository<Query, Long> {
 
-    Optional<Query> findByHashAndApplication(String hash, Application application);
+    Query findByHashAndApplication(String hash, Application application);
 
-    Optional<Query> findByApplicationAndUserAndQuery(Application application, User user, String query);
+    Query findByApplicationAndUserAndQuery(Application application, User user, String query);
 
-    Optional<Query> findByApplicationAndUserAndHash(Application application, User user, String hash);
+    Query findByApplicationAndUserAndHash(Application application, User user, String hash);
 
     @Modifying
     @org.springframework.data.jpa.repository.Query("delete from Query q where q.application = :application and q.user = :user")

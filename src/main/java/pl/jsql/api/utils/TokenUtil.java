@@ -1,6 +1,7 @@
-package pl.jsql.api.utils
+package pl.jsql.api.utils;
 
-import org.apache.commons.lang3.RandomStringUtils
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 
 /**
  * Usługa obsługująca tokeny zabezpieczające
@@ -11,20 +12,21 @@ public class  TokenUtil {
 
     /**
      * Generuje token autoryzacyjny włączając podane informacje
-     * @param identity
-     * @param passHash
-     * @return
      */
-    static String generateToken(def identity, def length) {
-        return RandomStringUtils.randomAlphanumeric(length as Integer) + String.valueOf(identity)
+    public static String generateToken(Integer identity, Integer length) {
+        return RandomStringUtils.randomAlphanumeric(length) + String.valueOf(identity);
     }
 
-    static String generateToken(def identity, def minLenght, def maxLenght) {
-        return RandomStringUtils.randomAlphanumeric(Utils.randInt(minLenght as Integer,maxLenght as Integer)) + String.valueOf(identity)
+    public static String generateToken(Integer identity, Integer minLenght, Integer maxLenght) {
+        return RandomStringUtils.randomAlphanumeric(Utils.randInt(minLenght, maxLenght)) + String.valueOf(identity);
     }
 
-    static String generateToken(String name) {
-        return RandomStringUtils.randomAlphanumeric(20)+HashingUtil.encode(name)+RandomStringUtils.randomAlphanumeric(20)
+    public static String generateToken(String name) {
+        return RandomStringUtils.randomAlphanumeric(20)+HashingUtil.encode(name)+RandomStringUtils.randomAlphanumeric(20);
+    }
+
+    public static String hash(String str){
+        return DigestUtils.md5Hex(str + System.currentTimeMillis());
     }
 
 }

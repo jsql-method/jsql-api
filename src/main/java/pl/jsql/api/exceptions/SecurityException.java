@@ -1,6 +1,6 @@
 package pl.jsql.api.exceptions;
 
-public class SecurityException extends Exception {
+public class SecurityException extends RuntimeException {
 
     public SecurityException() {
         super();

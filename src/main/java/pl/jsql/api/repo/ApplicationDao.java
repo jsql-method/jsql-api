@@ -16,20 +16,20 @@ import java.util.Optional;
 public interface ApplicationDao extends CrudRepository<Application, Long> {
 
     @Query("SELECT t FROM Application t where t.apiKey = :apiKey and active = true")
-    Optional<Application> findByApiKey(@Param("apiKey") String apiKey);
+    Application findByApiKey(@Param("apiKey") String apiKey);
 
     @Query("SELECT t FROM Application t where t.user = :user and active = true")
     List<Application> findByUserQuery(@Param("user") User user);
 
     @Query("SELECT t FROM Application t where t.user = :user and t.id = :id and active = true")
-    Optional<Application> findByUserAndIdQuery(@Param("user") User user, @Param("id") Long id);
+    Application findByUserAndIdQuery(@Param("user") User user, @Param("id") Long id);
 
     @Modifying
     @Query("update Application set active = false where user = :user")
     void updateApplicationToNotActiveByUser(@Param("user") User user);
 
     @Query("SELECT t FROM Application t where t.name = :name and t.user.company = :company")
-    Optional<Application> findByNameAndCompany(@Param("name") String name, @Param("company") Company company);
+    Application findByNameAndCompany(@Param("name") String name, @Param("company") Company company);
 
     @Query("SELECT COUNT(t) FROM Application t where t.user = :user and active = true")
     Integer countByUser(@Param("user") User user);

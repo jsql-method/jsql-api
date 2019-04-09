@@ -4,6 +4,7 @@ import groovy.json.StringEscapeUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import pl.jsql.api.dto.response.OptionsResponse;
 import pl.jsql.api.model.hashing.Application
 import pl.jsql.api.model.hashing.Options
 import pl.jsql.api.model.hashing.Query
@@ -32,7 +33,7 @@ public class  HashingService {
     @Autowired
     SecurityService securityService
 
-    def getClientOptions() {
+    public OptionsResponse getClientOptions() {
         Application application = applicationDao.findByApiKey(securityService.getApiKey())
 
         if (application == null) {

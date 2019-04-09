@@ -1,109 +1,98 @@
-package pl.jsql.api.service
+package pl.jsql.api.service;
 
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
-import pl.jsql.api.dto.request.QueryUpdateRequest
-import pl.jsql.api.dto.response.MessageResponse
-import pl.jsql.api.dto.response.QueryPairResponse
-import pl.jsql.api.model.hashing.Query
-import pl.jsql.api.model.user.User
-import pl.jsql.api.repo.ApplicationDao
-import pl.jsql.api.repo.MemberKeyDao
-import pl.jsql.api.repo.QueryDao
-import pl.jsql.api.security.service.SecurityService
-import pl.jsql.api.service.HashingService
-import pl.jsql.api.service.QueryService
-import pl.jsql.api.service.StatsService
-import pl.jsql.api.utils.Utils
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import pl.jsql.api.dto.request.QueryUpdateRequest;
+import pl.jsql.api.dto.response.MessageResponse;
+import pl.jsql.api.dto.response.OptionsResponse;
+import pl.jsql.api.dto.response.QueryPairResponse;
+import pl.jsql.api.dto.response.SimpleOptionsResponse;
+import pl.jsql.api.model.hashing.Query;
+import pl.jsql.api.model.user.User;
+import pl.jsql.api.repo.ApplicationDao;
+import pl.jsql.api.repo.DeveloperKeyDao;
+import pl.jsql.api.repo.QueryDao;
+import pl.jsql.api.security.service.SecurityService;
 
-import static pl.jsql.api.enums.HttpMessageEnum.*
+import java.util.ArrayList;
+import java.util.List;
 
 @Transactional
 @Service
-public class  ApiService {
+public class ApiService {
 
     @Autowired
-    HashingService hashingService
+    private HashingService hashingService;
 
     @Autowired
-    QueryService queryService
+    private QueryService queryService;
 
     @Autowired
-    StatsService statsService
+    private StatsService statsService;
 
     @Autowired
-    QueryDao queryDao
+    private QueryDao queryDao;
 
     @Autowired
-    ApplicationDao applicationDao
+    private ApplicationDao applicationDao;
 
     @Autowired
-    MemberKeyDao memberKeyDao
+    private DeveloperKeyDao developerKeyDao;
 
     @Autowired
-    SecurityService securityService
+    private SecurityService securityService;
 
-    def getClientDatabaseOptions() {
+    public SimpleOptionsResponse getClientDatabaseOptions() {
 
-        def clientOptions = hashingService.getClientOptions().data
+        OptionsResponse optionsResponse = hashingService.getClientOptions();
 
-        return [databaseDialect: clientOptions.databaseDialect.toString()]
+        SimpleOptionsResponse simpleOptionsResponse = new SimpleOptionsResponse();
+        simpleOptionsResponse.databaseDialect = optionsResponse.databaseDialect;
+
+        return simpleOptionsResponse;
 
     }
 
-    MessageResponse updateQueriesById(Long id, QueryUpdateRequest queryUpdateRequest) {
+    public MessageResponse updateQueriesById(Long queryId, QueryUpdateRequest queryUpdateRequest) {
 
-        Query query = queryDao.findById(id).orElse(null)
+        Query query = queryDao.findById(queryId).orElse(null);
 
         if (query == null) {
-            return new MessageResponse(message: QUERY_WITH_ID_DOES_NOT_EXIST.getDescription())
+            return new MessageResponse("query_does_not_exists");
         }
 
-        Boolean canUpdate = true
-
-        if (Utils.containsIgnoreCase(query.query, "select") && !Utils.containsIgnoreCase(queryUpdateRequest.query, "select")) {
-            canUpdate = false
-        } else if (Utils.containsIgnoreCase(query.query, "insert") && !Utils.containsIgnoreCase(queryUpdateRequest.query, "insert")) {
-            canUpdate = false
-        } else if (Utils.containsIgnoreCase(query.query, "update") && !Utils.containsIgnoreCase(queryUpdateRequest.query, "update")) {
-            canUpdate = false
-        } else if (Utils.containsIgnoreCase(query.query, "delete") && !Utils.containsIgnoreCase(queryUpdateRequest.query, "delete")) {
-            canUpdate = false
+        if (!query.application.id.equals(queryUpdateRequest.applicationId)) {
+            return new MessageResponse("application_and_query_does_not_match");
         }
 
-        if (canUpdate && query.application.apiKey == queryUpdateRequest.apiKey) {
-            query.query = queryUpdateRequest.query
-            queryDao.save(query)
-        } else if (!canUpdate && query.application.apiKey == queryUpdateRequest.apiKey) {
-            return new MessageResponse(message: QUERY_CHANGE_TYPE_ERROR.getDescription())
-        } else {
-            return new MessageResponse(message: API_KEY_DOES_NOT_MATCH.getDescription())
+        if (query.application.id.equals(queryUpdateRequest.applicationId)) {
+            query.query = queryUpdateRequest.query;
+            queryDao.save(query);
         }
 
-        return new MessageResponse()
+        return new MessageResponse();
+
     }
 
-
-    List<QueryPairResponse> getRequestQueriesResult(List<String> request) {
-        return this.getRequestQueriesResult(request, false)
+    public List<QueryPairResponse> getRequestQueriesResult(List<String> request) {
+        return this.getRequestQueriesResult(request, false);
     }
 
-    List<QueryPairResponse> getRequestQueriesResult(List<String> request, Boolean grouped) {
-
+    public List<QueryPairResponse> getRequestQueriesResult(List<String> request, Boolean grouped) {
 
         def clientOptions = hashingService.getClientOptions().data
-
         def requestHashList = request
 
-        List<QueryPairResponse> responseQueryHashList = new ArrayList<>()
+        List<QueryPairResponse> responseQueryHashList = new ArrayList<>();
 
-        User member = memberKeyDao.findByKey(securityService.getMemberKey()).user
+        User member = developerKeyDao.findByKey(securityService.getMemberKey()).user;
 
         if (grouped) {
             def resultHash = ""
             def query = ""
-            requestHashList.each { String hash ->
+            requestHashList.each {
+                String hash ->
                 if (hash.length() > 0) {
                     resultHash += "=+" + hash
                     query += " " + queryService.getQuery(clientOptions.application, clientOptions.allowedPlainQueries, member, hash).query
@@ -114,18 +103,19 @@ public class  ApiService {
                 queryService.saveQueryPair(clientOptions.application, member, query, resultHash, true)
             }
 
-            responseQueryHashList << new QueryPairResponse(token: resultHash, query: query)
+            responseQueryHashList << new QueryPairResponse(token:resultHash, query:query)
 
             statsService.saveRequest(clientOptions.application, member, resultHash)
 
         } else {
 
-            requestHashList.each { String hash ->
+            requestHashList.each {
+                String hash ->
                 if (hash.length() > 0) {
 
                     def query = queryService.getQuery(clientOptions.application, clientOptions.allowedPlainQueries, member, hash)
 
-                    responseQueryHashList << new QueryPairResponse(token: hash, query: query.query)
+                    responseQueryHashList << new QueryPairResponse(token:hash, query:query.query)
 
                     statsService.saveRequest(clientOptions.application, member, hash)
                 }
@@ -153,7 +143,8 @@ public class  ApiService {
 
         List<QueryPairResponse> responseQueryHashList = new ArrayList<>()
 
-        requestQueryList.each { String query ->
+        requestQueryList.each {
+            String query ->
 
             if (query.length() > 0) {
 
@@ -163,7 +154,7 @@ public class  ApiService {
                     queryService.saveQueryPair(clientOptions.application, member, query, hash)
                 }
 
-                responseQueryHashList << new QueryPairResponse(token: hash, query: query)
+                responseQueryHashList << new QueryPairResponse(token:hash, query:query)
 
             }
 

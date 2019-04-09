@@ -10,9 +10,9 @@ import java.util.Optional;
 @Repository
 public interface DeveloperKeyDao extends CrudRepository<DeveloperKey, Long> {
 
-    Optional<DeveloperKey> findByUser(User user);
+    DeveloperKey findByUser(User user);
 
-    Optional<DeveloperKey> findByKey(String key);
+    DeveloperKey findByKey(String key);
 
     void deleteByUser(User user);
 

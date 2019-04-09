@@ -9,7 +9,7 @@ import java.util.Optional;
 @Repository
 public interface SessionDao extends CrudRepository<Session, Long> {
 
-    Optional<Session> findBySessionHash(String sessionHash);
+    Session findBySessionHash(String sessionHash);
 
 }
 

@@ -6,7 +6,7 @@ public enum SettingEnum {
     ACTIVATION_LINK_EXPIRATION("7"),
     ORIGIN_URL("https://customer.jsql.it");
 
-    String defaultValue;
+    public String defaultValue;
 
     SettingEnum(String defaultValue) {
         this.defaultValue = defaultValue;

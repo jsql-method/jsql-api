@@ -104,7 +104,7 @@ public class  OptionsService {
 
     def getByAppId(Long id) {
 
-        Application currentApp = applicationDao.findById(id).orElse(null)
+        Application currentApp = applicationDao.findById(id)
 
         if (currentApp == null) {
 
@@ -166,7 +166,7 @@ public class  OptionsService {
     def update(Long id, OptionsRequest optionsRequest) {
 
         User currentUser = securityService.getCurrentAccount()
-        Application application = applicationDao.findById(id).orElse(null)
+        Application application = applicationDao.findById(id)
 
         if (application == null || !application.active) {
 

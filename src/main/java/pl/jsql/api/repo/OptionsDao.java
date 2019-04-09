@@ -10,7 +10,7 @@ import java.util.Optional;
 @Repository
 public interface OptionsDao extends CrudRepository<Options, Long> {
 
-    Optional<Options> findByApplication(Application application);
+    Options findByApplication(Application application);
 
 }
 
