@@ -5,7 +5,7 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import pl.jsql.api.enums.RoleTypeEnum;
-import pl.jsql.api.exceptions.SecurityException;
+import pl.jsql.api.exceptions.UnauthorizedException;
 import pl.jsql.api.model.user.Session;
 import pl.jsql.api.repo.SessionDao;
 import pl.jsql.api.security.annotation.Security;
@@ -13,8 +13,6 @@ import pl.jsql.api.security.annotation.Security;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.annotation.Annotation;
-
-import static pl.jsql.api.enums.HttpMessageEnum.*;
 
 /**
  * Interceptor metod kontrolerów implementujący logikę zabezpieczeń
@@ -109,18 +107,18 @@ public class  SecurityInterceptor extends HandlerInterceptorAdapter {
                             sessionInactive = true;
                         }
                     } else {
-                        throw new SecurityException();
+                        throw new UnauthorizedException();
                     }
                 }
             }
         }
 
         if (sessionInactive) {
-            throw new SecurityException();
+            throw new UnauthorizedException();
         }
 
         if (!isAuthorized) {
-            throw new SecurityException();
+            throw new UnauthorizedException();
         }
 
     }

@@ -1,26 +1,30 @@
 package pl.jsql.api.utils;
 
-import pl.jsql.api.model.hashing.Options;
-
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import org.apache.commons.codec.digest.DigestUtils;
+import pl.jsql.api.dto.response.OptionsResponse;
 
 /**
  * Usługa zabezpieczająca hasła użytkowników
- * @author Dawid
  *
+ * @author Dawid
  */
-public class  HashingUtil {
+public class HashingUtil {
 
-    public static String encode(Options options, String query) {
+    public static String encode(OptionsResponse options, String query) {
 
-        try {
-            return MessageDigest.getInstance(options.encodingAlgorithm.toString()).digest(query.getBytes("UTF-8")).toString();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+        switch (options.encodingAlgorithm) {
+            case MD2:
+                return DigestUtils.md2Hex(query);
+            case MD5:
+                return DigestUtils.md5Hex(query);
+            case SHA1:
+                return DigestUtils.sha1Hex(query);
+            case SHA256:
+                return DigestUtils.sha256Hex(query);
+            case SHA384:
+                return DigestUtils.sha384Hex(query);
+            case SHA512:
+                return DigestUtils.sha512Hex(query);
         }
 
         return null;
@@ -28,17 +32,7 @@ public class  HashingUtil {
     }
 
     public static String encode(String name) {
-
-        try {
-            return MessageDigest.getInstance("SHA256").digest(name.getBytes("UTF-8")).toString();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-
+        return DigestUtils.sha256Hex(name);
     }
 
 }

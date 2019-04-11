@@ -15,30 +15,34 @@ import java.util.Optional;
 @Repository
 public interface ApplicationDevelopersDao extends CrudRepository<ApplicationDevelopers, Long> {
 
-    @Query("SELECT t FROM ApplicationDevelopers t where t.member = :member and t.application.active = true")
-    List<ApplicationDevelopers> findByUserQuery(@Param("member") User member);
+    @Query("SELECT t FROM ApplicationDevelopers t where t.developer = :developer and t.application.active = true")
+    List<ApplicationDevelopers> findByUserQuery(@Param("developer") User developer);
 
-    @Query("SELECT t FROM ApplicationDevelopers t where t.member = :member and t.application = :application and t.application.active = true")
-    ApplicationDevelopers findByUserAndAppQuery(@Param("member") User member, @Param("application") Application application);
+    @Query("SELECT t FROM ApplicationDevelopers t where t.developer = :developer and t.application = :application and t.application.active = true")
+    ApplicationDevelopers findByUserAndAppQuery(@Param("developer") User developer, @Param("application") Application application);
 
-    @Query("select t from ApplicationDevelopers t where t.application.active = true and t.member = :member")
-    List<ApplicationDevelopers> findByApplicationActive(@Param("member") User member);
-
-    @Modifying
-    @Query("update ApplicationDevelopers t set t.member = null, t.application = null where t.member = :member and t.application = :application")
-    void clearJoinsByUserAndApp(@Param("member") User member, @Param("application") Application application);
+    @Query("select t from ApplicationDevelopers t where t.application.active = true and t.developer = :developer")
+    List<ApplicationDevelopers> findByApplicationActive(@Param("developer") User developer);
 
     @Modifying
-    @Query("delete from ApplicationDevelopers t where t.member = :member and t.application = :application")
-    void deleteByUserAndApp(@Param("member") User member, @Param("application") Application application);
+    @Query("update ApplicationDevelopers t set t.developer = null, t.application = null where t.developer = :developer and t.application = :application")
+    void clearJoinsByUserAndApp(@Param("developer") User developer, @Param("application") Application application);
 
     @Modifying
-    @Query("update ApplicationDevelopers t set t.member = null, t.application = null where t.member = :member")
-    void clearJoinsByUser(@Param("member") User member);
+    @Query("delete from ApplicationDevelopers t where t.developer = :developer and t.application = :application")
+    void deleteByUserAndApp(@Param("developer") User developer, @Param("application") Application application);
 
     @Modifying
-    @Query("delete from ApplicationDevelopers t where t.member = :member")
-    void deleteAllByUser(@Param("member") User member);
+    @Query("update ApplicationDevelopers t set t.developer = null, t.application = null where t.developer = :developer")
+    void clearJoinsByUser(@Param("developer") User developer);
+
+    @Modifying
+    @Query("delete from ApplicationDevelopers t where t.developer = :developer")
+    void deleteAllByUser(@Param("developer") User developer);
+
+    @Modifying
+    @Query("delete from ApplicationDevelopers ad where ad.application = :application")
+    void deleteAllByApplication(@Param("application") Application application);
 
 }
 

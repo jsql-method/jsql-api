@@ -1,154 +1,138 @@
-package pl.jsql.api.service
+package pl.jsql.api.service;
 
-import org.apache.commons.lang3.RandomStringUtils
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Service
-import pl.jsql.api.dto.request.UserRequest
-import pl.jsql.api.enums.PlansEnum
-import pl.jsql.api.enums.RoleTypeEnum
-import pl.jsql.api.enums.SettingEnum
-import pl.jsql.api.model.payment.Plan
-import pl.jsql.api.model.user.User
-import pl.jsql.api.repo.*
-import pl.jsql.api.security.service.SecurityService
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import pl.jsql.api.dto.request.PabblyPaymentRequest;
+import pl.jsql.api.dto.request.UserRequest;
+import pl.jsql.api.dto.response.PlanResponse;
+import pl.jsql.api.enums.PlansEnum;
+import pl.jsql.api.model.payment.Plan;
+import pl.jsql.api.model.user.User;
+import pl.jsql.api.repo.*;
+import pl.jsql.api.security.service.SecurityService;
 
-import javax.transaction.Transactional
-import java.text.SimpleDateFormat
-
-import static pl.jsql.api.enums.HttpMessageEnum.SUCCESS
-
+import javax.transaction.Transactional;
 
 @Transactional
 @Service
-public class  PaymentService {
+public class PaymentService {
 
     @Autowired
-    UserDao userDao
+    private UserDao userDao;
 
     @Autowired
-    AuthService authService
+    private AuthService authService;
 
     @Autowired
-    PlansDao plansDao
+    private PlanDao planDao;
 
     @Autowired
-    SettingsDao settingsDao
+    private SettingDao settingDao;
 
     @Autowired
-    SecurityService securityService
+    private SecurityService securityService;
 
     @Autowired
-    ApplicationDao applicationDao
+    private ApplicationDao applicationDao;
 
     @Autowired
-    RoleDao roleDao
+    private RoleDao roleDao;
 
     @Autowired
-    UserService userService
+    private UserService userService;
 
-    private static final String SUBSCRIPTION_CREATE = "subscription_create"
-    private static final String SUBSCRIPTION_ACTIVATE = "subscription_activate"
-    private static final String PAYMENT_FAILURE = "payment_failure"
+    private static final String SUBSCRIPTION_CREATE = "subscription_create";
+    private static final String SUBSCRIPTION_ACTIVATE = "subscription_activate";
+    private static final String PAYMENT_FAILURE = "payment_failure";
 
-    void activeOrUnactivePlan(def request) {
+    public void activeOrUnactivePlan(PabblyPaymentRequest request) {
 
-        String eventType = request.event_type
+        String eventType = request.event_type;
 
-        switch (eventType) {
+        String userEmail;
+        User user;
+        Plan plan;
 
-            case SUBSCRIPTION_ACTIVATE:
-            case SUBSCRIPTION_CREATE:
+        if (eventType.equals(SUBSCRIPTION_ACTIVATE) || eventType.equals(SUBSCRIPTION_CREATE)) {
 
-                String userEmail = request.data.email_id
-                String planDescription = request.data.plan.plan_code
-                int trialPeriod = request.data.plan.trial_period
+            userEmail = request.data.email_id;
+            String planDescription = request.data.plan.plan_code;
+            int trialPeriod = request.data.plan.trial_period;
 
-                User user = userDao.findByEmail(userEmail)
+            user = userDao.findByEmail(userEmail);
 
-                if (user == null) {
+            if (user == null) {
 
-                    UserRequest userRequest = new UserRequest(RandomStringUtils.randomAlphanumeric(8), userEmail, "John", "Doe")
-                    userRequest.origin = settingsDao.findByType(SettingEnum.ORIGIN_URL).value
-                    authService.register(userRequest)
-                    user = userDao.findByEmail(userEmail)
+                UserRequest userRequest = new UserRequest();
+                authService.register(userRequest);
+                user = userDao.findByEmail(userEmail);
 
-                }
+            }
 
-                Plan plan = plansDao.findFirstByCompany(user.company)
+            plan = planDao.findFirstByCompany(user.company);
 
-                switch (planDescription.toLowerCase()) {
+            switch (PlansEnum.valueOf(planDescription.toUpperCase())) {
 
-                    case PlansEnum.STARTER.name.toLowerCase():
-                        plan.active = true
-                        plan.plan = PlansEnum.STARTER
-                        plan.isTrial = false
-                        break
+                case STARTER:
+                    plan.active = true;
+                    plan.plan = PlansEnum.STARTER;
+                    break;
 
-                    case PlansEnum.BUSINESS.name.toLowerCase():
-                        plan.active = true
-                        plan.plan = PlansEnum.BUSINESS
-                        plan.isTrial = eventType == SUBSCRIPTION_CREATE
-                        plan.trialPeriod = trialPeriod
-                        break
+                case BUSINESS:
+                    plan.active = true;
+                    plan.plan = PlansEnum.BUSINESS;
+                    break;
 
-                    case PlansEnum.LARGE.name.toLowerCase():
-                        plan.active = true
-                        plan.plan = PlansEnum.LARGE
-                        plan.isTrial = eventType == SUBSCRIPTION_CREATE
-                        plan.trialPeriod = trialPeriod
-                        break
+                case LARGE:
+                    plan.active = true;
+                    plan.plan = PlansEnum.LARGE;
+                    break;
 
-                }
+            }
 
-                userService.forgotPassword(user.email, settingsDao.findByType(SettingEnum.ORIGIN_URL).value)
-                plansDao.save(plan)
+            userService.forgotPassword(user.email);
 
-                break
+            planDao.save(plan);
 
-            case PAYMENT_FAILURE:
+        } else if (eventType.equals(PAYMENT_FAILURE)) {
 
-                String userEmail = request.data.transaction.payment_method.email
-                User user = userDao.findByEmail(userEmail)
+            userEmail = request.data.transaction.payment_method.email;
+            user = userDao.findByEmail(userEmail);
 
-                if (user == null) break
+            if (user == null) {
+                return;
+            }
 
-                Plans plan = plansDao.findFirstByCompany(user.company)
-                plan.active = false
-                plansDao.save(plan)
-
-                break
-
-            default:
-                break
-        }
-    }
-
-    def getPlan() {
-        User user = securityService.getCurrentAccount()
-
-        if (user.role.authority != RoleTypeEnum.COMPANY_ADMIN) {
-
-            user = userDao.findByCompanyAndRole(user.company, roleDao.findByAuthority(RoleTypeEnum.COMPANY_ADMIN)).get(0)
+            plan = planDao.findFirstByCompany(user.company);
+            plan.active = false;
+            planDao.save(plan);
 
         }
 
-        int usersCount = userDao.countByCompany(user.company)
-        int activeApplications = applicationDao.countByUser(user)
-        Plan plan = plansDao.findFirstByCompany(user.company)
-        SimpleDateFormat simplify = new SimpleDateFormat("dd-MM-YYY")
-        def data = [
-                activationDate    : simplify.format(plan.activationDate),
-                trial             : plan.isTrial,
-                trialRemainingDays: plan.trialPeriod,
-                active            : plan.active,
-                maxApps           : plan.plan.appQty,
-                usedApps          : activeApplications,
-                id                : plan.id,
-                name              : plan.plan.name,
-                maxUsers          : plan.plan.userQty,
-                usedUsers         : usersCount
-        ]
 
-        return [code: SUCCESS.getCode(), data: data]
     }
+
+    public PlanResponse getPlan() {
+
+        User companyAdmin = securityService.getCompanyAdmin();
+
+        int activeUsers = userDao.countActiveUsersByCompany(companyAdmin.company);
+        int activeApplications = applicationDao.countActiveApplicationsByCompanyAdmin(companyAdmin);
+
+        Plan plan = planDao.findFirstByCompany(companyAdmin.company);
+
+        PlanResponse planResponse = new PlanResponse();
+
+        planResponse.activationDate = plan.activationDate;
+        planResponse.active = plan.active;
+        planResponse.maxApps = plan.plan.maxApps;
+        planResponse.usedApps = activeApplications;
+        planResponse.maxUsers = plan.plan.maxUsers;
+        planResponse.usedUsers = activeUsers;
+        planResponse.name = plan.plan.name;
+
+        return planResponse;
+
+    }
+
 }

@@ -2,22 +2,18 @@ package pl.jsql.api.enums;
 
 public enum PlansEnum {
 
-    STARTER(1, "STARTER", 1, 1),
-    BUSINESS(2, "BUSINESS", 5, 10),
-    LARGE(3, "LARGE", 15, 20),
-    ENTERPRISE(4, "ENTERPRISE", 0, 0);
+    STARTER("STARTER", 1, 1),
+    BUSINESS("BUSINESS", 5, 10),
+    LARGE("LARGE", 15, 20);
 
-
-    public int id;
     public String name;
-    public int appQty;
-    public int userQty;
+    public int maxApps;
+    public int maxUsers;
 
-    PlansEnum(int id, String name, int appQty, int userQty) {
-        this.id = id;
+    PlansEnum(String name, int maxApps, int maxUsers) {
         this.name = name;
-        this.appQty = appQty;
-        this.userQty = userQty;
+        this.maxApps = maxApps;
+        this.maxUsers = maxUsers;
     }
 
 }

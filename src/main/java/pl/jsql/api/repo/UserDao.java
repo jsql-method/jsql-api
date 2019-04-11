@@ -24,6 +24,9 @@ public interface UserDao extends CrudRepository<User, Long> {
     @Query("select new pl.jsql.api.dto.response.AppAdminResponse(u.id, u.email, u.firstName, u.lastName) from User u where u.company = :company and u.role = :role and u.enabled = true")
     List<AppAdminResponse> findAppAdminsByCompanyAndRole(@Param("company") Company company, @Param("role") Role role);
 
+    @Query("select distinct u from User u, Role r where r.authority = pl.jsql.api.enums.RoleTypeEnum.COMPANY_ADMIN and u.company = :company and u.role = r and u.enabled = true")
+    User findCompanyAdmin(@Param("company") Company company);
+
     @Query("select u from User u where u.company = :company and u.role = :role and u.enabled = true")
     List<User> findByCompanyAndRole(@Param("company") Company company, @Param("role") Role role);
 
@@ -32,6 +35,9 @@ public interface UserDao extends CrudRepository<User, Long> {
 
     @Query("select count(u) from User u where u.company = :company and u.role.id <> 3 and u.isProductionDeveloper <> true")
     Integer countByCompany(@Param("company") Company company);
+
+    @Query("select count(u) from User u where u.company = :company and u.enabled = true")
+    Integer countActiveUsersByCompany(@Param("company") Company company);
 
 }
 

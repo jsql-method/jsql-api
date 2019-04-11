@@ -32,10 +32,7 @@ public class User {
 
     @JsonIgnore
     @Type(type = "org.hibernate.type.TextType")
-    public String activationToken;
-
-    @JsonIgnore
-    public Boolean activated;
+    public String token;
 
     @Column(unique = true)
     @NotNull
@@ -49,24 +46,6 @@ public class User {
 
     @JsonIgnore
     @NotNull
-    public Boolean accountExpired;
-
-    @JsonIgnore
-    @NotNull
-    public Boolean accountLocked;
-
-    @NotNull
-    public Boolean passwordExpired;
-
-    @JsonIgnore
-    @Type(type = "org.hibernate.type.TextType")
-    public String forgotToken;
-
-    @JsonIgnore
-    public Boolean blocked;
-
-    @JsonIgnore
-    @NotNull
     @JsonFormat(pattern = "dd-MM-yyyy hh:mm:ss")
     @Temporal(TemporalType.TIMESTAMP)
     public Date registerDate;
@@ -75,11 +54,6 @@ public class User {
     @JsonFormat(pattern = "dd-MM-yyyy hh:mm:ss")
     @Temporal(TemporalType.TIMESTAMP)
     public Date activationDate;
-
-    @JsonIgnore
-    @JsonFormat(pattern = "dd-MM-yyyy hh:mm:ss")
-    @Temporal(TemporalType.TIMESTAMP)
-    public Date changePasswordDate;
 
     @JsonIgnore
     @NotNull

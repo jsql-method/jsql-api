@@ -1,225 +1,127 @@
-package pl.jsql.api.service
+package pl.jsql.api.service;
 
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
-import pl.jsql.api.dto.request.OptionsRequest
-import pl.jsql.api.enums.RoleTypeEnum
-import pl.jsql.api.model.hashing.Application
-import pl.jsql.api.model.hashing.ApplicationDevelopers
-import pl.jsql.api.model.hashing.Options
-import pl.jsql.api.model.user.User
-import pl.jsql.api.repo.*
-import pl.jsql.api.security.service.SecurityService
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import pl.jsql.api.dto.request.OptionsRequest;
+import pl.jsql.api.dto.response.MessageResponse;
+import pl.jsql.api.dto.response.OptionsResponse;
+import pl.jsql.api.dto.response.OptionsValuesResponse;
+import pl.jsql.api.enums.DatabaseDialectEnum;
+import pl.jsql.api.enums.EncodingEnum;
+import pl.jsql.api.enums.RoleTypeEnum;
+import pl.jsql.api.exceptions.NotFoundException;
+import pl.jsql.api.model.hashing.Application;
+import pl.jsql.api.model.hashing.ApplicationDevelopers;
+import pl.jsql.api.model.hashing.Options;
+import pl.jsql.api.model.user.User;
+import pl.jsql.api.repo.*;
+import pl.jsql.api.security.service.SecurityService;
 
-import static pl.jsql.api.enums.HttpMessageEnum.*
+import java.util.Arrays;
+
 
 @Transactional
 @Service
-public class  OptionsService {
+public class OptionsService {
 
     @Autowired
-    ApplicationDao applicationDao
+    private ApplicationDao applicationDao;
 
     @Autowired
-    OptionsDao optionsDao
+    private OptionsDao optionsDao;
 
     @Autowired
-    DatabaseDialectDictDao databaseDialectDao
+    private ApplicationDevelopersDao applicationDevelopersDao;
 
     @Autowired
-    EncodingDictDao encodingEnumDao
+    UserDao userDao;
 
     @Autowired
-    ApplicationMembersDao applicationMembersDao
+    RoleDao roleDao;
 
     @Autowired
-    UserDao userDao
+    SecurityService securityService;
 
-    @Autowired
-    RoleDao roleDao
+    public OptionsResponse getByApplicationId(Long applicationId) {
 
-    @Autowired
-    SecurityService securityService
+        Application application = applicationDao.findById(applicationId).orElse(null);
 
-    def getAll() {
-
-        User currentUser = securityService.getCurrentAccount()
-
-        def list = []
-        List<Application> applicationList = new ArrayList<>()
-
-        if (currentUser.role.authority == RoleTypeEnum.APP_DEV) {
-
-            List<ApplicationDevelopers> appMembers = applicationMembersDao.findByUserQuery(currentUser)
-
-            for (ApplicationDevelopers am : appMembers) {
-
-                applicationList.add(am.application)
-
-            }
-
-        } else {
-
-            User companyAdmin = currentUser
-
-            if (currentUser.role.authority == RoleTypeEnum.APP_ADMIN) {
-
-                companyAdmin = userDao.findByCompanyAndRole(currentUser.company, roleDao.findByAuthority(RoleTypeEnum.COMPANY_ADMIN)).get(0)
-
-            }
-
-            applicationList = applicationDao.findByUserQuery(companyAdmin)
+        if (application == null) {
+            throw new NotFoundException("application_not_found");
         }
 
-        for (Application application : applicationList) {
+        User currentUser = securityService.getCurrentAccount();
 
-            Options appOptions = optionsDao.findByApplication(application)
+        if (securityService.getCurrentRole() == RoleTypeEnum.APP_DEV) {
 
-            list << [
-                    application: application,
-                    options    : [
-                            applicationId          : application.id,
-                            encodeQuery            : appOptions.encodeQuery,
-                            encodingAlgorithm      : appOptions.encodingAlgorithm.value,
-                            isSalt                 : appOptions.isSalt,
-                            salt                   : appOptions.salt,
-                            saltBefore             : appOptions.saltBefore,
-                            saltAfter              : appOptions.saltAfter,
-                            saltRandomize          : appOptions.saltRandomize,
-                            hashLengthLikeQuery    : appOptions.hashLengthLikeQuery,
-                            hashMinLength          : appOptions.hashMinLength,
-                            hashMaxLenght          : appOptions.hashMaxLength,
-                            removeQueriesAfterBuild: appOptions.removeQueriesAfterBuild,
-                            databaseDialect        : appOptions.databaseDialect.value,
-                            allowedPlainQueries    : appOptions.allowedPlainQueries,
-                            prod                   : appOptions.prod
-                    ]
-            ]
+            ApplicationDevelopers applicationDeveloper = applicationDevelopersDao.findByUserAndAppQuery(currentUser, application);
+
+            if (applicationDeveloper == null) {
+                throw new NotFoundException("application_not_found");
+            }
 
         }
 
-        return [code: SUCCESS.getCode(), data: list]
+        Options options = optionsDao.findByApplication(application);
+
+        OptionsResponse optionsResponse = new OptionsResponse();
+        optionsResponse.encodingAlgorithm = options.encodingAlgorithm;
+        optionsResponse.isSalt = options.isSalt;
+        optionsResponse.salt = options.salt;
+        optionsResponse.saltBefore = options.saltBefore;
+        optionsResponse.saltAfter = options.saltAfter;
+        optionsResponse.saltRandomize = options.saltRandomize;
+        optionsResponse.hashLengthLikeQuery = options.hashLengthLikeQuery;
+        optionsResponse.hashMinLength = options.hashMinLength;
+        optionsResponse.hashMaxLength = options.hashMaxLength;
+        optionsResponse.removeQueriesAfterBuild = options.removeQueriesAfterBuild;
+        optionsResponse.databaseDialect = options.databaseDialect;
+        optionsResponse.allowedPlainQueries = options.allowedPlainQueries;
+        optionsResponse.prod = options.prod;
+
+        return optionsResponse;
+
     }
 
-    def getByAppId(Long id) {
+    public MessageResponse update(Long applicationId, OptionsRequest optionsRequest) {
 
-        Application currentApp = applicationDao.findById(id)
+        Application application = applicationDao.findById(applicationId).orElse(null);
 
-        if (currentApp == null) {
-
-            return [code: NO_SUCH_APP_OR_MEMBER.getCode(), description: NO_SUCH_APP_OR_MEMBER.getDescription()]
-
+        if (application == null) {
+            throw new NotFoundException("application_not_found");
         }
 
-        User currentUser = securityService.getCurrentAccount()
+        Options options = optionsDao.findByApplication(application);
 
-        Application application
-
-        if (currentUser.role.authority == RoleTypeEnum.APP_DEV) {
-
-            ApplicationDevelopers appMember = applicationMembersDao.findByUserAndAppQuery(currentUser, currentApp)
-
-            if (appMember == null) {
-
-                return [code: NO_SUCH_APP_OR_MEMBER.getCode(), description: NO_SUCH_APP_OR_MEMBER.getDescription()]
-
-            }
-
-            application = appMember.application
-
-        } else {
-
-            User companyAdmin = currentUser
-
-            if (currentUser.role.authority == RoleTypeEnum.APP_ADMIN) {
-
-                companyAdmin = userDao.findByCompanyAndRole(currentUser.company, roleDao.findByAuthority(RoleTypeEnum.COMPANY_ADMIN)).get(0)
-
-            }
-
-            application = applicationDao.findByUserAndIdQuery(companyAdmin, id)
-
-        }
+        options.databaseDialect = optionsRequest.databaseDialect == null ? options.databaseDialect : optionsRequest.databaseDialect;
+        options.encodingAlgorithm = optionsRequest.encodingAlgorithm == null ? options.encodingAlgorithm : optionsRequest.encodingAlgorithm;
+        options.isSalt = optionsRequest.isSalt == null ? options.isSalt : optionsRequest.isSalt;
+        options.salt = optionsRequest.salt == null ? options.salt : optionsRequest.salt;
+        options.saltBefore = optionsRequest.saltBefore == null ? options.saltBefore : optionsRequest.saltBefore;
+        options.saltAfter = optionsRequest.saltAfter == null ? options.saltAfter : optionsRequest.saltAfter;
+        options.saltRandomize = optionsRequest.saltRandomize == null ? options.saltRandomize : optionsRequest.saltRandomize;
+        options.hashLengthLikeQuery = optionsRequest.hashLengthLikeQuery == null ? options.hashLengthLikeQuery : optionsRequest.hashLengthLikeQuery;
+        options.hashMinLength = optionsRequest.hashMinLength == null ? options.hashMinLength : optionsRequest.hashMinLength;
+        options.hashMaxLength = optionsRequest.hashMaxLength == null ? options.hashMaxLength : optionsRequest.hashMaxLength;
+        options.removeQueriesAfterBuild = optionsRequest.removeQueriesAfterBuild == null ? options.removeQueriesAfterBuild : optionsRequest.removeQueriesAfterBuild;
+        options.allowedPlainQueries = optionsRequest.allowedPlainQueries == null ? options.allowedPlainQueries : optionsRequest.allowedPlainQueries;
+        options.prod = optionsRequest.prod == null ? options.prod : optionsRequest.prod;
 
 
-        Options appOptions = optionsDao.findByApplication(application)
+        return new MessageResponse();
 
-        return [
-                encodeQuery            : appOptions.encodeQuery,
-                encodingAlgorithm      : appOptions.encodingAlgorithm.value,
-                isSalt                 : appOptions.isSalt,
-                salt                   : appOptions.salt,
-                saltBefore             : appOptions.saltBefore,
-                saltAfter              : appOptions.saltAfter,
-                saltRandomize          : appOptions.saltRandomize,
-                hashLengthLikeQuery    : appOptions.hashLengthLikeQuery,
-                hashMinLength          : appOptions.hashMinLength,
-                hashMaxLenght          : appOptions.hashMaxLength,
-                removeQueriesAfterBuild: appOptions.removeQueriesAfterBuild,
-                databaseDialect        : appOptions.databaseDialect.value,
-                allowedPlainQueries    : appOptions.allowedPlainQueries,
-                prod                   : appOptions.prod
-        ]
     }
 
-    def update(Long id, OptionsRequest optionsRequest) {
+    public OptionsValuesResponse getValues() {
 
-        User currentUser = securityService.getCurrentAccount()
-        Application application = applicationDao.findById(id)
+        OptionsValuesResponse optionsValuesResponse = new OptionsValuesResponse();
 
-        if (application == null || !application.active) {
+        optionsValuesResponse.databaseDialectValues = Arrays.asList(DatabaseDialectEnum.values());
+        optionsValuesResponse.encodingAlgorithmValues = Arrays.asList(EncodingEnum.values());
 
-            return [code: NO_SUCH_APP_OR_MEMBER.getCode(), description: NO_SUCH_APP_OR_MEMBER.getDescription()]
+        return optionsValuesResponse;
 
-        }
-
-        if (application.user.company != currentUser.company) {
-
-            return [code: FORBIDDEN.getCode(), description: FORBIDDEN.getDescription()]
-
-        }
-
-        Options appOptions = optionsDao.findByApplication(application)
-
-        appOptions.encodeQuery = optionsRequest.encodeQuery == null ? appOptions.encodeQuery : optionsRequest.encodeQuery
-
-        def encodingAlgorithmValue = encodingEnumDao.findByValue(optionsRequest.encodingAlgorithm)
-
-        if (encodingAlgorithmValue) {
-            appOptions.encodingAlgorithm = encodingAlgorithmValue
-        }
-
-        appOptions.isSalt = optionsRequest.isSalt == null ? appOptions.isSalt : optionsRequest.isSalt
-        appOptions.salt = optionsRequest.salt == null ? appOptions.salt : optionsRequest.salt
-        appOptions.saltBefore = optionsRequest.saltBefore == null ? appOptions.saltBefore : optionsRequest.saltBefore
-        appOptions.saltAfter = optionsRequest.saltAfter == null ? appOptions.saltAfter : optionsRequest.saltAfter
-        appOptions.saltRandomize = optionsRequest.saltRandomize == null ? appOptions.saltRandomize : optionsRequest.saltRandomize
-        appOptions.hashLengthLikeQuery = optionsRequest.hashLengthLikeQuery == null ? appOptions.hashLengthLikeQuery : optionsRequest.hashLengthLikeQuery
-        appOptions.hashMinLength = optionsRequest.hashMinLength == null ? appOptions.hashMinLength : optionsRequest.hashMinLength
-        appOptions.hashMaxLength = optionsRequest.hashMaxLength == null ? appOptions.hashMaxLength : optionsRequest.hashMaxLength
-        appOptions.removeQueriesAfterBuild = optionsRequest.removeQueriesAfterBuild == null ? appOptions.removeQueriesAfterBuild : optionsRequest.removeQueriesAfterBuild
-        appOptions.allowedPlainQueries = optionsRequest.allowedPlainQueries == null ? appOptions.allowedPlainQueries : optionsRequest.allowedPlainQueries
-        appOptions.prod = optionsRequest.prod == null ? appOptions.prod : optionsRequest.prod
-
-        def databaseDialectValue = databaseDialectDao.findByValue(optionsRequest.databaseDialect)
-
-        if (databaseDialectValue) {
-            appOptions.setDatabaseDialect(databaseDialectValue)
-        }
-
-        return [code: SUCCESS.getCode(), data: null]
-    }
-
-    def getValues() {
-
-        def list = []
-        list << [
-                encodingAlgorithmValues  : encodingEnumDao.findAll(),
-                databaseDialectValues    : databaseDialectDao.findAll(),
-        ]
-
-        return [code: SUCCESS.getCode(), data: list]
     }
 
 }

@@ -79,90 +79,95 @@ public class ApiService {
         return this.getRequestQueriesResult(request, false);
     }
 
-    public List<QueryPairResponse> getRequestQueriesResult(List<String> request, Boolean grouped) {
+    public List<QueryPairResponse> getRequestQueriesResult(List<String> requestHashes, Boolean grouped) {
 
-        def clientOptions = hashingService.getClientOptions().data
-        def requestHashList = request
-
+        OptionsResponse optionsResponse = hashingService.getClientOptions();
         List<QueryPairResponse> responseQueryHashList = new ArrayList<>();
 
-        User member = developerKeyDao.findByKey(securityService.getMemberKey()).user;
+        User developer = developerKeyDao.findByKey(securityService.getMemberKey()).user;
 
         if (grouped) {
-            def resultHash = ""
-            def query = ""
-            requestHashList.each {
-                String hash ->
+
+            StringBuilder resultHash = new StringBuilder();
+            StringBuilder query = new StringBuilder();
+
+            for (String hash : requestHashes) {
+
                 if (hash.length() > 0) {
-                    resultHash += "=+" + hash
-                    query += " " + queryService.getQuery(clientOptions.application, clientOptions.allowedPlainQueries, member, hash).query
+                    resultHash
+                            .append("=+")
+                            .append(hash);
+                    query
+                            .append(" ")
+                            .append(queryService.getQuery(optionsResponse.application, optionsResponse.allowedPlainQueries, developer, hash).query);
                 }
+
             }
 
-            if (!queryDao.findByApplicationAndUserAndHash(clientOptions.application, member, resultHash)) {
-                queryService.saveQueryPair(clientOptions.application, member, query, resultHash, true)
+            String resultHashString = resultHash.toString();
+            String queryString = query.toString();
+
+            if (queryDao.findByApplicationAndUserAndHash(optionsResponse.application, developer, resultHashString) == null) {
+                queryService.saveQueryPair(optionsResponse.application, developer, queryString, resultHashString, true);
             }
 
-            responseQueryHashList << new QueryPairResponse(token:resultHash, query:query)
+            responseQueryHashList.add(new QueryPairResponse(resultHashString, queryString));
 
-            statsService.saveRequest(clientOptions.application, member, resultHash)
+            statsService.saveRequest(optionsResponse.application, developer, resultHashString);
 
         } else {
 
-            requestHashList.each {
-                String hash ->
+            for (String hash : requestHashes) {
                 if (hash.length() > 0) {
 
-                    def query = queryService.getQuery(clientOptions.application, clientOptions.allowedPlainQueries, member, hash)
+                    Query query = queryService.getQuery(optionsResponse.application, optionsResponse.allowedPlainQueries, developer, hash);
 
-                    responseQueryHashList << new QueryPairResponse(token:hash, query:query.query)
+                    responseQueryHashList.add(new QueryPairResponse(hash, query.query));
 
-                    statsService.saveRequest(clientOptions.application, member, hash)
+                    statsService.saveRequest(optionsResponse.application, developer, hash);
+
                 }
 
             }
 
         }
 
-        return responseQueryHashList
+        return responseQueryHashList;
 
     }
 
-    List<QueryPairResponse> getRequestHashesResult(List<String> request) {
+   public List<QueryPairResponse> getRequestHashesResult(List<String> requestQueries) {
 
-        def clientOptions = hashingService.getClientOptions().data
-        def requestQueryList = request
+        OptionsResponse optionsResponse = hashingService.getClientOptions();
 
-        User member = memberKeyDao.findByKey(securityService.getMemberKey()).user
+        User developer = developerKeyDao.findByKey(securityService.getMemberKey()).user;
 
-        if (clientOptions.removeQueriesAfterBuild) {
-
-            queryService.deleteForApplicationAndMember(clientOptions.application, member)
-
+        if (optionsResponse.removeQueriesAfterBuild) {
+            queryService.deleteForApplicationAndMember(optionsResponse.application, developer);
         }
 
-        List<QueryPairResponse> responseQueryHashList = new ArrayList<>()
+        List<QueryPairResponse> responseQueryHashList = new ArrayList<>();
 
-        requestQueryList.each {
-            String query ->
+        for(String query : requestQueries){
 
             if (query.length() > 0) {
 
-                String hash = hashingService.hashQuery(clientOptions, query).trim()
+                String hash = hashingService.hashQuery(optionsResponse, query).trim();
 
-                if (queryDao.findByApplicationAndUserAndHash(clientOptions.application, member, hash) == null) {
-                    queryService.saveQueryPair(clientOptions.application, member, query, hash)
+                if (queryDao.findByApplicationAndUserAndHash(optionsResponse.application, developer, hash) == null) {
+                    queryService.saveQueryPair(optionsResponse.application, developer, query, hash);
                 }
 
-                responseQueryHashList << new QueryPairResponse(token:hash, query:query)
+                responseQueryHashList.add(new QueryPairResponse(hash, query));
 
             }
 
         }
 
-        statsService.saveBuild(clientOptions.application, member, requestQueryList.size())
 
-        return responseQueryHashList
+        statsService.saveBuild(optionsResponse.application, developer, requestQueries.size());
+
+        return responseQueryHashList;
 
     }
 

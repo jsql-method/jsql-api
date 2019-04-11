@@ -1,325 +1,273 @@
-package pl.jsql.api.service
+package pl.jsql.api.service;
 
-import org.apache.commons.lang3.RandomStringUtils
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
-import pl.jsql.api.dto.request.UserRequest
-import pl.jsql.api.enums.RoleTypeEnum
-import pl.jsql.api.model.hashing.Application
-import pl.jsql.api.model.hashing.ApplicationDevelopers
-import pl.jsql.api.model.hashing.DeveloperKey
-import pl.jsql.api.model.hashing.Options
-import pl.jsql.api.model.user.User
-import pl.jsql.api.repo.*
-import pl.jsql.api.security.service.SecurityService
-import pl.jsql.api.utils.TokenUtil
+import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import pl.jsql.api.dto.request.ApplicationCreateRequest;
+import pl.jsql.api.dto.request.UserRequest;
+import pl.jsql.api.dto.response.ApplicationResponse;
+import pl.jsql.api.dto.response.MessageResponse;
+import pl.jsql.api.enums.DatabaseDialectEnum;
+import pl.jsql.api.enums.EncodingEnum;
+import pl.jsql.api.enums.RoleTypeEnum;
+import pl.jsql.api.model.hashing.Application;
+import pl.jsql.api.model.hashing.ApplicationDevelopers;
+import pl.jsql.api.model.hashing.Options;
+import pl.jsql.api.model.user.Company;
+import pl.jsql.api.model.user.User;
+import pl.jsql.api.repo.*;
+import pl.jsql.api.security.service.SecurityService;
+import pl.jsql.api.utils.TokenUtil;
 
-import static pl.jsql.api.enums.HttpMessageEnum.APPS_LIMIT_REACHED
-import static pl.jsql.api.enums.HttpMessageEnum.APP_ALREADY_EXISTS
-import static pl.jsql.api.enums.HttpMessageEnum.NO_SUCH_APP_OR_MEMBER
-import static pl.jsql.api.enums.HttpMessageEnum.SUCCESS
+import java.util.ArrayList;
+import java.util.List;
 
 @Transactional
 @Service
-public class  ApplicationService {
+public class ApplicationService {
 
     @Autowired
-    ApplicationDao applicationDao
+    private ApplicationDao applicationDao;
 
     @Autowired
-    OptionsDao optionsDao
+    private OptionsDao optionsDao;
 
     @Autowired
-    UserDao userDao
+    private UserDao userDao;
 
     @Autowired
-    DatabaseDialectDictDao databaseDialectDao
+    private ApplicationDevelopersDao applicationDevelopersDao;
 
     @Autowired
-    EncodingDictDao encodingEnumDao
+    private RoleDao roleDao;
 
     @Autowired
-    ApplicationMembersDao applicationMembersDao
+    private SecurityService securityService;
 
     @Autowired
-    RoleDao roleDao
+    private PlanDao planDao;
 
     @Autowired
-    SecurityService securityService
+    private AuthService authService;
 
     @Autowired
-    PlansDao plansDao
+    private DeveloperKeyDao developerKeyDao;
 
-    @Autowired
-    AuthService authService
+    public List<ApplicationResponse> list() {
 
-    @Autowired
-    MemberKeyDao memberKeyDao
+        User currentUser = securityService.getCurrentAccount();
+        List<ApplicationResponse> applicationResponses = new ArrayList<>();
 
-    def getAll() {
-        User currentUser = securityService.getCurrentAccount()
-        def data = []
-        //Pobieranie danych w zależności od roli
-        if (currentUser.role.authority == RoleTypeEnum.APP_DEV) {
-
-            List<ApplicationDevelopers> list = applicationMembersDao.findByUserQuery(currentUser)
-
-            for (ApplicationDevelopers appMember : list) {
-                DeveloperKey key = memberKeyDao.findByUser(appMember.application.developer)
-                data << [
-                        id          : appMember.application.id,
-                        apiKey      : appMember.application.apiKey,
-                        name        : appMember.application.name,
-                        developerKey: key != null ? key.key : null
-                ]
-
-            }
-        } else if (currentUser.role.authority == RoleTypeEnum.ADMIN) {
-            data = applicationDao.findAll()
-        } else {
-
-            User companyAdmin = currentUser
-
-            if (currentUser.role.authority == RoleTypeEnum.APP_ADMIN) {
-
-                companyAdmin = userDao.findByCompanyAndRole(currentUser.company, roleDao.findByAuthority(RoleTypeEnum.COMPANY_ADMIN)).first()
-
-            }
-            List<Application> list = applicationDao.findByUserQuery(companyAdmin)
-            for (Application app : list) {
-                DeveloperKey key = memberKeyDao.findByUser(app.developer)
-                data << [
-                        id          : app.id,
-                        apiKey      : app.apiKey,
-                        name        : app.name,
-                        developerKey: key != null ? key.key : null
-                ]
-
-            }
+        switch (securityService.getCurrentRole()) {
+            case ADMIN:
+                applicationResponses = applicationDao.selectAllApplicationsForAdmin();
+                break;
+            case APP_DEV:
+                applicationResponses = applicationDao.selectAllApplicationsForAppDeveloper(currentUser);
+                break;
+            case APP_ADMIN:
+                applicationResponses = applicationDao.selectAllApplicationsForAppAdmin(currentUser);
+                break;
+            case COMPANY_ADMIN:
+                applicationResponses = applicationDao.selectAllApplicationsForCompanyAdmin(currentUser);
+                break;
         }
 
-        return [code: SUCCESS.getCode(), data: data]
+        return applicationResponses;
+
     }
 
-    def getById(Long id) {
+    public ApplicationResponse getById(Long id) {
 
-        if (!applicationDao.existsById(id)) {
 
-            return [code: NO_SUCH_APP_OR_MEMBER.getCode(), description: NO_SUCH_APP_OR_MEMBER.getDescription()]
+        User currentUser = securityService.getCurrentAccount();
+        ApplicationResponse applicationResponse = null;
 
+        switch (securityService.getCurrentRole()) {
+            case ADMIN:
+                applicationResponse = applicationDao.selectApplicationForAdminById(id);
+                break;
+            case APP_DEV:
+                applicationResponse = applicationDao.selectApplicationForAppDeveloper(id, currentUser);
+                break;
+            case APP_ADMIN:
+                applicationResponse = applicationDao.selectApplicationForAppAdmin(id, currentUser);
+                break;
+            case COMPANY_ADMIN:
+                applicationResponse = applicationDao.selectApplicationForCompanyAdmin(id, currentUser);
+                break;
         }
 
-        User currentUser = securityService.getCurrentAccount()
-        Application currentApp = applicationDao.findById(id).get()
-        DeveloperKey key = memberKeyDao.findByUser(currentApp.developer)
-        def data = []
-
-        if (currentUser.role.authority == RoleTypeEnum.APP_DEV) {
-
-            ApplicationDevelopers appMember = applicationMembersDao.findByUserAndAppQuery(currentUser, currentApp)
-
-            if (appMember == null) {
-
-                return [code: NO_SUCH_APP_OR_MEMBER.getCode(), description: NO_SUCH_APP_OR_MEMBER.getDescription()]
-
-            } else {
-
-                data << [
-                        id          : appMember.application.id,
-                        apiKey      : appMember.application.apiKey,
-                        name        : appMember.application.name,
-                        developerKey: key != null ? key.key : null
-                ]
-
-            }
-
-        } else {
-
-            if (currentApp.user.company != currentUser.company) {
-
-                return [code: NO_SUCH_APP_OR_MEMBER.getCode(), description: NO_SUCH_APP_OR_MEMBER.getDescription()]
-
-            }
-
-            data << [
-                    id          : currentApp.id,
-                    apiKey      : currentApp.apiKey,
-                    name        : currentApp.name,
-                    developerKey: key != null ? key.key : null
-            ]
-
+        if (applicationResponse == null) {
+            throw new SecurityException();
         }
 
-        return [code: SUCCESS.getCode(), data: data]
+        return applicationResponse;
+
     }
 
-    def create(String name) {
+    public Boolean canCreateApplication(User companyAdmin) {
 
-        User currentUser = securityService.getCurrentAccount()
-        User companyAdmin = currentUser
-        Application app = applicationDao.findByNameAndCompany(name, currentUser.company)
+        int activeApplications = applicationDao.countByCompanyAdmin(companyAdmin);
+        int allowedApplications = planDao.findFirstByCompany(companyAdmin.company).plan.maxApps;
+
+        return allowedApplications > activeApplications;
+
+    }
+
+    public MessageResponse create(ApplicationCreateRequest applicationCreateRequest) {
+
+        User companyAdmin = securityService.getCompanyAdmin();
+
+        if (!this.canCreateApplication(companyAdmin)) {
+            return new MessageResponse("applications_limit_reached");
+        }
+
+        Application app = applicationDao.findByNameAndCompany(applicationCreateRequest.name, companyAdmin.company);
+
         if (app != null && !app.active) {
-            app.active = true
-            User applicationDeveloper = createFakeDeveloper(name, companyAdmin)
-            app.developer = applicationDeveloper
+            app.active = true;
+            //Nowy developer bo przy wyłączaniu aplikacji (usuwaniu) po prostu są usuwane wiązania wraz z tym developerem
+            app.productionDeveloper = this.createFakeDeveloper(applicationCreateRequest.name, companyAdmin.company);
 
-            applicationDao.save(app)
+            applicationDao.save(app);
 
-            return [code: SUCCESS.getCode(), data: null]
+            return new MessageResponse();
+
         } else if (app != null) {
-            return [code: APP_ALREADY_EXISTS.getCode(), description: APP_ALREADY_EXISTS.getDescription()]
+            return new MessageResponse("application_already_exists");
         }
 
 
-        if (currentUser.role.authority == RoleTypeEnum.APP_ADMIN) {
+        Application application = this.createApplication(companyAdmin, applicationCreateRequest);
+        assignUserToAppMember(companyAdmin, application);
+        assignNewAppsToAppAdmins(companyAdmin, application);
+        initializeApplicationOptions(application);
 
-            companyAdmin = userDao.findByCompanyAndRole(currentUser.company, roleDao.findByAuthority(RoleTypeEnum.COMPANY_ADMIN)).get(0)
-        }
-        int activeApplications = applicationDao.countByUser(companyAdmin)
-        int allowedApplications = plansDao.findFirstByCompany(companyAdmin.company).plan.appQty
-
-        if (allowedApplications <= activeApplications) {
-
-            return [code: APPS_LIMIT_REACHED.getCode(), description: APPS_LIMIT_REACHED.getDescription()]
-
-        }
-
-        User applicationDeveloper = createFakeDeveloper(name, companyAdmin)
-
-        String apiKey = "==" + this.generateApplication(name)
-
-        Application application = createApplication(apiKey, companyAdmin, name, applicationDeveloper)
-
-        assignUserToAppMember(companyAdmin, application)
-
-        assignNewAppsToAppAdmins(currentUser, application)
-
-        initializeOptionsToApp(application)
-
-        return [code: SUCCESS.getCode(), data: null]
+        return new MessageResponse();
 
     }
 
-    private User createFakeDeveloper(String name, User companyAdmin) {
-        UserRequest userRequest = new UserRequest()
-        userRequest.email = name + "@applicationDeveloper"
-        userRequest.firstName = "application"
-        userRequest.lastName = "developer"
-        userRequest.password = RandomStringUtils.randomAlphanumeric(10)
-        userRequest.company = companyAdmin.company.id
-        userRequest.role = RoleTypeEnum.APP_DEV.toString()
-        authService.register(userRequest)
+    private User createFakeDeveloper(String name, Company company) {
 
-        User applicationDeveloper = userDao.findByEmail(name + "@applicationDeveloper")
-        applicationDeveloper.isProductionDeveloper = true
-        applicationDeveloper.activated = true
-        applicationDeveloper = userDao.save(applicationDeveloper)
-        applicationDeveloper
+        UserRequest userRequest = new UserRequest();
+        userRequest.email = name + "@applicationDeveloper";
+        userRequest.firstName = "application";
+        userRequest.lastName = "developer";
+        userRequest.password = RandomStringUtils.randomAlphanumeric(10);
+        userRequest.company = company.id;
+        userRequest.role = RoleTypeEnum.APP_DEV.toString();
+
+        authService.register(userRequest);
+
+        User applicationDeveloper = userDao.findByEmail(name + "@applicationDeveloper");
+        applicationDeveloper.isProductionDeveloper = true;
+        applicationDeveloper.enabled = true;
+
+        return userDao.save(applicationDeveloper);
+
     }
 
-    def disable(Long id) {
+    public MessageResponse disableApplication(Long id) {
 
-        if (!applicationDao.existsById(id)) {
+        User companyAdmin = securityService.getCompanyAdmin();
 
-            return [code: NO_SUCH_APP_OR_MEMBER.getCode(), description: NO_SUCH_APP_OR_MEMBER.getDescription()]
-
+        if (!this.canCreateApplication(companyAdmin)) {
+            return new MessageResponse("applications_limit_reached");
         }
 
-        Application application = applicationDao.findById(id).get()
+        Application application = applicationDao.findById(id).orElse(null);
 
-        application.active = false
-
-        memberKeyDao.deleteByUser(application.developer)
-        applicationMembersDao.deleteAllByUser(application.developer)
-        userDao.delete(application.developer)
-        application.developer = null
-        applicationDao.save(application)
-
-        return [code: SUCCESS.getCode(), data: null]
-
-    }
-
-    void assignNewAppsToAppAdmins(User user, Application newApp) {
-
-        List<User> appAdmins = userDao.findByCompanyAndRole(user.company, roleDao.findByAuthority(RoleTypeEnum.APP_ADMIN))
-
-        for (User appadmin : appAdmins) {
-
-            assignUserToAppMember(appadmin, newApp)
-
+        if(application == null){
+            return new MessageResponse("application_not_found");
         }
+
+        application.active = false;
+
+        developerKeyDao.deleteByUser(application.productionDeveloper);
+        applicationDevelopersDao.deleteAllByApplication(application);
+        userDao.delete(application.productionDeveloper);
+
+        application.productionDeveloper = null;
+        applicationDao.save(application);
+
+        return new MessageResponse();
+
     }
 
-    void assignUserToAppMember(User user, Application app) {
-        ApplicationDevelopers applicationDevelopers = applicationMembersDao.findByUserAndAppQuery(user, app)
+    public void assignNewAppsToAppAdmins(User companyAdmin, Application application) {
+
+        List<User> appAdmins = userDao.findByCompanyAndRole(companyAdmin.company, roleDao.findByAuthority(RoleTypeEnum.APP_ADMIN));
+
+        for (User appAdmin : appAdmins) {
+            assignUserToAppMember(appAdmin, application);
+        }
+
+    }
+
+    public void assignUserToAppMember(User user, Application application) {
+
+        ApplicationDevelopers applicationDevelopers = applicationDevelopersDao.findByUserAndAppQuery(user, application);
+
         if (applicationDevelopers == null) {
-            applicationDevelopers = new ApplicationDevelopers()
-            applicationDevelopers.application = app
-            applicationDevelopers.member = user
+            applicationDevelopers = new ApplicationDevelopers();
+            applicationDevelopers.application = application;
+            applicationDevelopers.developer = user;
 
-            applicationMembersDao.save(applicationDevelopers)
+            applicationDevelopersDao.save(applicationDevelopers);
         }
+
     }
 
-    def generateApplication(String name) {
+    public String generateApiKey(String name) {
 
-        int iterationCount = 0
-        for (; ;) {
+        String apiKey = "==" + TokenUtil.generateToken(name);
 
-            String apiKey = TokenUtil.generateToken(name)
-
-            Application application = applicationDao.findByApiKey(apiKey)
-
-            if (application == null) {
-                return apiKey
-            }
-
-            iterationCount++
-
-            if (iterationCount > 100) {
-                throw new Exception('UNABLE_GENERATE_API_KEY')
-            }
-
-        }
-    }
-
-    void initializeOptionsToApp(Application application) {
-        Options options = new Options()
-        options.application = application
-        options.encodeQuery = true
-        options.encodingAlgorithm = encodingEnumDao.findByName('MD5')
-        options.isSalt = false
-        options.salt = ""
-        options.saltBefore = true
-        options.saltAfter = false
-        options.saltRandomize = false
-        options.hashLengthLikeQuery = true
-        options.hashMinLength = 10
-        options.hashMaxLength = 50
-        options.removeQueriesAfterBuild = true
-
-        options.databaseDialect = databaseDialectDao.findByName('POSTGRES')
-
-        optionsDao.save(options)
-    }
-
-    Application createApplication(String apiKey, User user, String name, User dev) {
-        Application application = applicationDao.findByNameAndCompany(name, user.company)
+        Application application = applicationDao.findByApiKey(apiKey);
 
         if (application == null) {
-
-            application = new Application()
-            application.apiKey = apiKey
-            application.user = user
-            application.name = name
-            application.developer = dev
-
+            throw new RuntimeException("unable_to_generate_api_key");
         }
 
-        application.active = true
-        applicationDao.save(application)
-        return application
+        return apiKey;
+
+
+    }
+
+    public void initializeApplicationOptions(Application application) {
+
+        Options options = new Options();
+        options.application = application;
+        options.encodingAlgorithm = EncodingEnum.SHA256;
+        options.isSalt = true;
+        options.salt = "";
+        options.saltBefore = true;
+        options.saltAfter = true;
+        options.saltRandomize = true;
+        options.hashLengthLikeQuery = false;
+        options.hashMinLength = 100;
+        options.hashMaxLength = 300;
+        options.removeQueriesAfterBuild = true;
+        options.databaseDialect = DatabaseDialectEnum.POSTGRES;
+
+        optionsDao.save(options);
+
+    }
+
+    public Application createApplication(User companyAdmin, ApplicationCreateRequest applicationCreateRequest) {
+
+        String apiKey = this.generateApiKey(applicationCreateRequest.name);
+
+        Application application = new Application();
+        application.apiKey = apiKey;
+        application.companyAdmin = companyAdmin;
+        application.name = applicationCreateRequest.name;
+        application.productionDeveloper = this.createFakeDeveloper(applicationCreateRequest.name, companyAdmin.company);
+        application.active = true;
+
+        return applicationDao.save(application);
+
     }
 
 }

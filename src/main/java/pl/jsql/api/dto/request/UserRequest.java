@@ -1,6 +1,8 @@
 package pl.jsql.api.dto.request;
 
-public class  UserRequest {
+import pl.jsql.api.enums.PlansEnum;
+
+public class UserRequest {
 
     public String password;
     public String email;
@@ -9,7 +11,20 @@ public class  UserRequest {
     public String role;
     public Long company;
     public String application;
-    public String origin;
-    public String plan;
+    public PlansEnum plan;
+
+    public UserRequest() {
+    }
+
+    public UserRequest(String password, String email, String firstName, String lastName, String role, Long company, String application, PlansEnum plan) {
+        this.password = password;
+        this.email = email;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.role = role;
+        this.company = company;
+        this.application = application;
+        this.plan = plan;
+    }
 
 }

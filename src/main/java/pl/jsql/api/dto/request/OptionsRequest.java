@@ -1,9 +1,11 @@
 package pl.jsql.api.dto.request;
 
+import pl.jsql.api.enums.DatabaseDialectEnum;
+import pl.jsql.api.enums.EncodingEnum;
+
 public class  OptionsRequest {
 
-   public Boolean encodeQuery;
-   public String encodingAlgorithm;
+   public EncodingEnum encodingAlgorithm;
    public Boolean isSalt;
    public String salt;
    public Boolean saltBefore;
@@ -13,7 +15,7 @@ public class  OptionsRequest {
    public Integer hashMinLength;
    public Integer hashMaxLength;
    public Boolean removeQueriesAfterBuild;
-   public String databaseDialect;
+   public DatabaseDialectEnum databaseDialect;
    public Boolean allowedPlainQueries;
    public Boolean prod;
 }

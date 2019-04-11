@@ -1,38 +1,54 @@
-package pl.jsql.api.service
+package pl.jsql.api.service;
 
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Service
-import pl.jsql.api.model.user.Session
-import pl.jsql.api.repo.SessionDao
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import pl.jsql.api.dto.request.LoginRequest;
+import pl.jsql.api.model.user.Session;
+import pl.jsql.api.model.user.User;
+import pl.jsql.api.repo.SessionDao;
+import pl.jsql.api.repo.UserDao;
+import pl.jsql.api.utils.TokenUtil;
 
-import javax.transaction.Transactional
+import javax.transaction.Transactional;
+import java.util.Date;
 
 @Transactional
 @Service
-public class  SessionService {
+public class SessionService {
 
     @Autowired
-    SessionDao sessionDao
+    private SessionDao sessionDao;
 
-    Boolean isLogged(String sessionHash){
+    @Autowired
+    private UserDao userDao;
 
-        Session session = sessionDao.findBySessionHash(sessionHash)
-
-        return session == null ? false : session.closedDate == null
+    public Boolean isLogged(String sessionHash) {
+        Session session = sessionDao.findBySessionHash(sessionHash);
+        return session != null && session.closedDate == null;
 
     }
 
-    def removeSession(String sessionHash) {
+    public void removeSession(String sessionHash) {
+        sessionDao.updateSessionClosedDate(sessionHash, new Date());
+    }
 
-        Session session = sessionDao.findBySessionHash(sessionHash)
 
-        if(session == null){
-            return
+    public Session createSession(LoginRequest loginRequest) {
+
+        User user = userDao.findByEmail(loginRequest.email);
+
+        if (user == null) {
+            throw new SecurityException();
         }
 
-        session.closedDate = new Date()
+        Session session = new Session();
+        session.user = user;
+        session.sessionHash = TokenUtil.hash(loginRequest.email + new Date().getTime());
+        session.createdDate = new Date();
+        session.ipAddress = loginRequest.ipAddress;
 
-        sessionDao.save(session)
+        return sessionDao.save(session);
 
     }
+
 }

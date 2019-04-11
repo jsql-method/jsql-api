@@ -1,160 +1,119 @@
-package pl.jsql.api.service
+package pl.jsql.api.service;
 
-import groovy.json.StringEscapeUtils
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pl.jsql.api.dto.response.OptionsResponse;
-import pl.jsql.api.model.hashing.Application
-import pl.jsql.api.model.hashing.Options
-import pl.jsql.api.model.hashing.Query
-import pl.jsql.api.repo.ApplicationDao
-import pl.jsql.api.repo.OptionsDao
-import pl.jsql.api.repo.QueryDao
-import pl.jsql.api.security.service.SecurityService
-import pl.jsql.api.utils.HashingUtil
-import pl.jsql.api.utils.TokenUtil
-
-import static pl.jsql.api.enums.HttpMessageEnum.SUCCESS
+import pl.jsql.api.exceptions.CryptographyException;
+import pl.jsql.api.exceptions.UnauthorizedException;
+import pl.jsql.api.model.hashing.Application;
+import pl.jsql.api.model.hashing.Options;
+import pl.jsql.api.model.hashing.Query;
+import pl.jsql.api.repo.ApplicationDao;
+import pl.jsql.api.repo.OptionsDao;
+import pl.jsql.api.repo.QueryDao;
+import pl.jsql.api.security.service.SecurityService;
+import pl.jsql.api.utils.HashingUtil;
+import pl.jsql.api.utils.TokenUtil;
 
 @Transactional
 @Service
-public class  HashingService {
+public class HashingService {
 
     @Autowired
-    ApplicationDao applicationDao
+    private ApplicationDao applicationDao;
 
     @Autowired
-    QueryDao queryDao
+    private QueryDao queryDao;
 
     @Autowired
-    OptionsDao optionsDao
+    private OptionsDao optionsDao;
 
     @Autowired
-    SecurityService securityService
+    private SecurityService securityService;
 
     public OptionsResponse getClientOptions() {
-        Application application = applicationDao.findByApiKey(securityService.getApiKey())
+
+        Application application = applicationDao.findByApiKey(securityService.getApiKey());
 
         if (application == null) {
-            throw new Exception("UNAUTHORIZED_WITH_KEY")
+            throw new UnauthorizedException("unauthorized_with_key");
         }
 
-        Options options = optionsDao.findByApplication(application)
-        return [code: SUCCESS.getCode(), data: [
-                application            : application,
-                apiKey                 : securityService.getApiKey(),
-                encodeQuery            : options.encodeQuery,
-                encodingAlgorithm      : options.encodingAlgorithm.value,
-                isSalt                 : options.isSalt,
-                salt                   : options.salt,
-                saltBefore             : options.saltBefore,
-                saltAfter              : options.saltAfter,
-                saltRandomize          : options.saltRandomize,
-                hashLengthLikeQuery    : options.hashLengthLikeQuery,
-                hashMinLength          : options.hashMinLength,
-                hashMaxLenght          : options.hashMaxLength,
-                removeQueriesAfterBuild: options.removeQueriesAfterBuild,
-                databaseDialect        : options.databaseDialect.name,
-                allowedPlainQueries    : options.allowedPlainQueries,
-                prod                   : options.prod
-        ]
-        ]
+        Options options = optionsDao.findByApplication(application);
+
+        OptionsResponse optionsResponse = new OptionsResponse();
+
+        optionsResponse.apiKey = securityService.getApiKey();
+        optionsResponse.encodingAlgorithm = options.encodingAlgorithm;
+        optionsResponse.isSalt = options.isSalt;
+        optionsResponse.salt = options.salt;
+        optionsResponse.saltBefore = options.saltBefore;
+        optionsResponse.saltAfter = options.saltAfter;
+        optionsResponse.saltRandomize = options.saltRandomize;
+        optionsResponse.hashLengthLikeQuery = options.hashLengthLikeQuery;
+        optionsResponse.hashMinLength = options.hashMinLength;
+        optionsResponse.hashMaxLength = options.hashMaxLength;
+        optionsResponse.removeQueriesAfterBuild = options.removeQueriesAfterBuild;
+        optionsResponse.databaseDialect = options.databaseDialect;
+        optionsResponse.allowedPlainQueries = options.allowedPlainQueries;
+        optionsResponse.prod = options.prod;
+
+        return optionsResponse;
+
 
     }
 
-    def hashQuery(def options, String sqlQuery) {
+    public String hashQuery(OptionsResponse options, String sqlQuery) {
 
-        if (options.encodeQuery) {
-            sqlQuery = HashingUtil.encode(options, sqlQuery)
-        }
-
-        String hash = this.generateQueryHash(options, sqlQuery, options.encodeQuery)
+        String hash = this.generateQueryHash(options, sqlQuery);
 
         if (options.isSalt) {
+
             if (options.saltRandomize) {
 
-                def randomized = options.salt.split(options.salt.charAt(options.salt.length() - 1).toString())
-
-                if (randomized.size() > 1) {
-
-                    if (options.saltBefore) {
-                        hash = randomized[0] + hash
-                    }
-
-                    if (options.saltAfter) {
-                        hash = hash + randomized[1]
-                    }
-
-                } else if (randomized.size() > 0) {
-
-                    if (options.saltBefore) {
-                        hash = randomized[0] + hash
-                    } else if (options.saltAfter) {
-                        hash = hash + randomized[0]
-                    }
-
-                }
-
-            } else {
-
                 if (options.saltBefore) {
-                    hash = options.salt + hash
+                    hash = hash + TokenUtil.generateToken(sqlQuery);
                 }
 
                 if (options.saltAfter) {
-                    hash = hash + options.salt
+                    hash = TokenUtil.generateToken(sqlQuery) + hash;
+                }
+
+            } else if (options.salt != null && !options.salt.isEmpty()) {
+
+                if (options.saltBefore) {
+                    hash = options.salt + hash;
+                }
+
+                if (options.saltAfter) {
+                    hash = hash + options.salt;
                 }
 
             }
         }
 
-        hash = hash.replaceAll("[^A-Za-z0-9]", "")
-
-        hash = hash.replaceAll("\\\\", "")
-        hash = hash.replaceAll("/", "")
-        hash = hash.replaceAll("\\+", "")
-
-        hash = StringEscapeUtils.escapeJavaScript(hash)
-
-
-        return hash
+        return hash;
 
     }
 
-    def generateQueryHash(def options, String sqlQuery, Boolean encodedQuery) {
+    private String generateQueryHash(OptionsResponse options, String sqlQuery) {
 
-        int iterationCount = 0
-        for (; ;) {
+        String hash = HashingUtil.encode(options, sqlQuery);
 
-            String hash
-
-            if (!encodedQuery) {
-
-                if (options.hashLengthLikeQuery) {
-                    hash = TokenUtil.generateToken(options.userId, sqlQuery.length())
-                } else {
-                    hash = TokenUtil.generateToken(options.userId, options.hashMinLength, options.hashMaxLength)
-                }
-
-            } else {
-                hash = sqlQuery
-            }
-
-            Query query = queryDao.findByHashAndApplication(hash, options.application)
-
-            if (query == null) {
-                return hash
-            }
-
-            iterationCount++
-
-            if (iterationCount > 10) {
-                throw new Exception('UNABLE_GENERATE_QUERY_HASH')
-            }
-
+        if (options.hashLengthLikeQuery) {
+            hash = TokenUtil.generateMixToken(options.apiKey, hash, sqlQuery.length());
+        } else {
+            hash = TokenUtil.generateMixToken(options.apiKey, hash, options.hashMinLength, options.hashMaxLength);
         }
 
+        Query query = queryDao.findByHashAndApplication(hash, options.application);
+
+        if (query != null) {
+            throw new CryptographyException("cannot_generate_query_hash");
+        }
+
+        return hash;
 
     }
 

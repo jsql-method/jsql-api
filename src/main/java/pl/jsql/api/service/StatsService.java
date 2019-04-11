@@ -1,150 +1,146 @@
-package pl.jsql.api.service
+package pl.jsql.api.service;
 
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.scheduling.annotation.Async
-import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
-import pl.jsql.api.dto.request.BuildsRequest
-import pl.jsql.api.dto.request.QueriesRequest
-import pl.jsql.api.dto.request.RequestsRequest
-import pl.jsql.api.model.hashing.Application
-import pl.jsql.api.model.hashing.Query
-import pl.jsql.api.model.stats.Build
-import pl.jsql.api.model.stats.Request
-import pl.jsql.api.model.user.User
-import pl.jsql.api.repo.ApplicationDao
-import pl.jsql.api.repo.BuildDao
-import pl.jsql.api.repo.QueryDao
-import pl.jsql.api.repo.RequestDao
-import pl.jsql.api.security.service.SecurityService
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import pl.jsql.api.dto.request.BuildsRequest;
+import pl.jsql.api.dto.request.QueriesRequest;
+import pl.jsql.api.dto.request.RequestsRequest;
+import pl.jsql.api.dto.response.BuildsResponse;
+import pl.jsql.api.dto.response.PaginatedDataResponse;
+import pl.jsql.api.dto.response.PaginationResponse;
+import pl.jsql.api.dto.response.QueryResponse;
+import pl.jsql.api.model.hashing.Application;
+import pl.jsql.api.model.hashing.Query;
+import pl.jsql.api.model.stats.Build;
+import pl.jsql.api.model.stats.Request;
+import pl.jsql.api.model.user.User;
+import pl.jsql.api.repo.ApplicationDao;
+import pl.jsql.api.repo.BuildDao;
+import pl.jsql.api.repo.QueryDao;
+import pl.jsql.api.repo.RequestDao;
+import pl.jsql.api.security.service.SecurityService;
+import pl.jsql.api.service.pagination.Pagination;
 
-import java.text.SimpleDateFormat
-
-import static pl.jsql.api.enums.HttpMessageEnum.SUCCESS
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Transactional
 @Service
-public class  StatsService {
+public class StatsService {
 
     @Autowired
-    BuildDao buildDao
+    private BuildDao buildDao;
 
     @Autowired
-    RequestDao requestDao
+    private RequestDao requestDao;
 
     @Autowired
-    SecurityService securityService
+    private SecurityService securityService;
 
     @Autowired
-    QueryDao queryDao
+    private QueryDao queryDao;
 
     @Autowired
-    ApplicationDao applicationDao
+    private ApplicationDao applicationDao;
+
+    @Autowired
+    private Pagination pagination;
 
     @Async
-    void saveBuild(Application application, User user, Integer queriesCount) {
+    public void saveBuild(Application application, User user, Integer queriesCount) {
 
-        Build build = new Build()
-        build.application = application
-        build.user = user
-        build.hashingDate = new Date()
-        build.queriesCount = queriesCount
-        buildDao.save(build)
+        Build build = new Build();
+        build.application = application;
+        build.user = user;
+        build.hashingDate = new Date();
+        build.queriesCount = queriesCount;
+        buildDao.save(build);
 
     }
 
 
     @Async
-    void saveRequest(Application application, User user, String queryHash) {
+    public void saveRequest(Application application, User user, String queryHash) {
 
-        Request request = new Request()
-        request.application = application
-        request.user = user
-        request.queryHash = queryHash
-        request.requestDate = new Date()
+        Request request = new Request();
+        request.application = application;
+        request.user = user;
+        request.queryHash = queryHash;
+        request.requestDate = new Date();
 
-        requestDao.save(request)
+        requestDao.save(request);
 
     }
 
-    Date currentDate() {
-        Calendar cal = Calendar.getInstance()
-        cal.set(Calendar.HOUR_OF_DAY, 0)
-        cal.set(Calendar.MINUTE, 0)
-        cal.set(Calendar.SECOND, 0)
-        cal.set(Calendar.MILLISECOND, 0)
-        return cal.getTime()
+    public PaginatedDataResponse<BuildsResponse> getBuilds(BuildsRequest buildRequest, Integer page) {
+
+        User currentUser = securityService.getCurrentAccount();
+        BuildsResponse buildsResponse = new BuildsResponse();
+
+        switch (securityService.getCurrentRole()) {
+            case COMPANY_ADMIN:
+            case APP_ADMIN:
+                buildsResponse.totalBuilds = buildDao.countBuildsForCompany(currentUser.company, buildRequest.dateFrom, buildRequest.dateTo, buildRequest.applications, buildRequest.developers);
+                buildsResponse.todayBuilds = buildDao.countBuildsForCompany(currentUser.company, new Date(), new Date(), buildRequest.applications, buildRequest.developers);
+                break;
+            case APP_DEV:
+                buildsResponse.totalBuilds = buildDao.countBuildsForDeveloper(currentUser, buildRequest.dateFrom, buildRequest.dateTo, buildRequest.applications);
+                buildsResponse.todayBuilds = buildDao.countBuildsForDeveloper(currentUser, new Date(), new Date(), buildRequest.applications);
+                break;
+        }
+
+        PaginationResponse paginationResponse = this.pagination.paginate(page, buildsResponse.totalBuilds);
+
+        switch (securityService.getCurrentRole()) {
+            case COMPANY_ADMIN:
+            case APP_ADMIN:
+                buildsResponse.builds = buildDao.selectBuildsForCompany(currentUser.company, buildRequest.dateFrom, buildRequest.dateTo, buildRequest.applications, buildRequest.developers, paginationResponse.pageRequest);
+                break;
+            case APP_DEV:
+                buildsResponse.builds = buildDao.selectBuildsForDeveloper(currentUser, buildRequest.dateFrom, buildRequest.dateTo, buildRequest.applications, paginationResponse.pageRequest);
+                break;
+        }
+
+
+        return new PaginatedDataResponse<>(buildsResponse, paginationResponse);
+
     }
 
-    def getBuildsByUser(BuildsRequest buildRequest) {
-        SimpleDateFormat simplify = new SimpleDateFormat("HH:mm:ss dd-MM-YYY")
-        User user = securityService.getCurrentAccount()
-        if (buildRequest.applications == null || buildRequest.applications == []){
-            return [code: SUCCESS.getCode(), data: ""]
-        }
-        List<Build> builds = buildDao.findByCompanyAndCreatedDateBetween(buildRequest.dateFrom, buildRequest.dateTo, user.company, buildRequest.applications, buildRequest.members)
+    public PaginatedDataResponse<List<QueryResponse>> getQueries(QueriesRequest queriesRequest, Integer page) {
 
-        def list = []
-        List buildDatesList = builds.hashingDate
-        int buildsTotal = countMatches(buildDatesList, buildRequest.dateFrom, buildRequest.dateTo)
-        int buildsToday = countMatches(buildDatesList, currentDate(), new Date())
+        User currentUser = securityService.getCurrentAccount();
+        List<QueryResponse> queryResponses = new ArrayList<>();
 
-        list << [
-                buildsTotal: buildsTotal,
-                buildsToday: buildsToday
-        ]
+        Integer count = null;
 
-        def buildList = []
-        for (Build build : builds) {
-            String simpleData = simplify.format(build.hashingDate)
-            buildList << [
-                    applicationName: build.application.name,
-                    buildOwner     : build.user.firstName + " " + build.user.lastName,
-                    hashingTime    : simpleData,
-                    apiId          : build.application.id
-            ]
-        }
-        list << [
-                buildList: buildList
-        ]
-
-
-        return [code: SUCCESS.getCode(), data: list]
-    }
-
-
-    int countMatches(ArrayList<Date> list, Date startDate, Date stopDate) {
-        int countedMatches = 0
-        for (Date date : list) {
-            if (date.after(startDate) && date.before(stopDate)) {
-                countedMatches++
-            }
-        }
-        return countedMatches
-    }
-
-    def getQueries(QueriesRequest queriesRequest) {
-
-        User currentUser = securityService.getCurrentAccount()
-
-        List<Query> queries = queryDao.findByCompanyAndCreatedDateBetween(queriesRequest.dateFrom,
-                queriesRequest.dateTo, currentUser.company, queriesRequest.applications, queriesRequest.members, queriesRequest.used, queriesRequest.dynamic)
-
-        def data = []
-
-        queries.each { query ->
-            data << [
-                    id       : query.id,
-                    query    : query.query,
-                    hash     : query.hash,
-                    queryDate: new SimpleDateFormat('yyyy-MM-dd HH:mm').format(query.queryDate),
-                    used     : query.used,
-                    dynamic  : query.dynamic,
-                    user     : query.user.email
-            ]
+        switch (securityService.getCurrentRole()) {
+            case COMPANY_ADMIN:
+            case APP_ADMIN:
+                count = queryDao.countQueriesForCompany(currentUser.company, queriesRequest.dateFrom, queriesRequest.dateTo, queriesRequest.applications, queriesRequest.developers, queriesRequest.dynamic, queriesRequest.used);
+                break;
+            case APP_DEV:
+                count = queryDao.countQueriesForDeveloper(currentUser, queriesRequest.dateFrom, queriesRequest.dateTo, queriesRequest.applications, queriesRequest.dynamic, queriesRequest.used);
+                break;
         }
 
-        return [code: SUCCESS.getCode(), data: data]
+        PaginationResponse paginationResponse = this.pagination.paginate(page, count);
+
+        switch (securityService.getCurrentRole()) {
+            case COMPANY_ADMIN:
+            case APP_ADMIN:
+                queryResponses = queryDao.selectQueriesForCompany(currentUser.company, queriesRequest.dateFrom, queriesRequest.dateTo, queriesRequest.applications, queriesRequest.developers, queriesRequest.dynamic, queriesRequest.used);
+                break;
+            case APP_DEV:
+                queryResponses = queryDao.selectQueriesForDeveloper(currentUser, queriesRequest.dateFrom, queriesRequest.dateTo, queriesRequest.applications, queriesRequest.dynamic, queriesRequest.used);
+                break;
+        }
+
+        return new PaginatedDataResponse<>(queryResponses, paginationResponse);
+
     }
 
     def getRequests(RequestsRequest request) {
@@ -152,20 +148,19 @@ public class  StatsService {
         def requests = requestDao.findByApplicationsAndDateBetween(request.dateFrom, request.dateTo, currentUser.company, request.applications)
         def data = []
 
-        requests.each { req ->
-            data << [
-                    application  : req.application,
-                    totalRequests: req.totalRequests,
-                    date         : new SimpleDateFormat('dd-MM-YYYY').format(getDateByDayMonthAndYear(req.year, req.month, req.day)),
-                    requests     : getRequestsByHour(req)
+        requests.each {
+            req ->
+                    data <<[
+                    application  :req.application,
+                    totalRequests:req.totalRequests,
+                    date         :
+            new SimpleDateFormat('dd-MM-YYYY').format(getDateByDayMonthAndYear(req.year, req.month, req.day)),
+                    requests     :getRequestsByHour(req)
             ]
         }
 
-        return [code: SUCCESS.getCode(), data: data]
-    }
-
-    Date getDateByDayMonthAndYear(int year, int month, int day) {
-        return new GregorianCalendar(year, month, day).getTime()
+        return [code:
+        SUCCESS.getCode(), data:data]
     }
 
     def getRequestsByHour(def req) {

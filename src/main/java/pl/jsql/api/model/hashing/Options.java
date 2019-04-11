@@ -22,9 +22,6 @@ public class Options {
     @JoinColumn(name = "application_id")
     public Application application;
 
-    @NotNull
-    public Boolean encodeQuery;
-
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "encoding_enum_id")
     public EncodingEnum encodingAlgorithm;

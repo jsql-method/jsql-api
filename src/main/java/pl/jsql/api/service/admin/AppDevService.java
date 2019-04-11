@@ -57,7 +57,7 @@ public class AppDevService {
         User user = securityService.getCurrentAccount();
 
         int usersCount = userDao.countByCompany(user.company);
-        int allowedUsers = planDao.findFirstByCompany(user.company).plan.userQty;
+        int allowedUsers = planDao.findFirstByCompany(user.company).plan.maxUsers;
 
         if (allowedUsers <= usersCount) {
             return new MessageResponse("developers_limit_reached");
@@ -90,7 +90,7 @@ public class AppDevService {
         user.lastName = TokenUtil.hash(user.lastName);
         user.lastName = TokenUtil.hash(user.password);
         user.enabled = false;
-        user.activated = false;
+        user.enabled = false;
         user.company = null;
 
         userDao.save(user);

@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "application")
-public class  Application {
+public class Application {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

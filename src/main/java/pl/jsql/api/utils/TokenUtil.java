@@ -3,6 +3,9 @@ package pl.jsql.api.utils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 
+import javax.rmi.CORBA.Util;
+import java.util.UUID;
+
 /**
  * Usługa obsługująca tokeny zabezpieczające
  * @author Dawid
@@ -17,16 +20,51 @@ public class  TokenUtil {
         return RandomStringUtils.randomAlphanumeric(length) + String.valueOf(identity);
     }
 
+    public static String mixString(String s1, String s2, String s3){
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for(int i = 0; i < s1.length(); i++){
+
+            for(int k = i; k < s2.length(); k++){
+                stringBuilder.append(s2.charAt(k));
+            }
+
+            stringBuilder.append(s1.charAt(i));
+
+            for(int k = i; k < s3.length(); k++){
+                stringBuilder.append(s3.charAt(k));
+            }
+
+        }
+
+        return stringBuilder.toString();
+
+    }
+
+    public static String generateMixToken(String part1, String part2, Integer length) {
+        return mixString(part1, part2, RandomStringUtils.randomAlphanumeric(length)).substring(0, length);
+    }
+
+    public static String generateMixToken(String part1, String part2, Integer minL, Integer maxL) {
+        return generateMixToken(part1, part2, Utils.randInt(minL, maxL));
+    }
+
+
+    public static String generateToken(String identity, Integer minLenght, Integer maxLenght) {
+        return RandomStringUtils.randomAlphanumeric(Utils.randInt(minLenght, maxLenght)) + String.valueOf(identity);
+    }
+
     public static String generateToken(Integer identity, Integer minLenght, Integer maxLenght) {
         return RandomStringUtils.randomAlphanumeric(Utils.randInt(minLenght, maxLenght)) + String.valueOf(identity);
     }
 
     public static String generateToken(String name) {
-        return RandomStringUtils.randomAlphanumeric(20)+HashingUtil.encode(name)+RandomStringUtils.randomAlphanumeric(20);
+        return RandomStringUtils.randomAlphanumeric(20)+HashingUtil.encode(name)+RandomStringUtils.randomAlphanumeric(20)+ UUID.randomUUID();
     }
 
     public static String hash(String str){
-        return DigestUtils.md5Hex(str + System.currentTimeMillis());
+        return DigestUtils.sha256Hex(str + System.currentTimeMillis());
     }
 
 }

@@ -14,11 +14,11 @@ public class Avatar {
     @GeneratedValue(strategy = GenerationType.AUTO)
     public Long id;
 
-    @NotNull
-    public String name;
+    @Column(length = 20)
+    public String type;
 
-    @NotNull
-    public String originalName;
+    @Column(length = 200)
+    public String name;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "user_id")

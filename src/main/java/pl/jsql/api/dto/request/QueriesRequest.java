@@ -8,7 +8,7 @@ public class  QueriesRequest {
     public Date dateFrom;
     public Date dateTo;
     public List<Long> applications;
-    public List<Long> members;
+    public List<Long> developers;
     public Boolean used;
     public Boolean dynamic;
 }
