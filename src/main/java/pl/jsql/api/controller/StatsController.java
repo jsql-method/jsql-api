@@ -27,7 +27,7 @@ public class  StatsController extends ValidateController {
         buildRequest.dateFrom = dateFrom
         buildRequest.dateTo = dateTo
         def response = statsService.getBuildsByUser(buildRequest)
-        return new BasicResponse(status: 200, data: response)
+        return new BasicResponse<>(200, response);
     }
 
     @Security
@@ -36,7 +36,7 @@ public class  StatsController extends ValidateController {
         queriesRequest.dateFrom = dateFrom
         queriesRequest.dateTo = dateTo
         def response = statsService.getQueries(queriesRequest)
-        return new BasicResponse(status: 200, data: response)
+        return new BasicResponse<>(200, response);
     }
 
     @Security
@@ -45,7 +45,7 @@ public class  StatsController extends ValidateController {
         requestsRequest.dateFrom = dateFrom
         requestsRequest.dateTo = dateTo
         def response = statsService.getRequests(requestsRequest)
-        return new BasicResponse(status: 200, data: response)
+        return new BasicResponse<>(200, response);
     }
 
 }

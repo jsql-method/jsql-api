@@ -140,7 +140,10 @@ public class  SecurityInterceptor extends HandlerInterceptorAdapter {
 //            return
 //        }
 
-        this.authorize(request, (HandlerMethod) handler);
+        if(handler instanceof HandlerMethod){
+            this.authorize(request, (HandlerMethod) handler);
+        }
+
 
         return true;
 

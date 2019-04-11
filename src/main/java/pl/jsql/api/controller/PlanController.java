@@ -20,7 +20,7 @@ public class  PlanController extends ValidateController {
     @GetMapping
     BasicResponse get() {
         def response = paymentService.getPlan()
-        return new BasicResponse(status: 200, data: response)
+        return new BasicResponse<>(200, response);
     }
 
 }

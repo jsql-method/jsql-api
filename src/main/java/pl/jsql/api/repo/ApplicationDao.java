@@ -26,8 +26,8 @@ public interface ApplicationDao extends CrudRepository<Application, Long> {
     Application findByUserAndIdQuery(@Param("user") User user, @Param("id") Long id);
 
     @Modifying
-    @Query("update Application set active = false where user = :user")
-    void updateApplicationToNotActiveByUser(@Param("user") User user);
+    @Query("update Application set active = false where companyAdmin = :companyAdmin")
+    void updateApplicationToNotActiveByUser(@Param("companyAdmin") User companyAdmin);
 
     @Query("SELECT t FROM Application t where t.name = :name and t.user.company = :company")
     Application findByNameAndCompany(@Param("name") String name, @Param("company") Company company);

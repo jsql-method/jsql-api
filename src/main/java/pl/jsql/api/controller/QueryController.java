@@ -24,7 +24,7 @@ public class  QueryController extends ValidateController {
     @PatchMapping("/query/{id}")
     BasicResponse updateQuery(@PathVariable("id") Long id, @RequestBody @Valid QueryUpdateRequest queryUpdateRequest) {
         def response = apiService.updateQueriesById(id, queryUpdateRequest)
-        return new BasicResponse(status: 200, data: response)
+        return new BasicResponse<>(200, response);
     }
 
 }

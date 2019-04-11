@@ -1,5 +1,6 @@
 package pl.jsql.api.repo;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -57,7 +58,8 @@ public interface QueryDao extends CrudRepository<Query, Long> {
             @Param("applications") List<Long> applications,
             @Param("developers") List<Long> developers,
             @Param("dynamic") Boolean dynamic,
-            @Param("used") Boolean used);
+            @Param("used") Boolean used,
+            Pageable pageable);
 
     @org.springframework.data.jpa.repository.Query("SELECT new pl.jsql.api.dto.response.QueryResponse(t.id, t.query, t.hash, t.queryDate, t.used, t.dynamic, concat(t.user.firstName, ' ', t.user.lastName), t.application.name, t.application.id) " +
             "FROM Query t where t.queryDate >= :dateFrom and t.queryDate <= :dateTo " +
@@ -68,7 +70,8 @@ public interface QueryDao extends CrudRepository<Query, Long> {
             @Param("dateTo") Date dateTo,
             @Param("applications") List<Long> applications,
             @Param("dynamic") Boolean dynamic,
-            @Param("used") Boolean used);
+            @Param("used") Boolean used,
+            Pageable pageable);
 
 }
 

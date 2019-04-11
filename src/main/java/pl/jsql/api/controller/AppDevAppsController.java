@@ -4,10 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import pl.jsql.api.controller.generic.ValidateController;
 import pl.jsql.api.dto.request.MemberAssignRequest;
+import pl.jsql.api.dto.response.AppDeveloperApplicationsResponse;
 import pl.jsql.api.dto.response.BasicResponse;
+import pl.jsql.api.dto.response.MessageResponse;
 import pl.jsql.api.enums.RoleTypeEnum;
 import pl.jsql.api.security.annotation.Security;
-import pl.jsql.api.service.AppDevAppsService;
+import pl.jsql.api.service.admin.AppDevAppsService;
 
 import javax.validation.Valid;
 
@@ -21,24 +23,23 @@ public class AppDevAppsController extends ValidateController {
 
     @Security(roles = {RoleTypeEnum.ADMIN, RoleTypeEnum.COMPANY_ADMIN, RoleTypeEnum.APP_ADMIN})
     @PostMapping
-    public BasicResponse<MemberAssignResponse> assign(
-            @RequestBody @Valid MemberAssignRequest memberAssignRequest) {
-        MemberAssignResponse response = appDevAppsService.assign(memberAssignRequest);
-        return new BasicResponse<>(200, response);
+    public BasicResponse<MessageResponse> assign(@RequestBody @Valid MemberAssignRequest memberAssignRequest) {
+        MessageResponse messageResponse = appDevAppsService.assign(memberAssignRequest);
+        return new BasicResponse<>(200, messageResponse);
     }
 
     @Security
     @GetMapping("/{id}")
-    public BasicResponse<AppDevAppsResponse> getAll(
-            @PathVariable("id") Long id) {
-        AppDevAppsResponse response = appDevAppsService.getAll(id);
+    public BasicResponse<AppDeveloperApplicationsResponse> getAll(@PathVariable("id") Long id) {
+        AppDeveloperApplicationsResponse response = appDevAppsService.getById(id);
         return new BasicResponse<>(200, response);
     }
 
     @Security(roles = {RoleTypeEnum.ADMIN, RoleTypeEnum.COMPANY_ADMIN, RoleTypeEnum.APP_ADMIN})
     @PostMapping("/unassign")
-    public BasicResponse<MemberUnassignResponse> unassign(@RequestBody @Valid MemberAssignRequest memberAssignRequest) {
-        MemberUnassignResponse response = appDevAppsService.unassign(memberAssignRequest);
-        return new BasicResponse<>(200, response);
+    public BasicResponse<MessageResponse> unassign(@RequestBody @Valid MemberAssignRequest memberAssignRequest) {
+        MessageResponse messageResponse = appDevAppsService.unassign(memberAssignRequest);
+        return new BasicResponse<>(200, messageResponse);
     }
+
 }

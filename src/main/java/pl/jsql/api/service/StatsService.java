@@ -7,10 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.jsql.api.dto.request.BuildsRequest;
 import pl.jsql.api.dto.request.QueriesRequest;
 import pl.jsql.api.dto.request.RequestsRequest;
-import pl.jsql.api.dto.response.BuildsResponse;
-import pl.jsql.api.dto.response.PaginatedDataResponse;
-import pl.jsql.api.dto.response.PaginationResponse;
-import pl.jsql.api.dto.response.QueryResponse;
+import pl.jsql.api.dto.response.*;
 import pl.jsql.api.model.hashing.Application;
 import pl.jsql.api.model.hashing.Query;
 import pl.jsql.api.model.stats.Build;
@@ -110,70 +107,70 @@ public class StatsService {
 
     }
 
-    public PaginatedDataResponse<List<QueryResponse>> getQueries(QueriesRequest queriesRequest, Integer page) {
+    public PaginatedDataResponse<QueriesResponse> getQueries(QueriesRequest queriesRequest, Integer page) {
 
         User currentUser = securityService.getCurrentAccount();
-        List<QueryResponse> queryResponses = new ArrayList<>();
-
-        Integer count = null;
+        QueriesResponse queriesResponse = new QueriesResponse();
 
         switch (securityService.getCurrentRole()) {
             case COMPANY_ADMIN:
             case APP_ADMIN:
-                count = queryDao.countQueriesForCompany(currentUser.company, queriesRequest.dateFrom, queriesRequest.dateTo, queriesRequest.applications, queriesRequest.developers, queriesRequest.dynamic, queriesRequest.used);
+                queriesResponse.totalQueries = queryDao.countQueriesForCompany(currentUser.company, queriesRequest.dateFrom, queriesRequest.dateTo, queriesRequest.applications, queriesRequest.developers, queriesRequest.dynamic, queriesRequest.used);
+                queriesResponse.todayQueries = queryDao.countQueriesForCompany(currentUser.company, new Date(), new Date(), queriesRequest.applications, queriesRequest.developers, queriesRequest.dynamic, queriesRequest.used);
                 break;
             case APP_DEV:
-                count = queryDao.countQueriesForDeveloper(currentUser, queriesRequest.dateFrom, queriesRequest.dateTo, queriesRequest.applications, queriesRequest.dynamic, queriesRequest.used);
+                queriesResponse.totalQueries = queryDao.countQueriesForDeveloper(currentUser, queriesRequest.dateFrom, queriesRequest.dateTo, queriesRequest.applications, queriesRequest.dynamic, queriesRequest.used);
+                queriesResponse.todayQueries = queryDao.countQueriesForDeveloper(currentUser, new Date(), new Date(), queriesRequest.applications, queriesRequest.dynamic, queriesRequest.used);
                 break;
         }
 
-        PaginationResponse paginationResponse = this.pagination.paginate(page, count);
+        PaginationResponse paginationResponse = this.pagination.paginate(page, queriesResponse.totalQueries);
 
         switch (securityService.getCurrentRole()) {
             case COMPANY_ADMIN:
             case APP_ADMIN:
-                queryResponses = queryDao.selectQueriesForCompany(currentUser.company, queriesRequest.dateFrom, queriesRequest.dateTo, queriesRequest.applications, queriesRequest.developers, queriesRequest.dynamic, queriesRequest.used);
+                queriesResponse.queries = queryDao.selectQueriesForCompany(currentUser.company, queriesRequest.dateFrom, queriesRequest.dateTo, queriesRequest.applications, queriesRequest.developers, queriesRequest.dynamic, queriesRequest.used, paginationResponse.pageRequest);
                 break;
             case APP_DEV:
-                queryResponses = queryDao.selectQueriesForDeveloper(currentUser, queriesRequest.dateFrom, queriesRequest.dateTo, queriesRequest.applications, queriesRequest.dynamic, queriesRequest.used);
+                queriesResponse.queries = queryDao.selectQueriesForDeveloper(currentUser, queriesRequest.dateFrom, queriesRequest.dateTo, queriesRequest.applications, queriesRequest.dynamic, queriesRequest.used, paginationResponse.pageRequest);
                 break;
         }
 
-        return new PaginatedDataResponse<>(queryResponses, paginationResponse);
+        return new PaginatedDataResponse<>(queriesResponse, paginationResponse);
 
     }
 
-    def getRequests(RequestsRequest request) {
-        User currentUser = securityService.getCurrentAccount()
-        def requests = requestDao.findByApplicationsAndDateBetween(request.dateFrom, request.dateTo, currentUser.company, request.applications)
-        def data = []
+    public PaginatedDataResponse<RequestsResponse> getRequests(RequestsRequest requestsRequest, Integer page) {
 
-        requests.each {
-            req ->
-                    data <<[
-                    application  :req.application,
-                    totalRequests:req.totalRequests,
-                    date         :
-            new SimpleDateFormat('dd-MM-YYYY').format(getDateByDayMonthAndYear(req.year, req.month, req.day)),
-                    requests     :getRequestsByHour(req)
-            ]
+        User currentUser = securityService.getCurrentAccount();
+        RequestsResponse requestsResponse = new RequestsResponse();
+
+        switch (securityService.getCurrentRole()) {
+            case COMPANY_ADMIN:
+            case APP_ADMIN:
+                requestsResponse.totalRequests = requestDao.countRequestsForCompany(currentUser.company, requestsRequest.dateFrom, requestsRequest.dateTo, requestsRequest.applications);
+                requestsResponse.todayRequests = requestDao.countRequestsForCompany(currentUser.company, new Date(), new Date(), requestsRequest.applications);
+                break;
+            case APP_DEV:
+                requestsResponse.totalRequests = requestDao.countRequestsForDeveloper(currentUser, requestsRequest.dateFrom, requestsRequest.dateTo, requestsRequest.applications);
+                requestsResponse.todayRequests = requestDao.countRequestsForDeveloper(currentUser, new Date(), new Date(), requestsRequest.applications);
+                break;
         }
 
-        return [code:
-        SUCCESS.getCode(), data:data]
-    }
+        PaginationResponse paginationResponse = this.pagination.paginate(page, requestsResponse.totalRequests);
 
-    def getRequestsByHour(def req) {
-
-        List<List<Long>> counts = requestDao.countByHour(applicationDao.findById(req.application).get(), req.day, req.month, req.year)
-        Map<String, Long> resp = new LinkedHashMap<>()
-
-        for (List<Long> list : counts) {
-            String hour = list.get(1).toString().length() > 1 ? list.get(1).toString() : "0" + list.get(1).toString()
-            resp.put(hour + ":00", list.get(0))
+        switch (securityService.getCurrentRole()) {
+            case COMPANY_ADMIN:
+            case APP_ADMIN:
+                requestsResponse.requests = requestDao.selectRequestsForCompany(currentUser.company, requestsRequest.dateFrom, requestsRequest.dateTo, requestsRequest.applications, paginationResponse.pageRequest);
+                break;
+            case APP_DEV:
+                requestsResponse.requests = requestDao.selectRequestsForDeveloper(currentUser, requestsRequest.dateFrom, requestsRequest.dateTo, requestsRequest.applications, paginationResponse.pageRequest);
+                break;
         }
 
-        return resp
+        return new PaginatedDataResponse<>(requestsResponse, paginationResponse);
+
     }
 
 }

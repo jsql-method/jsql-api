@@ -9,4 +9,10 @@ public class RequestResponse {
 
     public Date requestDate;
 
+    public RequestResponse(String applicationName, Long applicationId, Date requestDate) {
+        this.applicationName = applicationName;
+        this.applicationId = applicationId;
+        this.requestDate = requestDate;
+    }
+
 }

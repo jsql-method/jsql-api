@@ -29,7 +29,7 @@ public class  PaymentController extends ValidateController {
         webhookDao.save(webhook)
         paymentService.activeOrUnactivePlan(request)
 
-        return new BasicResponse(status: 200, data: null)
+        return new BasicResponse<>(200, response);
 
     }
 

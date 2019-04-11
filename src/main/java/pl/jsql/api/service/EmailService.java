@@ -110,4 +110,29 @@ public class EmailService {
         this.sendEmail(user.email, activationDeveloperEmailSubject, template.html());
     }
 
+    @Value("${forgotPassword.mail.subject}")
+    private String forgotPasswordEmailSubject;
+
+    public void sendForgotPasswordEmail(User user) {
+
+        InputStream is = TypeReference.class.getResourceAsStream("/templates/forgot_password.html");
+
+        Document template = null;
+
+        try {
+            template = Jsoup.parse(is, "UTF-8", "");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Element usrNickname = template.getElementById("usr_nickname");
+        Element usrResetBtn = template.getElementById("usr_resetbtn");
+
+        usrNickname.text(user.firstName + " " + user.lastName);
+        usrResetBtn.attr("href", settingDao.findByType(SettingEnum.ORIGIN_URL).value + "/auth/reset/" + user.token);
+
+        this.sendEmail(forgotPasswordEmailSubject, template.html(), user.email);
+
+    }
+
 }

@@ -16,10 +16,7 @@ import java.util.List;
 public interface UserDao extends CrudRepository<User, Long> {
 
     User findByEmail(String email);
-
-    User findByActivationToken(String token);
-
-    User findByForgotToken(String forgotToken);
+    User findByToken(String token);
 
     @Query("select new pl.jsql.api.dto.response.AppAdminResponse(u.id, u.email, u.firstName, u.lastName) from User u where u.company = :company and u.role = :role and u.enabled = true")
     List<AppAdminResponse> findAppAdminsByCompanyAndRole(@Param("company") Company company, @Param("role") Role role);

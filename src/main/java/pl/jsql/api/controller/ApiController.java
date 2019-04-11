@@ -6,6 +6,7 @@ import pl.jsql.api.controller.generic.ValidateController;
 import pl.jsql.api.dto.response.BasicResponse;
 import pl.jsql.api.dto.response.OptionsResponse;
 import pl.jsql.api.dto.response.QueryPairResponse;
+import pl.jsql.api.dto.response.SimpleOptionsResponse;
 import pl.jsql.api.security.annotation.HashingSecurity;
 import pl.jsql.api.security.annotation.Security;
 import pl.jsql.api.service.ApiService;
@@ -28,19 +29,15 @@ public class ApiController extends ValidateController {
     @Security(requireActiveSession = false)
     @HashingSecurity
     @GetMapping("/options")
-    public BasicResponse<OptionsResponse> getOptions(
-            @RequestHeader(value = "devKey", required = true) String devKey,
-            @RequestHeader(value = "apiKey", required = true) String apiKey) {
-        OptionsResponse databaseOptionsResponse = apiService.getClientDatabaseOptions();
-        return new BasicResponse<>(200, databaseOptionsResponse);
+    public BasicResponse<SimpleOptionsResponse> getOptions(@RequestHeader(value = "devKey", required = true) String devKey, @RequestHeader(value = "apiKey", required = true) String apiKey) {
+        SimpleOptionsResponse simpleOptionsResponse = apiService.getClientDatabaseOptions();
+        return new BasicResponse<>(200, simpleOptionsResponse);
     }
 
     @Security(requireActiveSession = false)
     @HashingSecurity
     @GetMapping("/options/all")
-    public BasicResponse<OptionsResponse> getAllOptions(
-            @RequestHeader(value = "devKey", required = true) String devKey,
-            @RequestHeader(value = "apiKey", required = true) String apiKey) {
+    public BasicResponse<OptionsResponse> getAllOptions(@RequestHeader(value = "devKey", required = true) String devKey, @RequestHeader(value = "apiKey", required = true) String apiKey) {
         OptionsResponse response = hashingService.getClientOptions();
         return new BasicResponse<>(200, response);
     }
@@ -48,10 +45,7 @@ public class ApiController extends ValidateController {
     @Security(requireActiveSession = false)
     @HashingSecurity
     @PostMapping("/hashes")
-    public BasicResponse<List<QueryPairResponse>> hashQuery(
-            @RequestBody @Valid List<String> request,
-            @RequestHeader(value = "devKey", required = true) String devKey,
-            @RequestHeader(value = "apiKey", required = true) String apiKey) {
+    public BasicResponse<List<QueryPairResponse>> hashQuery(@RequestBody List<String> request, @RequestHeader(value = "devKey", required = true) String devKey, @RequestHeader(value = "apiKey", required = true) String apiKey) {
         List<QueryPairResponse> response = apiService.getRequestHashesResult(request);
         return new BasicResponse<>(200, response);
     }
@@ -59,10 +53,7 @@ public class ApiController extends ValidateController {
     @Security(requireActiveSession = false)
     @HashingSecurity
     @PostMapping("/queries")
-    public BasicResponse<List<QueryPairResponse>> getHashedAsQuery(
-            @RequestBody @Valid List<String> request,
-            @RequestHeader(value = "devKey", required = true) String devKey,
-            @RequestHeader(value = "apiKey", required = true) String apiKey) {
+    public BasicResponse<List<QueryPairResponse>> getHashedAsQuery(@RequestBody List<String> request, @RequestHeader(value = "devKey", required = true) String devKey, @RequestHeader(value = "apiKey", required = true) String apiKey) {
         List<QueryPairResponse> response = apiService.getRequestQueriesResult(request);
         return new BasicResponse<>(200, response);
     }

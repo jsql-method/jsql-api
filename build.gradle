@@ -39,8 +39,6 @@ dependencies {
     compile group: 'io.springfox', name: 'springfox-swagger2', version: '2.9.2'
     compile group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.9.2'
 
-
-
     //spring dependencies
     compile 'org.springframework.boot:spring-boot-starter-data-jpa:2.1.1.RELEASE'
     compile 'org.springframework.boot:spring-boot-starter-websocket:2.1.1.RELEASE'
@@ -49,7 +47,7 @@ dependencies {
     compile 'de.codecentric:spring-boot-admin-starter-client:2.1.0'
     compile 'org.springframework:spring-test:5.1.4.RELEASE'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-mail', version: '2.1.4.RELEASE'
-
+    compile group: 'org.springframework', name: 'spring-context-support', version: '3.2.0.RELEASE'
 
     //apache dependencies
     compile 'org.apache.commons:commons-lang3:3.7'
