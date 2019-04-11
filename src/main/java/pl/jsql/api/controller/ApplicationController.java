@@ -24,29 +24,28 @@ public class ApplicationController extends ValidateController {
 
     @Security
     @GetMapping
-    BasicResponse<List<ApplicationResponse>> getAll() {
+    public BasicResponse<List<ApplicationResponse>> getAll() {
         List<ApplicationResponse> response = applicationService.list();
         return new BasicResponse<>(200, response);
     }
 
     @Security(roles = {RoleTypeEnum.ADMIN, RoleTypeEnum.COMPANY_ADMIN, RoleTypeEnum.APP_ADMIN})
     @PostMapping
-    BasicResponse create(@RequestBody @Valid ApplicationCreateRequest applicationCreateRequest) {
+    public BasicResponse create(@RequestBody @Valid ApplicationCreateRequest applicationCreateRequest) {
         MessageResponse response = applicationService.create(applicationCreateRequest);
-        ;
         return new BasicResponse<>(200, response);
     }
 
     @Security
     @GetMapping("/{id}")
-    BasicResponse<ApplicationResponse> get(@PathVariable("id") Long id) {
+    public BasicResponse<ApplicationResponse> get(@PathVariable("id") Long id) {
         ApplicationResponse response = applicationService.getById(id);
         return new BasicResponse<>(200, response);
     }
 
     @Security(roles = {RoleTypeEnum.ADMIN, RoleTypeEnum.COMPANY_ADMIN, RoleTypeEnum.APP_ADMIN})
     @PatchMapping("/{id}")
-    BasicResponse<MessageResponse> disable(@PathVariable("id") Long id) {
+    public BasicResponse<MessageResponse> disable(@PathVariable("id") Long id) {
         MessageResponse response = applicationService.disableApplication(id);
         return new BasicResponse<>(200, response);
     }

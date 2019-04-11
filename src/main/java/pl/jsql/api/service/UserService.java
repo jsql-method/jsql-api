@@ -3,9 +3,7 @@ package pl.jsql.api.service;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pl.jsql.api.dto.request.ChangePasswordRequest;
-import pl.jsql.api.dto.request.ResetPasswordRequest;
-import pl.jsql.api.dto.request.UserRequest;
+import pl.jsql.api.dto.request.*;
 import pl.jsql.api.dto.response.MessageResponse;
 import pl.jsql.api.dto.response.UserResponse;
 import pl.jsql.api.enums.RoleTypeEnum;
@@ -36,7 +34,7 @@ public class UserService {
     private ApplicationDao applicationDao;
 
     @Autowired
-    private SettingDao settingDao;
+    private EmailService emailService;
 
     @Autowired
     private ApplicationDevelopersDao applicationDevelopersDao;
@@ -44,16 +42,13 @@ public class UserService {
     @Autowired
     private SecurityService securityService;
 
-    @Autowired
-    private AuthService authService;
-
-    public MessageResponse update(UserRequest userRequest) {
+    public MessageResponse update(UpdateUserRequest updateUserRequest) {
 
         User currentUser = securityService.getCurrentAccount();
 
-        currentUser.email = userRequest.email == null ? currentUser.email : userRequest.email;
-        currentUser.firstName = userRequest.email == null ? currentUser.firstName : userRequest.firstName;
-        currentUser.lastName = userRequest.email == null ? currentUser.lastName : userRequest.lastName;
+        currentUser.email = updateUserRequest.email == null ? currentUser.email : updateUserRequest.email;
+        currentUser.firstName = updateUserRequest.email == null ? currentUser.firstName : updateUserRequest.firstName;
+        currentUser.lastName = updateUserRequest.email == null ? currentUser.lastName : updateUserRequest.lastName;
 
         userDao.save(currentUser);
 
@@ -76,18 +71,20 @@ public class UserService {
         return new MessageResponse();
     }
 
-    public MessageResponse forgotPassword(String email) {
+    public MessageResponse forgotPassword(ForgotPasswordRequest forgotPasswordRequest) {
 
-        User userEntry = userDao.findByEmail(email);
+        User user = userDao.findByEmail(forgotPasswordRequest.email);
 
-        if (userEntry == null) {
+        if (user == null) {
             return new MessageResponse("user_not_exists");
         }
 
-        userEntry.enabled = false;
-        userEntry.token = TokenUtil.generateToken(email);
+        user.enabled = false;
+        user.token = TokenUtil.generateToken(forgotPasswordRequest.email);
 
-        userDao.save(userEntry);
+        userDao.save(user);
+
+        emailService.sendForgotPasswordEmail(user);
 
         return new MessageResponse();
 

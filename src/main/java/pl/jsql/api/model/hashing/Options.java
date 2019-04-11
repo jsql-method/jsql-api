@@ -22,8 +22,6 @@ public class Options {
     @JoinColumn(name = "application_id")
     public Application application;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
-    @JoinColumn(name = "encoding_enum_id")
     public EncodingEnum encodingAlgorithm;
 
     @NotNull
@@ -58,8 +56,6 @@ public class Options {
     @ColumnDefault("false")
     public Boolean allowedPlainQueries;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
-    @JoinColumn(name = "database_dialect_dict_id")
     public DatabaseDialectEnum databaseDialect;
 
     @NotNull

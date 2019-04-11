@@ -31,15 +31,16 @@ public class AppDevController extends ValidateController {
 
     @Security(roles = {RoleTypeEnum.ADMIN, RoleTypeEnum.COMPANY_ADMIN, RoleTypeEnum.APP_ADMIN})
     @PostMapping
-    BasicResponse<MessageResponse> create(@RequestBody @Valid AppDeveloperRequest appDeveloperRequest) {
+    public BasicResponse<MessageResponse> create(@RequestBody @Valid AppDeveloperRequest appDeveloperRequest) {
         MessageResponse response = appDevService.register(appDeveloperRequest);
         return new BasicResponse<>(200, response);
     }
 
     @Security(roles = {RoleTypeEnum.ADMIN, RoleTypeEnum.COMPANY_ADMIN, RoleTypeEnum.APP_ADMIN})
     @DeleteMapping("/{id}")
-    BasicResponse<MessageResponse> delete(@PathVariable("id") Long id) {
+    public BasicResponse<MessageResponse> delete(@PathVariable("id") Long id) {
         MessageResponse response = appDevService.delete(id);
         return new BasicResponse<>(200, response);
     }
+
 }

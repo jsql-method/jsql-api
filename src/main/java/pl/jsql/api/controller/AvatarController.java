@@ -30,7 +30,7 @@ public class AvatarController extends ValidateController {
 
     @Security
     @PostMapping
-    BasicResponse<MessageResponse> uploadAvatar(@RequestParam MultipartFile file, HttpServletRequest request) throws IOException {
+    public BasicResponse<MessageResponse> uploadAvatar(@RequestParam MultipartFile file, HttpServletRequest request) throws IOException {
         MessageResponse response = avatarService.uploadAvatar(file, request.getServletContext().getRealPath("/"));
         return new BasicResponse<>(200, response);
     }

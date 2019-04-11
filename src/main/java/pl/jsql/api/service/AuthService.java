@@ -59,8 +59,8 @@ public class AuthService {
 
         User user = createUser(userRequest);
 
-        if (userRequest.role != null && !userRequest.role.equals(RoleTypeEnum.COMPANY_ADMIN.toString()) && !userRequest.role.equals(RoleTypeEnum.ADMIN.toString())) {
-            user.role = roleDao.findByAuthority(RoleTypeEnum.valueOf(userRequest.role));
+        if (userRequest.role != null && !userRequest.role.equals(RoleTypeEnum.COMPANY_ADMIN) && !userRequest.role.equals(RoleTypeEnum.ADMIN)) {
+            user.role = roleDao.findByAuthority(userRequest.role);
         } else {
             user.role = roleDao.findByAuthority(RoleTypeEnum.COMPANY_ADMIN);
         }

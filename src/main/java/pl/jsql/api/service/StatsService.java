@@ -9,21 +9,14 @@ import pl.jsql.api.dto.request.QueriesRequest;
 import pl.jsql.api.dto.request.RequestsRequest;
 import pl.jsql.api.dto.response.*;
 import pl.jsql.api.model.hashing.Application;
-import pl.jsql.api.model.hashing.Query;
 import pl.jsql.api.model.stats.Build;
 import pl.jsql.api.model.stats.Request;
 import pl.jsql.api.model.user.User;
-import pl.jsql.api.repo.ApplicationDao;
-import pl.jsql.api.repo.BuildDao;
-import pl.jsql.api.repo.QueryDao;
-import pl.jsql.api.repo.RequestDao;
+import pl.jsql.api.repo.*;
 import pl.jsql.api.security.service.SecurityService;
 import pl.jsql.api.service.pagination.Pagination;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 @Transactional
 @Service
@@ -42,10 +35,16 @@ public class StatsService {
     private QueryDao queryDao;
 
     @Autowired
-    private ApplicationDao applicationDao;
+    private Pagination pagination;
 
     @Autowired
-    private Pagination pagination;
+    private BuildExtendedDao buildExtendedDao;
+
+    @Autowired
+    private QueryExtendedDao queryExtendedDao;
+
+    @Autowired
+    private RequestExtendedDao requestExtendedDao;
 
     @Async
     public void saveBuild(Application application, User user, Integer queriesCount) {
@@ -81,12 +80,12 @@ public class StatsService {
         switch (securityService.getCurrentRole()) {
             case COMPANY_ADMIN:
             case APP_ADMIN:
-                buildsResponse.totalBuilds = buildDao.countBuildsForCompany(currentUser.company, buildRequest.dateFrom, buildRequest.dateTo, buildRequest.applications, buildRequest.developers);
-                buildsResponse.todayBuilds = buildDao.countBuildsForCompany(currentUser.company, new Date(), new Date(), buildRequest.applications, buildRequest.developers);
+                buildsResponse.totalBuilds = buildExtendedDao.countBuildsForCompany(currentUser.company, buildRequest.dateFrom, buildRequest.dateTo, buildRequest.applications, buildRequest.developers);
+                buildsResponse.todayBuilds = buildExtendedDao.countBuildsForCompany(currentUser.company, new Date(), new Date(), buildRequest.applications, buildRequest.developers);
                 break;
             case APP_DEV:
-                buildsResponse.totalBuilds = buildDao.countBuildsForDeveloper(currentUser, buildRequest.dateFrom, buildRequest.dateTo, buildRequest.applications);
-                buildsResponse.todayBuilds = buildDao.countBuildsForDeveloper(currentUser, new Date(), new Date(), buildRequest.applications);
+                buildsResponse.totalBuilds = buildExtendedDao.countBuildsForDeveloper(currentUser, buildRequest.dateFrom, buildRequest.dateTo, buildRequest.applications);
+                buildsResponse.todayBuilds = buildExtendedDao.countBuildsForDeveloper(currentUser, new Date(), new Date(), buildRequest.applications);
                 break;
         }
 
@@ -95,10 +94,10 @@ public class StatsService {
         switch (securityService.getCurrentRole()) {
             case COMPANY_ADMIN:
             case APP_ADMIN:
-                buildsResponse.builds = buildDao.selectBuildsForCompany(currentUser.company, buildRequest.dateFrom, buildRequest.dateTo, buildRequest.applications, buildRequest.developers, paginationResponse.pageRequest);
+                buildsResponse.builds = buildExtendedDao.selectBuildsForCompany(currentUser.company, buildRequest.dateFrom, buildRequest.dateTo, buildRequest.applications, buildRequest.developers, paginationResponse.pageRequest);
                 break;
             case APP_DEV:
-                buildsResponse.builds = buildDao.selectBuildsForDeveloper(currentUser, buildRequest.dateFrom, buildRequest.dateTo, buildRequest.applications, paginationResponse.pageRequest);
+                buildsResponse.builds = buildExtendedDao.selectBuildsForDeveloper(currentUser, buildRequest.dateFrom, buildRequest.dateTo, buildRequest.applications, paginationResponse.pageRequest);
                 break;
         }
 
@@ -115,12 +114,12 @@ public class StatsService {
         switch (securityService.getCurrentRole()) {
             case COMPANY_ADMIN:
             case APP_ADMIN:
-                queriesResponse.totalQueries = queryDao.countQueriesForCompany(currentUser.company, queriesRequest.dateFrom, queriesRequest.dateTo, queriesRequest.applications, queriesRequest.developers, queriesRequest.dynamic, queriesRequest.used);
-                queriesResponse.todayQueries = queryDao.countQueriesForCompany(currentUser.company, new Date(), new Date(), queriesRequest.applications, queriesRequest.developers, queriesRequest.dynamic, queriesRequest.used);
+                queriesResponse.totalQueries = queryExtendedDao.countQueriesForCompany(currentUser.company, queriesRequest.dateFrom, queriesRequest.dateTo, queriesRequest.applications, queriesRequest.developers, queriesRequest.dynamic, queriesRequest.used);
+                queriesResponse.todayQueries = queryExtendedDao.countQueriesForCompany(currentUser.company, new Date(), new Date(), queriesRequest.applications, queriesRequest.developers, queriesRequest.dynamic, queriesRequest.used);
                 break;
             case APP_DEV:
-                queriesResponse.totalQueries = queryDao.countQueriesForDeveloper(currentUser, queriesRequest.dateFrom, queriesRequest.dateTo, queriesRequest.applications, queriesRequest.dynamic, queriesRequest.used);
-                queriesResponse.todayQueries = queryDao.countQueriesForDeveloper(currentUser, new Date(), new Date(), queriesRequest.applications, queriesRequest.dynamic, queriesRequest.used);
+                queriesResponse.totalQueries = queryExtendedDao.countQueriesForDeveloper(currentUser, queriesRequest.dateFrom, queriesRequest.dateTo, queriesRequest.applications, queriesRequest.dynamic, queriesRequest.used);
+                queriesResponse.todayQueries = queryExtendedDao.countQueriesForDeveloper(currentUser, new Date(), new Date(), queriesRequest.applications, queriesRequest.dynamic, queriesRequest.used);
                 break;
         }
 
@@ -129,10 +128,10 @@ public class StatsService {
         switch (securityService.getCurrentRole()) {
             case COMPANY_ADMIN:
             case APP_ADMIN:
-                queriesResponse.queries = queryDao.selectQueriesForCompany(currentUser.company, queriesRequest.dateFrom, queriesRequest.dateTo, queriesRequest.applications, queriesRequest.developers, queriesRequest.dynamic, queriesRequest.used, paginationResponse.pageRequest);
+                queriesResponse.queries = queryExtendedDao.selectQueriesForCompany(currentUser.company, queriesRequest.dateFrom, queriesRequest.dateTo, queriesRequest.applications, queriesRequest.developers, queriesRequest.dynamic, queriesRequest.used, paginationResponse.pageRequest);
                 break;
             case APP_DEV:
-                queriesResponse.queries = queryDao.selectQueriesForDeveloper(currentUser, queriesRequest.dateFrom, queriesRequest.dateTo, queriesRequest.applications, queriesRequest.dynamic, queriesRequest.used, paginationResponse.pageRequest);
+                queriesResponse.queries = queryExtendedDao.selectQueriesForDeveloper(currentUser, queriesRequest.dateFrom, queriesRequest.dateTo, queriesRequest.applications, queriesRequest.dynamic, queriesRequest.used, paginationResponse.pageRequest);
                 break;
         }
 
@@ -148,12 +147,12 @@ public class StatsService {
         switch (securityService.getCurrentRole()) {
             case COMPANY_ADMIN:
             case APP_ADMIN:
-                requestsResponse.totalRequests = requestDao.countRequestsForCompany(currentUser.company, requestsRequest.dateFrom, requestsRequest.dateTo, requestsRequest.applications);
-                requestsResponse.todayRequests = requestDao.countRequestsForCompany(currentUser.company, new Date(), new Date(), requestsRequest.applications);
+                requestsResponse.totalRequests = requestExtendedDao.countRequestsForCompany(currentUser.company, requestsRequest.dateFrom, requestsRequest.dateTo, requestsRequest.applications);
+                requestsResponse.todayRequests = requestExtendedDao.countRequestsForCompany(currentUser.company, new Date(), new Date(), requestsRequest.applications);
                 break;
             case APP_DEV:
-                requestsResponse.totalRequests = requestDao.countRequestsForDeveloper(currentUser, requestsRequest.dateFrom, requestsRequest.dateTo, requestsRequest.applications);
-                requestsResponse.todayRequests = requestDao.countRequestsForDeveloper(currentUser, new Date(), new Date(), requestsRequest.applications);
+                requestsResponse.totalRequests = requestExtendedDao.countRequestsForDeveloper(currentUser, requestsRequest.dateFrom, requestsRequest.dateTo, requestsRequest.applications);
+                requestsResponse.todayRequests = requestExtendedDao.countRequestsForDeveloper(currentUser, new Date(), new Date(), requestsRequest.applications);
                 break;
         }
 
@@ -162,10 +161,10 @@ public class StatsService {
         switch (securityService.getCurrentRole()) {
             case COMPANY_ADMIN:
             case APP_ADMIN:
-                requestsResponse.requests = requestDao.selectRequestsForCompany(currentUser.company, requestsRequest.dateFrom, requestsRequest.dateTo, requestsRequest.applications, paginationResponse.pageRequest);
+                requestsResponse.requests = requestExtendedDao.selectRequestsForCompany(currentUser.company, requestsRequest.dateFrom, requestsRequest.dateTo, requestsRequest.applications, paginationResponse.pageRequest);
                 break;
             case APP_DEV:
-                requestsResponse.requests = requestDao.selectRequestsForDeveloper(currentUser, requestsRequest.dateFrom, requestsRequest.dateTo, requestsRequest.applications, paginationResponse.pageRequest);
+                requestsResponse.requests = requestExtendedDao.selectRequestsForDeveloper(currentUser, requestsRequest.dateFrom, requestsRequest.dateTo, requestsRequest.applications, paginationResponse.pageRequest);
                 break;
         }
 

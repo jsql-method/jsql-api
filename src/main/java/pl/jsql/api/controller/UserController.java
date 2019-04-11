@@ -1,92 +1,80 @@
-package pl.jsql.api.controller
+package pl.jsql.api.controller;
 
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.web.bind.annotation.*
-import pl.jsql.api.controller.generic.ValidateController
-import pl.jsql.api.dto.request.ActivateTokenRequest
-import pl.jsql.api.dto.request.ChangePasswordRequest
-import pl.jsql.api.dto.request.ForgotPasswordRequest
-import pl.jsql.api.dto.request.ResetPasswordRequest
-import pl.jsql.api.dto.request.UserRequest
-import pl.jsql.api.dto.response.BasicResponse
-import pl.jsql.api.enums.RoleTypeEnum
-import pl.jsql.api.security.annotation.Security
-import pl.jsql.api.service.UserService
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import pl.jsql.api.controller.generic.ValidateController;
+import pl.jsql.api.dto.request.*;
+import pl.jsql.api.dto.response.BasicResponse;
+import pl.jsql.api.dto.response.MessageResponse;
+import pl.jsql.api.dto.response.UserResponse;
+import pl.jsql.api.enums.RoleTypeEnum;
+import pl.jsql.api.security.annotation.Security;
+import pl.jsql.api.service.UserService;
 
-import javax.servlet.http.HttpServletRequest
-import javax.validation.Valid
+import javax.validation.Valid;
 
 @CrossOrigin
 @RestController
 @RequestMapping("/api/user")
-public class  UserController extends ValidateController {
+public class UserController extends ValidateController {
 
     @Autowired
-    UserService userService
+    private UserService userService;
 
     @Security
-    @PatchMapping("/{id}")
-    BasicResponse update(@PathVariable("id") Long id, @RequestBody @Valid UserRequest userRequest) {
-        def response = userService.update(id, userRequest)
-        return new BasicResponse(status: 200, data: response)
+    @PatchMapping
+    public BasicResponse<MessageResponse> update(@RequestBody @Valid UpdateUserRequest updateUserRequest) {
+        MessageResponse response = userService.update(updateUserRequest);
+        return new BasicResponse<>(200, response);
     }
 
     @Security(requireActiveSession = false)
     @GetMapping("/activate/{token}")
-    BasicResponse activate(@PathVariable("token") String token) {
-        def response = userService.activateAccount(token)
-        return new BasicResponse(status: 200, data: response)
-    }
-
-    @Security(requireActiveSession = false)
-    @PostMapping("/activate")
-    BasicResponse reActivate(@RequestBody @Valid ActivateTokenRequest token, HttpServletRequest request) {
-        String origin = request.getHeader('origin')
-        def response = userService.reActivate(token.token, origin)
-        return new BasicResponse(status: 200, data: response)
+    public BasicResponse activate(@PathVariable("token") String token) {
+        MessageResponse response = userService.activateAccount(token);
+        return new BasicResponse<>(200, response);
     }
 
     @Security(requireActiveSession = false)
     @PostMapping("/forgot-password")
-    BasicResponse forgotPassword(@RequestBody @Valid ForgotPasswordRequest forgotPasswordRequest, HttpServletRequest request) {
-        String origin = request.getHeader('origin')
-        def response = userService.forgotPassword(forgotPasswordRequest.email, origin)
-        return new BasicResponse(status: 200, data: response)
+    public BasicResponse forgotPassword(@RequestBody @Valid ForgotPasswordRequest forgotPasswordRequest) {
+        MessageResponse response = userService.forgotPassword(forgotPasswordRequest);
+        return new BasicResponse<>(200, response);
     }
 
     @Security(requireActiveSession = false)
     @PostMapping("/reset-password/{token}")
-    BasicResponse resetPassword(@PathVariable("token") String token, @RequestBody @Valid ResetPasswordRequest resetPasswordRequest) {
-        def response = userService.resetPassword(token, resetPasswordRequest.newPassword)
-        return new BasicResponse(status: 200, data: response)
+    public BasicResponse resetPassword(@PathVariable("token") String token, @RequestBody @Valid ResetPasswordRequest resetPasswordRequest) {
+        MessageResponse response = userService.resetPassword(token, resetPasswordRequest);
+        return new BasicResponse<>(200, response);
     }
 
     @Security
     @PostMapping("/change-password")
-    BasicResponse changePassword(@RequestBody @Valid ChangePasswordRequest changePasswordRequest) {
-        def response = userService.changePassword(changePasswordRequest)
-        return new BasicResponse(status: 200, data: response)
+    public BasicResponse changePassword(@RequestBody @Valid ChangePasswordRequest changePasswordRequest) {
+        MessageResponse response = userService.changePassword(changePasswordRequest);
+        return new BasicResponse<>(200, response);
     }
 
     @Security
     @GetMapping
-    BasicResponse get() {
-        def response = userService.getUser()
-        return new BasicResponse(status: 200, data: response)
+    public BasicResponse get() {
+        UserResponse response = userService.getUser();
+        return new BasicResponse<>(200, response);
     }
 
     @Security
     @DeleteMapping
-    BasicResponse deactivate() {
-        def response = userService.disableAccount()
-        return new BasicResponse(status: 200, data: response)
+    public BasicResponse deactivate() {
+        MessageResponse response = userService.disableCurrentAccount();
+        return new BasicResponse<>(200, response);
     }
 
-    @Security(roles = [RoleTypeEnum.ADMIN, RoleTypeEnum.COMPANY_ADMIN, RoleTypeEnum.APP_ADMIN])
+    @Security(roles = {RoleTypeEnum.ADMIN, RoleTypeEnum.COMPANY_ADMIN, RoleTypeEnum.APP_ADMIN})
     @DeleteMapping("/{id}")
-    BasicResponse deactivate(@PathVariable("id") Long id) {
-        def response = userService.disableAccount(id)
-        return new BasicResponse(status: 200, data: response)
+    public BasicResponse deactivate(@PathVariable("id") Long id) {
+        MessageResponse response = userService.disableDeveloperAccount(id);
+        return new BasicResponse<>(200, response);
     }
 
 }

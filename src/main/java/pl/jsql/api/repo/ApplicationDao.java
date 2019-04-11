@@ -16,23 +16,20 @@ import java.util.Optional;
 @Repository
 public interface ApplicationDao extends CrudRepository<Application, Long> {
 
-    @Query("SELECT t FROM Application t where t.apiKey = :apiKey and active = true")
+    @Query("SELECT t FROM Application t where t.apiKey = :apiKey and t.active = true")
     Application findByApiKey(@Param("apiKey") String apiKey);
 
-    @Query("SELECT t FROM Application t where t.user = :user and active = true")
-    List<Application> findByUserQuery(@Param("user") User user);
-
-    @Query("SELECT t FROM Application t where t.user = :user and t.id = :id and active = true")
-    Application findByUserAndIdQuery(@Param("user") User user, @Param("id") Long id);
+    @Query("SELECT t FROM Application t where t.companyAdmin = :companyAdmin and active = true")
+    List<Application> findByUserQuery(@Param("companyAdmin") User companyAdmin);
 
     @Modifying
     @Query("update Application set active = false where companyAdmin = :companyAdmin")
     void updateApplicationToNotActiveByUser(@Param("companyAdmin") User companyAdmin);
 
-    @Query("SELECT t FROM Application t where t.name = :name and t.user.company = :company")
+    @Query("SELECT t FROM Application t where t.name = :name and t.companyAdmin.company = :company")
     Application findByNameAndCompany(@Param("name") String name, @Param("company") Company company);
 
-    @Query("SELECT COUNT(t) FROM Application t where t.companyAdmin = :user and active = true")
+    @Query("SELECT COUNT(t) FROM Application t where t.companyAdmin = :companyAdmin and t.active = true")
     Integer countByCompanyAdmin(@Param("companyAdmin") User companyAdmin);
 
     @Query("select new pl.jsql.api.dto.response.ApplicationResponse(a.id, a.apiKey, a.name, d.key) from Application a, DeveloperKey d where a.productionDeveloper = d.user")
@@ -61,5 +58,9 @@ public interface ApplicationDao extends CrudRepository<Application, Long> {
 
     @Query("select count(a) from Application a where a.companyAdmin = :companyAdmin and a.active = true")
     Integer countActiveApplicationsByCompanyAdmin(@Param("companyAdmin") User companyAdmin);
+
+    @Query("select case when count(a) > 0 then TRUE else FALSE end from Application a where a.name = :name and a.companyAdmin = :companyAdmin")
+    boolean existByNameForCompany(@Param("name") String name, @Param("companyAdmin") User companyAdmin);
+
 }
 

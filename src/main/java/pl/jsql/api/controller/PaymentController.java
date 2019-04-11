@@ -1,9 +1,12 @@
 package pl.jsql.api.controller;
 
+import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import pl.jsql.api.controller.generic.ValidateController;
+import pl.jsql.api.dto.request.PabblyPaymentRequest;
 import pl.jsql.api.dto.response.BasicResponse;
+import pl.jsql.api.dto.response.MessageResponse;
 import pl.jsql.api.model.payment.Webhook;
 import pl.jsql.api.repo.WebhookDao;
 import pl.jsql.api.security.annotation.Security;
@@ -12,24 +15,25 @@ import pl.jsql.api.service.PaymentService;
 @CrossOrigin
 @RestController
 @RequestMapping("/api/payment")
-public class  PaymentController extends ValidateController {
+public class PaymentController extends ValidateController {
 
     @Autowired
-    WebhookDao webhookDao
+    private WebhookDao webhookDao;
 
     @Autowired
-    PaymentService paymentService
+    private PaymentService paymentService;
 
     @Security(requireActiveSession = false)
     @PostMapping
-    BasicResponse create(@RequestBody def request) {
+    public BasicResponse<MessageResponse> create(@RequestBody PabblyPaymentRequest pabblyPaymentRequest) {
 
-        Webhook webhook = new Webhook()
-        webhook.requestText = request
-        webhookDao.save(webhook)
-        paymentService.activeOrUnactivePlan(request)
+        Webhook webhook = new Webhook();
+        webhook.requestText = new Gson().toJson(pabblyPaymentRequest);
+        webhookDao.save(webhook);
 
-        return new BasicResponse<>(200, response);
+        paymentService.activeOrUnactivePlan(pabblyPaymentRequest);
+
+        return new BasicResponse<>(200, new MessageResponse());
 
     }
 

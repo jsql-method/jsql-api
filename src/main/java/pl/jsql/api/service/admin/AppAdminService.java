@@ -3,6 +3,7 @@ package pl.jsql.api.service.admin;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pl.jsql.api.dto.request.DemoteAppAdminRequest;
 import pl.jsql.api.dto.request.UserRequest;
 import pl.jsql.api.dto.response.AppAdminResponse;
 import pl.jsql.api.dto.response.MessageResponse;
@@ -17,6 +18,7 @@ import pl.jsql.api.repo.RoleDao;
 import pl.jsql.api.repo.UserDao;
 import pl.jsql.api.security.service.SecurityService;
 import pl.jsql.api.service.AuthService;
+import pl.jsql.api.utils.TokenUtil;
 
 import javax.transaction.Transactional;
 import java.util.List;
@@ -60,7 +62,7 @@ public class AppAdminService {
             }
 
             userRequest.company = companyAdmin.company.id;
-            userRequest.role = "APP_ADMIN";
+            userRequest.role = RoleTypeEnum.APP_ADMIN;
             userRequest.password = RandomStringUtils.randomAlphanumeric(10);
 
             authService.register(userRequest);
@@ -103,9 +105,9 @@ public class AppAdminService {
 
     }
 
-    public MessageResponse demote(UserRequest userRequest) {
+    public MessageResponse demote(DemoteAppAdminRequest demoteAppAdminRequest) {
 
-        User appAdmin = userDao.findByEmail(userRequest.email);
+        User appAdmin = userDao.findByEmail(demoteAppAdminRequest.email);
 
         if (appAdmin == null) {
             return new MessageResponse("no_such_admin");
@@ -116,6 +118,30 @@ public class AppAdminService {
         userDao.save(appAdmin);
 
         return new MessageResponse();
+    }
+
+    public MessageResponse delete(Long id) {
+        User user = userDao.findById(id).orElse(null);
+
+        if (user == null) {
+            return new MessageResponse("admin_does_not_exists");
+        }
+
+        applicationDevelopersDao.clearJoinsByUser(user);
+        applicationDevelopersDao.deleteAllByUser(user);
+
+        user.email = TokenUtil.hash(user.email);
+        user.firstName = TokenUtil.hash(user.firstName);
+        user.lastName = TokenUtil.hash(user.lastName);
+        user.lastName = TokenUtil.hash(user.password);
+        user.enabled = false;
+        user.enabled = false;
+        user.company = null;
+
+        userDao.save(user);
+
+        return new MessageResponse();
+
     }
 
 }

@@ -23,21 +23,21 @@ public class AuthorizationController extends ValidateController {
 
     @Security(requireActiveSession = false)
     @PostMapping("/login")
-    BasicResponse<SessionResponse> login(@RequestBody @Valid LoginRequest loginRequest) {
+    public BasicResponse<SessionResponse> login(@RequestBody @Valid LoginRequest loginRequest) {
         SessionResponse response = authService.login(loginRequest);
         return new BasicResponse<>(200, response);
     }
 
     @Security
     @DeleteMapping("/logout")
-    BasicResponse<MessageResponse> logout() {
+    public BasicResponse<MessageResponse> logout() {
         MessageResponse response = authService.logout();
         return new BasicResponse<>(200, response);
     }
 
     @Security(requireActiveSession = false)
     @PostMapping("/register")
-    BasicResponse<MessageResponse> register(@RequestBody @Valid UserRequest userRequest) {
+    public BasicResponse<MessageResponse> register(@RequestBody @Valid UserRequest userRequest) {
         MessageResponse response = authService.register(userRequest);
         return new BasicResponse<>(200, response);
     }

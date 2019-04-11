@@ -2,7 +2,7 @@ package pl.jsql.api.service.admin;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pl.jsql.api.dto.request.MemberAssignRequest;
+import pl.jsql.api.dto.request.DeveloperAssignRequest;
 import pl.jsql.api.dto.response.AppDeveloperApplicationsResponse;
 import pl.jsql.api.dto.response.MessageResponse;
 import pl.jsql.api.model.hashing.Application;
@@ -27,10 +27,10 @@ public class AppDevAppsService {
     @Autowired
     private ApplicationDevelopersDao applicationDevelopersDao;
 
-    public MessageResponse assign(MemberAssignRequest memberAssignRequest) {
+    public MessageResponse assign(DeveloperAssignRequest developerAssignRequest) {
 
-        Application application = applicationDao.findById(memberAssignRequest.application).orElse(null);
-        User developer = userDao.findById(memberAssignRequest.member).orElse(null);
+        Application application = applicationDao.findById(developerAssignRequest.application).orElse(null);
+        User developer = userDao.findById(developerAssignRequest.developer).orElse(null);
 
         if (application == null || developer == null) {
             return new MessageResponse("no_such_developer");
@@ -51,9 +51,9 @@ public class AppDevAppsService {
 
     }
 
-    public AppDeveloperApplicationsResponse getById(Long id) {
+    public AppDeveloperApplicationsResponse getById(Long developerId) {
 
-        User user = userDao.findById(id).orElse(null);
+        User user = userDao.findById(developerId).orElse(null);
 
         if (user == null) {
             return null;
@@ -67,10 +67,10 @@ public class AppDevAppsService {
 
     }
 
-    public MessageResponse unassign(MemberAssignRequest memberAssignRequest) {
+    public MessageResponse unassign(DeveloperAssignRequest developerAssignRequest) {
 
-        User user = userDao.findById(memberAssignRequest.member).orElse(null);
-        Application app = applicationDao.findById(memberAssignRequest.application).orElse(null);
+        User user = userDao.findById(developerAssignRequest.developer).orElse(null);
+        Application app = applicationDao.findById(developerAssignRequest.application).orElse(null);
 
         if (user == null || app == null) {
             return new MessageResponse("no_such_developer");

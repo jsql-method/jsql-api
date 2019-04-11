@@ -157,7 +157,7 @@ public class ApplicationService {
         userRequest.lastName = "developer";
         userRequest.password = RandomStringUtils.randomAlphanumeric(10);
         userRequest.company = company.id;
-        userRequest.role = RoleTypeEnum.APP_DEV.toString();
+        userRequest.role = RoleTypeEnum.APP_DEV;
 
         authService.register(userRequest);
 

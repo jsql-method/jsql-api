@@ -3,6 +3,7 @@ package pl.jsql.api.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import pl.jsql.api.controller.generic.ValidateController;
+import pl.jsql.api.dto.request.DemoteAppAdminRequest;
 import pl.jsql.api.dto.request.UserRequest;
 import pl.jsql.api.dto.response.AppAdminResponse;
 import pl.jsql.api.dto.response.BasicResponse;
@@ -38,9 +39,16 @@ public class AppAdminController extends ValidateController {
 
     @Security(roles = {RoleTypeEnum.ADMIN, RoleTypeEnum.COMPANY_ADMIN})
     @PatchMapping
-    public BasicResponse<MessageResponse> demote(@RequestBody @Valid UserRequest userRequest) {
-        MessageResponse messageResponse = appAdminService.demote(userRequest);
+    public BasicResponse<MessageResponse> demote(@RequestBody @Valid DemoteAppAdminRequest demoteAppAdminRequest) {
+        MessageResponse messageResponse = appAdminService.demote(demoteAppAdminRequest);
         return new BasicResponse<>(200, messageResponse);
+    }
+
+    @Security(roles = {RoleTypeEnum.ADMIN, RoleTypeEnum.COMPANY_ADMIN})
+    @DeleteMapping("/{id}")
+    public BasicResponse<MessageResponse> delete(@PathVariable("id") Long id) {
+        MessageResponse response = appAdminService.delete(id);
+        return new BasicResponse<>(200, response);
     }
 
 }

@@ -27,9 +27,6 @@ public class EmailService {
     @Autowired
     public JavaMailSender mailSender;
 
-    @Value("${application.origin}")
-    private String applicationOrigin;
-
     @Value("${spring.mail.from}")
     private String mailFrom;
 

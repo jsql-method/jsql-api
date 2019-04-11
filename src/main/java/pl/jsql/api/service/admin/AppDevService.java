@@ -69,7 +69,7 @@ public class AppDevService {
         userRequest.lastName = appDeveloperRequest.lastName;
         userRequest.password = RandomStringUtils.randomAlphanumeric(10);
         userRequest.company = user.company.id;
-        userRequest.role = RoleTypeEnum.APP_DEV.toString();
+        userRequest.role = RoleTypeEnum.APP_DEV;
 
         return authService.register(userRequest);
 

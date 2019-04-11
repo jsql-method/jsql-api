@@ -2,6 +2,7 @@ package pl.jsql.api.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pl.jsql.api.dto.request.ForgotPasswordRequest;
 import pl.jsql.api.dto.request.PabblyPaymentRequest;
 import pl.jsql.api.dto.request.UserRequest;
 import pl.jsql.api.dto.response.PlanResponse;
@@ -90,7 +91,7 @@ public class PaymentService {
 
             }
 
-            userService.forgotPassword(user.email);
+            userService.forgotPassword(new ForgotPasswordRequest(user.email));
 
             planDao.save(plan);
 
