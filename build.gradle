@@ -10,8 +10,7 @@ buildscript {
     }
 }
 
-
-apply plugin: 'groovy'
+apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
@@ -36,9 +35,10 @@ repositories {
 }
 
 dependencies {
-    //groovy dependencies
-    compile 'org.codehaus.groovy:groovy'
-    compile 'org.codehaus.groovy:groovy-json:3.0.0-alpha-2'
+
+    compile group: 'io.springfox', name: 'springfox-swagger2', version: '2.9.2'
+    compile group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.9.2'
+
     //spring dependencies
     compile 'org.springframework.boot:spring-boot-starter-data-jpa:2.1.1.RELEASE'
     compile 'org.springframework.boot:spring-boot-starter-websocket:2.1.1.RELEASE'
@@ -46,6 +46,8 @@ dependencies {
     compile 'org.springframework.boot:spring-boot-starter-actuator'
     compile 'de.codecentric:spring-boot-admin-starter-client:2.1.0'
     compile 'org.springframework:spring-test:5.1.4.RELEASE'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-mail', version: '2.1.4.RELEASE'
+    compile group: 'org.springframework', name: 'spring-context-support', version: '3.2.0.RELEASE'
 
     //apache dependencies
     compile 'org.apache.commons:commons-lang3:3.7'
@@ -61,6 +63,7 @@ dependencies {
     compile 'com.google.code.gson:gson:2.8.5'
     compile 'org.hibernate:hibernate-validator:6.0.13.Final'
     compile 'javax.validation:validation-api:2.0.1.Final'
+    compile group: 'javax.mail', name: 'mail', version: '1.4'
 
     //test dependencies
     testCompile 'org.springframework.boot:spring-boot-starter-test'
