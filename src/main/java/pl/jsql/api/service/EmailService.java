@@ -14,6 +14,7 @@ import pl.jsql.api.model.user.User;
 import pl.jsql.api.repo.SettingDao;
 
 import javax.mail.MessagingException;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,11 +39,11 @@ public class EmailService {
 
                 MimeMessage message = mailSender.createMimeMessage();
                 MimeMessageHelper helper = new MimeMessageHelper(message, false, "utf-8");
-                message.setContent(content, "text/html");
+                message.setContent(content, "text/html; charset=utf-8");
                 helper.setTo(to);
                 helper.setSubject(subject);
                 helper.setFrom(EmailService.this.mailFrom);
-                message.setText(content);
+                message.setText(content, "utf-8");
                 EmailService.this.mailSender.send(message);
 
             } catch (MessagingException e) {

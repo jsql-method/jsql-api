@@ -21,7 +21,7 @@ public class Application {
     public String apiKey;
 
     @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinColumn(name = "company_admin_id")
     public User companyAdmin; //company admin
 
@@ -33,7 +33,7 @@ public class Application {
     public Boolean active;
 
     @JsonIgnore
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "production_developer_id")
     public User productionDeveloper;
 

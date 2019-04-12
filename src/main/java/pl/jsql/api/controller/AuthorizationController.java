@@ -11,6 +11,7 @@ import pl.jsql.api.dto.response.SessionResponse;
 import pl.jsql.api.security.annotation.Security;
 import pl.jsql.api.service.AuthService;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @CrossOrigin
@@ -23,7 +24,9 @@ public class AuthorizationController extends ValidateController {
 
     @Security(requireActiveSession = false)
     @PostMapping("/login")
-    public BasicResponse<SessionResponse> login(@RequestBody @Valid LoginRequest loginRequest) {
+    public BasicResponse<SessionResponse> login(@RequestBody @Valid LoginRequest loginRequest, HttpServletRequest request) {
+
+        loginRequest.ipAddress = request.getRemoteAddr();
         SessionResponse response = authService.login(loginRequest);
         return new BasicResponse<>(200, response);
     }
