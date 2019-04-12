@@ -2,10 +2,14 @@ package pl.jsql.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import pl.jsql.api.dto.request.ApplicationCreateRequest;
+import pl.jsql.api.dto.request.UserRequest;
+import pl.jsql.api.enums.PlansEnum;
 import pl.jsql.api.enums.RoleTypeEnum;
 import pl.jsql.api.enums.SettingEnum;
 import pl.jsql.api.model.dict.Setting;
 import pl.jsql.api.model.user.Role;
+import pl.jsql.api.model.user.User;
 import pl.jsql.api.repo.*;
 import pl.jsql.api.service.ApplicationService;
 import pl.jsql.api.service.AuthService;
@@ -32,15 +36,9 @@ public class InitializeData {
     private ApplicationService applicationService;
 
     @Autowired
-    private CompanyDao companyDao;
-
-    @Autowired
     private UserDao userDao;
 
-    @Autowired
-    private PlanDao planDao;
-
-    public void initRoles() {
+    private void initRoles() {
 
         if (roleDao.count() > 0) {
             return;
@@ -54,7 +52,7 @@ public class InitializeData {
 
     }
 
-    public void initSettings() {
+    private void initSettings() {
 
         for (SettingEnum s : SettingEnum.values()) {
             if (settingDao.findByType(s) == null) {
@@ -67,83 +65,24 @@ public class InitializeData {
 
     }
 
-    public void createFullCompanyAdmin() {
+    private void createFullCompanyAdmin() {
 
-//        String email = "test@test";
-//        String password = "test123";
-//        User user = userService.findByEmail(email);
-//        if (user != null) {
-//            Plan plan = plansDao.findFirstByCompany(user.company)
-//            plan.isTrial = false
-//            plan.active = true
-//            plan.plan = PlansEnum.LARGE
-//            plansDao.save(plan)
-//            return user
-//        }
-//        authService.register(new UserRequest(password, email, "John", "Doe"))
-//        user = userService.userDao.findByEmail(email)
-//        userService.activateAccount(user.activationToken)
-//
-//        def loginResult = authService.login(new LoginRequest(email, password, "0.0.0.0"))
-//        Company company = user.company
-//        company.isLicensed = true
-//        companyDao.save(company)
-//
-//        Plan plan = plansDao.findFirstByCompany(company)
-//        plan.isTrial = false
-//        plan.active = true
-//        plan.plan = PlansEnum.LARGE
-//        plansDao.save(plan)
-//
-//        createApplication("Test application", user)
-//
-//        return user
+        String email = "dawid.senko@jsql.it";
+        authService.register(new UserRequest(email, "test123", "Jan", "Admin", "JSQL Sp.z.o.o.", PlansEnum.LARGE));
+
+        User user = userDao.findByEmail(email);
+        userService.activateAccount(user.token);
+        user = userDao.findByEmail(email);
+
+        applicationService.create(user, new ApplicationCreateRequest("Test application"));
 
     }
 
     @PostConstruct
     public void init() {
-
         initRoles();
         initSettings();
         createFullCompanyAdmin();
-
     }
-
-//    void createApplication(String name, User user) {
-//        User currentUser = user
-//
-//        String apiKey = "==" + applicationService.generateApplication(name)
-//        User companyAdmin = currentUser
-//
-//        if (currentUser.role.authority == RoleTypeEnum.APP_ADMIN) {
-//
-//            companyAdmin = userDao.findByCompanyAndRole(currentUser.company, roleDao.findByAuthority(RoleTypeEnum.COMPANY_ADMIN)).get(0)
-//        }
-//
-//
-//        UserRequest userRequest = new UserRequest()
-//        userRequest.email = name + "@applicationDeveloper"
-//        userRequest.firstName = "application"
-//        userRequest.lastName = "developer"
-//        userRequest.password = RandomStringUtils.randomAlphanumeric(10)
-//        userRequest.company = companyAdmin.company.id
-//        userRequest.role = RoleTypeEnum.APP_DEV.toString()
-//        authService.register(userRequest)
-//
-//        User applicationDeveloper = userDao.findByEmail(name + "@applicationDeveloper")
-//        applicationDeveloper.isProductionDeveloper = true
-//        applicationDeveloper.activated = true
-//        applicationDeveloper = userDao.save(applicationDeveloper)
-//
-//        Application application = applicationService.createApplication(apiKey, companyAdmin, name, applicationDeveloper)
-//
-//        applicationService.assignUserToAppMember(companyAdmin, application);
-//
-//        applicationService.assignNewAppsToAppAdmins(currentUser, application);
-//
-//        applicationService.initializeOptionsToApp(application);
-//    }
-
 
 }
