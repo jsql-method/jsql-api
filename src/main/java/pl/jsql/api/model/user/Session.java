@@ -16,7 +16,7 @@ public class Session {
     @GeneratedValue(strategy = GenerationType.AUTO)
     public Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinColumn(name = "user_id")
     @JsonIgnore
     public User user;

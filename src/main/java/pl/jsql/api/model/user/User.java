@@ -16,13 +16,13 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     public Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinColumn(name = "role_id")
     public Role role;
 
     @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
-    @JoinColumn(name = "company_id", nullable = true)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @JoinColumn(name = "company_id")
     public Company company;
 
     @JsonIgnore

@@ -55,7 +55,10 @@ public class AuthService {
     @Autowired
     private PlanService planService;
 
+    @Transactional
     public MessageResponse register(UserRequest userRequest) {
+
+        System.out.println("userRequest : "+userRequest.toString());
 
         User user = createUser(userRequest);
 
@@ -67,10 +70,12 @@ public class AuthService {
 
         Company company;
 
+        System.out.println("userRequest.company : "+userRequest.company);
         if (userRequest.company != null) {
 
             company = companyDao.findById(userRequest.company).orElse(null);
 
+            System.out.println("comapny2: "+company);
             if (company == null) {
                 return new MessageResponse("company_not_found");
             }
@@ -78,19 +83,27 @@ public class AuthService {
         } else {
 
             company = new Company();
-            company.isLicensed = false;
+            company.name = userRequest.companyName;
+            company.isLicensed = true;
             company.creationDate = new Date();
 
-            companyDao.save(company);
+            company = companyDao.save(company);
+
+            System.out.println("new company: "+company);
 
         }
 
         user.company = company;
         user.token = HashingUtil.encode(user.email + new Date());
         user.activationDate = new Date();
-        userDao.save(user);
+        user = userDao.save(user);
 
         this.createDeveloperKey(user);
+
+        System.out.println("userRequest : "+userRequest);
+        if(userRequest.isFakeDeveloper){
+            return new MessageResponse();
+        }
 
         if (user.role.authority != RoleTypeEnum.COMPANY_ADMIN) {
             emailService.sendActivationDeveloperMail(user, userRequest.password);
