@@ -12,4 +12,8 @@ public class ApplicationCreateRequest {
     @UniqueApplicationForCurrentCompany
     public String name;
 
+    public ApplicationCreateRequest(@NotEmpty(message = "${validation.message.notEmpty}") @Size(min = 1, max = 100, message = "${validation.message.size}") String name) {
+        this.name = name;
+    }
+
 }

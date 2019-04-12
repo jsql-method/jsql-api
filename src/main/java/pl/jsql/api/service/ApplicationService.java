@@ -119,6 +119,11 @@ public class ApplicationService {
     public MessageResponse create(ApplicationCreateRequest applicationCreateRequest) {
 
         User companyAdmin = securityService.getCompanyAdmin();
+        return this.create(companyAdmin, applicationCreateRequest);
+
+    }
+
+    public MessageResponse create(User companyAdmin, ApplicationCreateRequest applicationCreateRequest) {
 
         if (!this.canCreateApplication(companyAdmin)) {
             return new MessageResponse("applications_limit_reached");
@@ -151,17 +156,27 @@ public class ApplicationService {
 
     private User createFakeDeveloper(String name, Company company) {
 
+        System.out.println("company id: "+company.id);
+        System.out.println("company name: "+company.name);
+
+        String email = name + "@applicationDeveloper";
         UserRequest userRequest = new UserRequest();
-        userRequest.email = name + "@applicationDeveloper";
+        userRequest.email = email;
         userRequest.firstName = "application";
         userRequest.lastName = "developer";
         userRequest.password = RandomStringUtils.randomAlphanumeric(10);
         userRequest.company = company.id;
         userRequest.role = RoleTypeEnum.APP_DEV;
+        userRequest.isFakeDeveloper = true;
 
         authService.register(userRequest);
 
-        User applicationDeveloper = userDao.findByEmail(name + "@applicationDeveloper");
+        System.out.println("fake dev 1 "+userRequest.companyName);
+        System.out.println("fake dev 2 "+userRequest.company);
+
+        User applicationDeveloper = userDao.findByEmail(email);
+        System.out.println("fake dev 3");
+
         applicationDeveloper.isProductionDeveloper = true;
         applicationDeveloper.enabled = true;
 
@@ -226,7 +241,7 @@ public class ApplicationService {
 
         Application application = applicationDao.findByApiKey(apiKey);
 
-        if (application == null) {
+        if (application != null) {
             throw new RuntimeException("unable_to_generate_api_key");
         }
 
@@ -257,12 +272,17 @@ public class ApplicationService {
 
     public Application createApplication(User companyAdmin, ApplicationCreateRequest applicationCreateRequest) {
 
+        System.out.println("createApplication "+companyAdmin);
+        System.out.println("createApplication "+companyAdmin.company);
+
         String apiKey = this.generateApiKey(applicationCreateRequest.name);
 
         Application application = new Application();
         application.apiKey = apiKey;
         application.companyAdmin = companyAdmin;
         application.name = applicationCreateRequest.name;
+
+        System.out.println("companyAdmin : "+companyAdmin.company);
         application.productionDeveloper = this.createFakeDeveloper(applicationCreateRequest.name, companyAdmin.company);
         application.active = true;
 
