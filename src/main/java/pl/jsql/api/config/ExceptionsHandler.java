@@ -14,18 +14,19 @@ import pl.jsql.api.exceptions.UnauthorizedException;
 public class ExceptionsHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<BasicResponse<String>> handleConstraintViolation(UnauthorizedException ex) {
-
+    public ResponseEntity<BasicResponse<String>> handleUnauthorizedException(UnauthorizedException ex) {
         return new ResponseEntity<>(new BasicResponse<>(401, "Unauthorized"), HttpStatus.UNAUTHORIZED);
+    }
 
+    @ExceptionHandler(SecurityException.class)
+    public ResponseEntity<BasicResponse<String>> handleSecurityException(SecurityException ex) {
+        return new ResponseEntity<>(new BasicResponse<>(401, "Unauthorized"), HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<BasicResponse<MessageResponse>> handleNotFoundException(NotFoundException ex) {
         return new ResponseEntity<>(new BasicResponse<>(200, new MessageResponse(ex.getMessage())), HttpStatus.OK);
     }
-
-
 
 }
 

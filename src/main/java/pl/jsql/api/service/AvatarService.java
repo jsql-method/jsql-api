@@ -1,6 +1,8 @@
 package pl.jsql.api.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import net.bytebuddy.utility.RandomString;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -11,11 +13,16 @@ import pl.jsql.api.dto.response.AvatarResponse;
 import pl.jsql.api.dto.response.MessageResponse;
 import pl.jsql.api.exceptions.NotFoundException;
 import pl.jsql.api.model.user.Avatar;
+import pl.jsql.api.model.user.Session;
 import pl.jsql.api.repo.AvatarDao;
+import pl.jsql.api.repo.SessionDao;
 import pl.jsql.api.security.service.SecurityService;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -29,6 +36,9 @@ public class AvatarService {
 
     @Autowired
     private SecurityService securityService;
+
+    @Autowired
+    private SessionDao sessionDao;
 
     public MessageResponse uploadAvatar(MultipartFile multipartFile, String realPath) throws IOException {
 
@@ -53,12 +63,25 @@ public class AvatarService {
 
     }
 
-    public AvatarResponse getAvatar(String realPath) throws IOException {
+    public AvatarResponse getAvatar(String sessionToken, String realPath) throws IOException {
 
-        Avatar avatar = avatarDao.findByUser(securityService.getCurrentAccount());
+        Session session = sessionDao.selectByHash(sessionToken);
+
+        Avatar avatar = null;
+        AvatarResponse avatarResponse = new AvatarResponse();
+
+        if(session != null){
+            avatar = avatarDao.findByUser(session.user);
+        }
 
         if (avatar == null) {
-            return new AvatarResponse();
+
+            InputStream is = TypeReference.class.getResourceAsStream("/images/avatar.png");
+            avatarResponse.bytes = IOUtils.toByteArray(is);
+            avatarResponse.length = avatarResponse.bytes.length;
+            avatarResponse.type = MediaType.IMAGE_PNG;
+
+            return avatarResponse;
         }
 
         realPath = realPath + avatar.name + "." + avatar.type;
@@ -66,7 +89,7 @@ public class AvatarService {
         Path path = Paths.get(realPath);
         byte[] imageBytes = Files.readAllBytes(path);
 
-        AvatarResponse avatarResponse = new AvatarResponse();
+
         avatarResponse.length = imageBytes.length;
         avatarResponse.bytes = imageBytes;
 

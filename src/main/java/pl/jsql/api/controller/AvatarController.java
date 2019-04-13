@@ -35,18 +35,11 @@ public class AvatarController extends ValidateController {
         return new BasicResponse<>(200, response);
     }
 
-    @Security
-    @GetMapping
-    public Object getPreview(HttpServletRequest request) throws IOException {
+    @Security(requireActiveSession = false)
+    @GetMapping("/{session}")
+    public Object getPreview(@PathVariable("session") String session, HttpServletRequest request) throws IOException {
 
-        AvatarResponse avatar = avatarService.getAvatar(request.getServletContext().getRealPath("/"));
-
-        if (avatar.bytes == null) {
-            return ResponseEntity
-                    .ok()
-                    .contentType(MediaType.TEXT_PLAIN)
-                    .body("Not found");
-        }
+        AvatarResponse avatar = avatarService.getAvatar(session, request.getServletContext().getRealPath("/"));
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(avatar.type);

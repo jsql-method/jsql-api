@@ -19,5 +19,8 @@ public interface SessionDao extends CrudRepository<Session, Long> {
     @Query("update Session s set s.closedDate = :closedDate where s.sessionHash = :sessionHash")
     void updateSessionClosedDate(@Param("sessionHash") String sessionHash, @Param("closedDate") Date closedDate);
 
+    @Query("select s from Session s where s.sessionHash = :session")
+    Session selectByHash(@Param("session") String session);
+
 }
 
