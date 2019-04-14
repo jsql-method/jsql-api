@@ -47,18 +47,18 @@ public class HashingSecurityInterceptor {
         String devKey = request.getHeader(DEV_KEY_HEADER);
 
         if (apiKey == null || devKey == null) {
-            return new ResponseEntity<>(new MessageResponse("Unauthorized"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(new MessageResponse(true,"Unauthorized"), HttpStatus.UNAUTHORIZED);
         }
 
         Application application = applicationDao.findByApiKey(apiKey);
         DeveloperKey developerKey = developerKeyDao.findByKey(devKey);
 
         if (application == null || developerKey == null) {
-            return new ResponseEntity<>(new MessageResponse("Unauthorized"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(new MessageResponse(true,"Unauthorized"), HttpStatus.UNAUTHORIZED);
         }
 
         if (applicationDevelopersDao.findByUserAndAppQuery(developerKey.user, application) == null) {
-            return new ResponseEntity<>(new MessageResponse("Unauthorized"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(new MessageResponse(true,"Unauthorized"), HttpStatus.UNAUTHORIZED);
         }
 
         return pjp.proceed();

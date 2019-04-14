@@ -31,7 +31,7 @@ public class AvatarController extends ValidateController {
     @Security
     @PostMapping
     public BasicResponse<MessageResponse> uploadAvatar(@RequestParam MultipartFile file, HttpServletRequest request) throws IOException {
-        MessageResponse response = avatarService.uploadAvatar(file, request.getServletContext().getRealPath("/"));
+        MessageResponse response = avatarService.uploadAvatar(file);
         return new BasicResponse<>(200, response);
     }
 
@@ -39,7 +39,7 @@ public class AvatarController extends ValidateController {
     @GetMapping("/{session}")
     public Object getPreview(@PathVariable("session") String session, HttpServletRequest request) throws IOException {
 
-        AvatarResponse avatar = avatarService.getAvatar(session, request.getServletContext().getRealPath("/"));
+        AvatarResponse avatar = avatarService.getAvatar(session);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(avatar.type);

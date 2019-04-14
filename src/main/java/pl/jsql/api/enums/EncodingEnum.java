@@ -1,5 +1,10 @@
 package pl.jsql.api.enums;
 
+import pl.jsql.api.dto.response.SelectResponse;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public enum EncodingEnum {
 
     MD2,
@@ -15,6 +20,18 @@ public enum EncodingEnum {
     EncodingEnum(){
         this.name = this.toString();
         this.value = this.toString();
+    }
+
+    public static List<SelectResponse<EncodingEnum>> toSelectResponse(){
+
+        List<SelectResponse<EncodingEnum>> list = new ArrayList<>();
+
+        for(EncodingEnum encodingEnum : EncodingEnum.values()){
+            list.add(new SelectResponse<>(encodingEnum));
+        }
+
+        return list;
+
     }
 
 }

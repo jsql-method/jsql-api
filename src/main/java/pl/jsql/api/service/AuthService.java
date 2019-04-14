@@ -73,7 +73,7 @@ public class AuthService {
             company = companyDao.findById(userRequest.company).orElse(null);
 
             if (company == null) {
-                return new MessageResponse("company_not_found");
+                return new MessageResponse(true,"company_not_found");
             }
 
         } else {
@@ -138,6 +138,27 @@ public class AuthService {
     public SessionResponse login(LoginRequest loginRequest) {
 
         Session session = sessionService.createSession(loginRequest);
+        User user = session.user;
+
+        if(!user.enabled){
+            throw new SecurityException();
+        }
+
+        SessionResponse sessionResponse = new SessionResponse();
+
+        sessionResponse.sessionToken = session.sessionHash;
+        sessionResponse.developerKey = developerKeyDao.findByUser(user).key;
+        sessionResponse.fullName = user.firstName + " " + user.lastName;
+        sessionResponse.companyName = user.company.name;
+        sessionResponse.role = user.role.authority.toString();
+
+        return sessionResponse;
+
+    }
+
+    public SessionResponse getSession(){
+
+        Session session = sessionService.getSession();
         User user = session.user;
 
         SessionResponse sessionResponse = new SessionResponse();

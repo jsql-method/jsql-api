@@ -30,21 +30,21 @@ public class UserController extends ValidateController {
 
     @Security(requireActiveSession = false)
     @GetMapping("/activate/{token}")
-    public BasicResponse activate(@PathVariable("token") String token) {
+    public BasicResponse<MessageResponse> activate(@PathVariable("token") String token) {
         MessageResponse response = userService.activateAccount(token);
         return new BasicResponse<>(200, response);
     }
 
     @Security(requireActiveSession = false)
     @PostMapping("/forgot-password")
-    public BasicResponse forgotPassword(@RequestBody @Valid ForgotPasswordRequest forgotPasswordRequest) {
+    public BasicResponse<MessageResponse> forgotPassword(@RequestBody @Valid ForgotPasswordRequest forgotPasswordRequest) {
         MessageResponse response = userService.forgotPassword(forgotPasswordRequest);
         return new BasicResponse<>(200, response);
     }
 
     @Security(requireActiveSession = false)
     @PostMapping("/reset-password/{token}")
-    public BasicResponse resetPassword(@PathVariable("token") String token, @RequestBody @Valid ResetPasswordRequest resetPasswordRequest) {
+    public BasicResponse<MessageResponse> resetPassword(@PathVariable("token") String token, @RequestBody @Valid ResetPasswordRequest resetPasswordRequest) {
         MessageResponse response = userService.resetPassword(token, resetPasswordRequest);
         return new BasicResponse<>(200, response);
     }
@@ -58,21 +58,21 @@ public class UserController extends ValidateController {
 
     @Security
     @GetMapping
-    public BasicResponse get() {
+    public BasicResponse<UserResponse> get() {
         UserResponse response = userService.getUser();
         return new BasicResponse<>(200, response);
     }
 
-    @Security
+    @Security(role = RoleTypeEnum.COMPANY_ADMIN)
     @DeleteMapping
-    public BasicResponse deactivate() {
+    public BasicResponse<MessageResponse> deactivate() {
         MessageResponse response = userService.disableCurrentAccount();
         return new BasicResponse<>(200, response);
     }
 
     @Security(roles = {RoleTypeEnum.ADMIN, RoleTypeEnum.COMPANY_ADMIN, RoleTypeEnum.APP_ADMIN})
     @DeleteMapping("/{id}")
-    public BasicResponse deactivate(@PathVariable("id") Long id) {
+    public BasicResponse<MessageResponse> deactivate(@PathVariable("id") Long id) {
         MessageResponse response = userService.disableDeveloperAccount(id);
         return new BasicResponse<>(200, response);
     }

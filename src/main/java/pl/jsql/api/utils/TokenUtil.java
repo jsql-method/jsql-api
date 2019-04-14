@@ -60,7 +60,7 @@ public class  TokenUtil {
     }
 
     public static String generateToken(String name) {
-        return RandomStringUtils.randomAlphanumeric(20)+HashingUtil.encode(name)+RandomStringUtils.randomAlphanumeric(20)+ UUID.randomUUID();
+        return HashingUtil.encode(name+UUID.randomUUID());
     }
 
     public static String hash(String str){

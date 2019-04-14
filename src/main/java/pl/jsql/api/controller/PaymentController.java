@@ -7,10 +7,13 @@ import pl.jsql.api.controller.generic.ValidateController;
 import pl.jsql.api.dto.request.PabblyPaymentRequest;
 import pl.jsql.api.dto.response.BasicResponse;
 import pl.jsql.api.dto.response.MessageResponse;
+import pl.jsql.api.enums.PabblyStatus;
 import pl.jsql.api.model.payment.Webhook;
 import pl.jsql.api.repo.WebhookDao;
 import pl.jsql.api.security.annotation.Security;
 import pl.jsql.api.service.PaymentService;
+
+import java.util.Map;
 
 @CrossOrigin
 @RestController
@@ -25,10 +28,11 @@ public class PaymentController extends ValidateController {
 
     @Security(requireActiveSession = false)
     @PostMapping
-    public BasicResponse<MessageResponse> create(@RequestBody PabblyPaymentRequest pabblyPaymentRequest) {
+    public BasicResponse<MessageResponse> create(@RequestBody Map<String, Object> pabblyPaymentRequest) {
 
         Webhook webhook = new Webhook();
         webhook.requestText = new Gson().toJson(pabblyPaymentRequest);
+        webhook.pabblyStatus = PabblyStatus.valueOf((String) pabblyPaymentRequest.get("event_type"));
         webhookDao.save(webhook);
 
         paymentService.activeOrUnactivePlan(pabblyPaymentRequest);

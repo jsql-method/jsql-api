@@ -126,7 +126,7 @@ public class ApplicationService {
     public MessageResponse create(User companyAdmin, ApplicationCreateRequest applicationCreateRequest) {
 
         if (!this.canCreateApplication(companyAdmin)) {
-            return new MessageResponse("applications_limit_reached");
+            return new MessageResponse(true, "applications_limit_reached");
         }
 
         Application app = applicationDao.findByNameAndCompany(applicationCreateRequest.name, companyAdmin.company);
@@ -138,10 +138,10 @@ public class ApplicationService {
 
             applicationDao.save(app);
 
-            return new MessageResponse();
+            return new MessageResponse(app.id.toString());
 
         } else if (app != null) {
-            return new MessageResponse("application_already_exists");
+            return new MessageResponse(true,"application_already_exists");
         }
 
 
@@ -150,7 +150,7 @@ public class ApplicationService {
         assignNewAppsToAppAdmins(companyAdmin, application);
         initializeApplicationOptions(application);
 
-        return new MessageResponse();
+        return new MessageResponse(application.id.toString());
 
     }
 
@@ -182,13 +182,13 @@ public class ApplicationService {
         User companyAdmin = securityService.getCompanyAdmin();
 
         if (!this.canCreateApplication(companyAdmin)) {
-            return new MessageResponse("applications_limit_reached");
+            return new MessageResponse(true,"applications_limit_reached");
         }
 
         Application application = applicationDao.findById(id).orElse(null);
 
         if(application == null){
-            return new MessageResponse("application_not_found");
+            return new MessageResponse(true,"application_not_found");
         }
 
         application.active = false;
@@ -255,9 +255,10 @@ public class ApplicationService {
         options.saltRandomize = true;
         options.hashLengthLikeQuery = false;
         options.hashMinLength = 100;
-        options.hashMaxLength = 300;
+        options.hashMaxLength = 200;
         options.removeQueriesAfterBuild = true;
         options.databaseDialect = DatabaseDialectEnum.POSTGRES;
+        options.allowedPlainQueries = false;
 
         optionsDao.save(options);
 

@@ -13,6 +13,7 @@ import pl.jsql.api.repo.*;
 import pl.jsql.api.security.service.SecurityService;
 
 import javax.transaction.Transactional;
+import java.util.Map;
 
 @Transactional
 @Service
@@ -46,9 +47,11 @@ public class PaymentService {
     private static final String SUBSCRIPTION_ACTIVATE = "subscription_activate";
     private static final String PAYMENT_FAILURE = "payment_failure";
 
-    public void activeOrUnactivePlan(PabblyPaymentRequest request) {
+    public void activeOrUnactivePlan(Map<String, Object> request) {
 
-        String eventType = request.event_type;
+        String eventType = (String) request.get("event_type");
+        Map<String, Object> requestData = (Map<String, Object>) request.get("data");
+        Map<String, Object> requestPlan = (Map<String, Object>) requestData.get("plan");
 
         String userEmail;
         User user;
@@ -56,9 +59,9 @@ public class PaymentService {
 
         if (eventType.equals(SUBSCRIPTION_ACTIVATE) || eventType.equals(SUBSCRIPTION_CREATE)) {
 
-            userEmail = request.data.email_id;
-            String planDescription = request.data.plan.plan_code;
-            int trialPeriod = request.data.plan.trial_period;
+            userEmail = (String) requestData.get("email_id");
+            String planDescription = (String) requestPlan.get("plan_code");
+            int trialPeriod = (int) requestPlan.get("trial_period");
 
             user = userDao.findByEmail(userEmail);
 
@@ -97,7 +100,10 @@ public class PaymentService {
 
         } else if (eventType.equals(PAYMENT_FAILURE)) {
 
-            userEmail = request.data.transaction.payment_method.email;
+            Map<String, Object> requestTransaction = (Map<String, Object>) requestData.get("transaction");
+            Map<String, Object> requestPaymentMethod = (Map<String, Object>) requestTransaction.get("payment_method");
+
+            userEmail = (String) requestPaymentMethod.get("email");
             user = userDao.findByEmail(userEmail);
 
             if (user == null) {

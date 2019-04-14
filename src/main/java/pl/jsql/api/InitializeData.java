@@ -68,7 +68,7 @@ public class InitializeData {
     private void createFullCompanyAdmin() {
 
         String email = "dawid.senko@jsql.it";
-        authService.register(new UserRequest(email, "test123", "Paweł", "Stachurski", "JSQL Sp.z.o.o.", PlansEnum.LARGE));
+        authService.register(new UserRequest(email, "test1234", "Paweł", "Stachurski", "JSQL Sp.z.o.o.", PlansEnum.LARGE));
 
         User user = userDao.findByEmail(email);
         userService.activateAccount(user.token);

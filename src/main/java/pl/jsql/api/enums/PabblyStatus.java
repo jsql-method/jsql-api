@@ -1,0 +1,26 @@
+package pl.jsql.api.enums;
+
+public enum PabblyStatus {
+
+    SUBSCRIPTION_CREATE,
+    SUBSCRIPTION_DOWNGRADE,
+    SUBSCRIPTION_CANCEL_SCHEDULED,
+    SUBSCRIPTION_ACTIVATE,
+    SUBSCRIPTION_CANCEL,
+    SUBSCRIPTION_TRIAL_EXPIRED,
+    SUBSCRIPTION_UPGRADE,
+    SUBSCRIPTION_EXPIRE,
+    SUBSCRIPTION_RENEW,
+    SUBSCRIPTION_DELETE,
+
+    SUCCESSFULL_PAYMENT,
+    PAYMENT_FAILURE,
+    PAYMENT_REFUND;
+
+    public String name;
+
+    PabblyStatus() {
+        this.name = this.name().toLowerCase();
+    }
+
+}
