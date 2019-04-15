@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.jsql.api.dto.request.OptionsRequest;
+import pl.jsql.api.dto.request.ProductionToggleRequest;
 import pl.jsql.api.dto.response.MessageResponse;
 import pl.jsql.api.dto.response.OptionsResponse;
 import pl.jsql.api.dto.response.OptionsValuesResponse;
@@ -110,8 +111,8 @@ public class OptionsService {
         options.hashMaxLength = optionsRequest.hashMaxLength == null ? options.hashMaxLength : optionsRequest.hashMaxLength;
         options.removeQueriesAfterBuild = optionsRequest.removeQueriesAfterBuild == null ? options.removeQueriesAfterBuild : optionsRequest.removeQueriesAfterBuild;
         options.allowedPlainQueries = optionsRequest.allowedPlainQueries == null ? options.allowedPlainQueries : optionsRequest.allowedPlainQueries;
-        options.prod = optionsRequest.prod == null ? options.prod : optionsRequest.prod;
 
+        optionsDao.save(options);
 
         return new MessageResponse();
 
@@ -129,4 +130,20 @@ public class OptionsService {
     }
 
 
+    public MessageResponse toggleProduction(Long applicationId, ProductionToggleRequest productionToggleRequest) {
+
+        Application application = applicationDao.findById(applicationId).orElse(null);
+
+        if (application == null) {
+            throw new NotFoundException("application_not_found");
+        }
+
+        Options options = optionsDao.findByApplication(application);
+        options.prod = productionToggleRequest.prod;
+
+        optionsDao.save(options);
+
+        return new MessageResponse();
+
+    }
 }
