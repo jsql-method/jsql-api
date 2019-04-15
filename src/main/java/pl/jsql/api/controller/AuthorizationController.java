@@ -32,6 +32,14 @@ public class AuthorizationController extends ValidateController {
     }
 
     @Security
+    @GetMapping("/session")
+    public BasicResponse<SessionResponse> session() {
+
+        SessionResponse response = authService.getSession();
+        return new BasicResponse<>(200, response);
+    }
+
+    @Security
     @DeleteMapping("/logout")
     public BasicResponse<MessageResponse> logout() {
         MessageResponse response = authService.logout();

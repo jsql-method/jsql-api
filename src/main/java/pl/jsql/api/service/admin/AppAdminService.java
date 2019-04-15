@@ -58,7 +58,7 @@ public class AppAdminService {
             int allowedUsers = planDao.findFirstByCompany(companyAdmin.company).plan.maxUsers;
 
             if (allowedUsers <= usersCount) {
-                return new MessageResponse("developers_limit_reached");
+                return new MessageResponse(true,"developers_limit_reached");
             }
 
             userRequest.company = companyAdmin.company.id;
@@ -69,9 +69,9 @@ public class AppAdminService {
             appAdmin = userDao.findByEmail(userRequest.email);
 
         } else if (appAdmin.role.authority == RoleTypeEnum.APP_ADMIN) {
-            return new MessageResponse("user_already_exists");
+            return new MessageResponse(true,"user_already_exists");
         } else if (appAdmin.role.authority == RoleTypeEnum.COMPANY_ADMIN || appAdmin.role.authority == RoleTypeEnum.ADMIN) {
-            return new MessageResponse("unauthorized");
+            return new MessageResponse(true,"unauthorized");
         } else {
             appAdmin.role = roleDao.findByAuthority(RoleTypeEnum.APP_ADMIN);
         }
@@ -110,7 +110,7 @@ public class AppAdminService {
         User appAdmin = userDao.findByEmail(demoteAppAdminRequest.email);
 
         if (appAdmin == null) {
-            return new MessageResponse("no_such_admin");
+            return new MessageResponse(true,"no_such_admin");
         }
 
         appAdmin.role = roleDao.findByAuthority(RoleTypeEnum.APP_DEV);
@@ -124,7 +124,7 @@ public class AppAdminService {
         User user = userDao.findById(id).orElse(null);
 
         if (user == null) {
-            return new MessageResponse("admin_does_not_exists");
+            return new MessageResponse(true,"admin_does_not_exists");
         }
 
         applicationDevelopersDao.clearJoinsByUser(user);

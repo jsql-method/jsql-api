@@ -6,5 +6,6 @@ public class SessionResponse {
    public String developerKey;
    public String fullName;
    public String companyName;
+   public String role;
 
 }

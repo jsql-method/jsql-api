@@ -44,7 +44,4 @@ public class  OptionsRequest {
    @NotNull(message = "${validation.message.notNull}")
    public Boolean allowedPlainQueries;
 
-   @NotNull(message = "${validation.message.notNull}")
-   public Boolean prod;
-
 }

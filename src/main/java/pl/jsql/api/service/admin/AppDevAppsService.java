@@ -33,7 +33,7 @@ public class AppDevAppsService {
         User developer = userDao.findById(developerAssignRequest.developer).orElse(null);
 
         if (application == null || developer == null) {
-            return new MessageResponse("no_such_developer");
+            return new MessageResponse(true,"no_such_developer");
         }
 
         ApplicationDevelopers applicationDevelopers = applicationDevelopersDao.findByUserAndAppQuery(developer, application);
@@ -73,7 +73,7 @@ public class AppDevAppsService {
         Application app = applicationDao.findById(developerAssignRequest.application).orElse(null);
 
         if (user == null || app == null) {
-            return new MessageResponse("no_such_developer");
+            return new MessageResponse(true,"no_such_developer");
         }
 
         applicationDevelopersDao.clearJoinsByUserAndApp(user, app);

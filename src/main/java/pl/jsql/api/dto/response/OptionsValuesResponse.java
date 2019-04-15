@@ -7,7 +7,7 @@ import java.util.List;
 
 public class OptionsValuesResponse {
 
-    public List<EncodingEnum> encodingAlgorithmValues;
-    public List<DatabaseDialectEnum> databaseDialectValues;
+    public List<SelectResponse<EncodingEnum>> encodingAlgorithmValues;
+    public List<SelectResponse<DatabaseDialectEnum>> databaseDialectValues;
 
 }

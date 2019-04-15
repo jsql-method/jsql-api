@@ -6,6 +6,7 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import pl.jsql.api.dto.response.BasicResponse;
+import pl.jsql.api.dto.response.MessageResponse;
 
 import java.util.HashMap;
 
@@ -13,7 +14,7 @@ import java.util.HashMap;
 abstract public class ValidateController {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public BasicResponse<HashMap<String, String>> handleMethodNotValidException(MethodArgumentNotValidException ex) {
+    public BasicResponse<MessageResponse> handleMethodNotValidException(MethodArgumentNotValidException ex) {
 
         HashMap<String, String> errors = new HashMap<>();
 
@@ -31,6 +32,6 @@ abstract public class ValidateController {
 
         }
 
-        return new BasicResponse<>(204, errors);
+        return new BasicResponse<>(204, new MessageResponse(errors));
     }
 }

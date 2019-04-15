@@ -31,22 +31,15 @@ public class AvatarController extends ValidateController {
     @Security
     @PostMapping
     public BasicResponse<MessageResponse> uploadAvatar(@RequestParam MultipartFile file, HttpServletRequest request) throws IOException {
-        MessageResponse response = avatarService.uploadAvatar(file, request.getServletContext().getRealPath("/"));
+        MessageResponse response = avatarService.uploadAvatar(file);
         return new BasicResponse<>(200, response);
     }
 
-    @Security
-    @GetMapping
-    public Object getPreview(HttpServletRequest request) throws IOException {
+    @Security(requireActiveSession = false)
+    @GetMapping("/{session}")
+    public Object getPreview(@PathVariable("session") String session, HttpServletRequest request) throws IOException {
 
-        AvatarResponse avatar = avatarService.getAvatar(request.getServletContext().getRealPath("/"));
-
-        if (avatar.bytes == null) {
-            return ResponseEntity
-                    .ok()
-                    .contentType(MediaType.TEXT_PLAIN)
-                    .body("Not found");
-        }
+        AvatarResponse avatar = avatarService.getAvatar(session);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(avatar.type);

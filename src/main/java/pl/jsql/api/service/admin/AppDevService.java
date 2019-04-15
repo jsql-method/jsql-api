@@ -60,7 +60,7 @@ public class AppDevService {
         int allowedUsers = planDao.findFirstByCompany(user.company).plan.maxUsers;
 
         if (allowedUsers <= usersCount) {
-            return new MessageResponse("developers_limit_reached");
+            return new MessageResponse(true,"developers_limit_reached");
         }
 
         UserRequest userRequest = new UserRequest();
@@ -79,7 +79,7 @@ public class AppDevService {
         User user = userDao.findById(id).orElse(null);
 
         if (user == null) {
-            return new MessageResponse("developer_does_not_exists");
+            return new MessageResponse(true,"developer_does_not_exists");
         }
 
         applicationDevelopersDao.clearJoinsByUser(user);
@@ -102,7 +102,7 @@ public class AppDevService {
     public MessageResponse unassignMember(User user, Application app) {
 
         if (user == null || app == null) {
-            return new MessageResponse("developer_or_application_does_not_exists");
+            return new MessageResponse(true,"developer_or_application_does_not_exists");
         }
 
         ApplicationDevelopers appMember = applicationDevelopersDao.findByUserAndAppQuery(user, app);

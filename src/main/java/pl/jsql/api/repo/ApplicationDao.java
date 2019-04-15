@@ -32,28 +32,28 @@ public interface ApplicationDao extends CrudRepository<Application, Long> {
     @Query("SELECT COUNT(t) FROM Application t where t.companyAdmin = :companyAdmin and t.active = true")
     Integer countByCompanyAdmin(@Param("companyAdmin") User companyAdmin);
 
-    @Query("select new pl.jsql.api.dto.response.ApplicationResponse(a.id, a.apiKey, a.name, d.key) from Application a, DeveloperKey d where a.productionDeveloper = d.user")
+    @Query("select new pl.jsql.api.dto.response.ApplicationResponse(a.id, a.apiKey, a.name, d.key, o.prod) from Application a, DeveloperKey d, Options o where a.productionDeveloper = d.user and o.application = a")
     List<ApplicationResponse> selectAllApplicationsForAdmin();
 
-    @Query("select new pl.jsql.api.dto.response.ApplicationResponse(ad.application.id, ad.application.apiKey, ad.application.name, d.key) from ApplicationDevelopers ad, DeveloperKey d where ad.developer = :developer and d.user = ad.developer")
+    @Query("select new pl.jsql.api.dto.response.ApplicationResponse(ad.application.id, ad.application.apiKey, ad.application.name, d.key, o.prod) from ApplicationDevelopers ad, DeveloperKey d, Options o where ad.developer = :developer and d.user = ad.developer and o.application = ad.application")
     List<ApplicationResponse> selectAllApplicationsForAppDeveloper(@Param("developer") User developer);
 
-    @Query("select new pl.jsql.api.dto.response.ApplicationResponse(ad.application.id, ad.application.apiKey, ad.application.name, d.key) from ApplicationDevelopers ad, DeveloperKey d where ad.developer = :appAdmin and d.user = ad.developer")
+    @Query("select new pl.jsql.api.dto.response.ApplicationResponse(ad.application.id, ad.application.apiKey, ad.application.name, d.key, o.prod) from ApplicationDevelopers ad, DeveloperKey d, Options o where ad.developer = :appAdmin and d.user = ad.developer and o.application = ad.application")
     List<ApplicationResponse> selectAllApplicationsForAppAdmin(@Param("appAdmin") User appAdmin);
 
-    @Query("select new pl.jsql.api.dto.response.ApplicationResponse(a.id, a.apiKey, a.name, d.key) from Application a, DeveloperKey d where a.companyAdmin = :companyAdmin and d.user = a.productionDeveloper")
+    @Query("select new pl.jsql.api.dto.response.ApplicationResponse(a.id, a.apiKey, a.name, d.key, o.prod) from Application a, DeveloperKey d, Options o where a.companyAdmin = :companyAdmin and d.user = a.productionDeveloper and o.application = a")
     List<ApplicationResponse> selectAllApplicationsForCompanyAdmin(@Param("companyAdmin") User companyAdmin);
 
-    @Query("select new pl.jsql.api.dto.response.ApplicationResponse(a.id, a.apiKey, a.name, d.key) from Application a, DeveloperKey d where a.id = :id and a.productionDeveloper = d.user")
+    @Query("select new pl.jsql.api.dto.response.ApplicationResponse(a.id, a.apiKey, a.name, d.key, o.prod) from Application a, DeveloperKey d, Options o where a.id = :id and a.productionDeveloper = d.user and o.application = a")
     ApplicationResponse selectApplicationForAdminById(@Param("id") Long id);
 
-    @Query("select new pl.jsql.api.dto.response.ApplicationResponse(ad.application.id, ad.application.apiKey, ad.application.name, d.key) from ApplicationDevelopers ad, DeveloperKey d where ad.application.id = :id and ad.developer = :developer and d.user = ad.developer")
+    @Query("select new pl.jsql.api.dto.response.ApplicationResponse(ad.application.id, ad.application.apiKey, ad.application.name, d.key, o.prod) from ApplicationDevelopers ad, DeveloperKey d, Options o where ad.application.id = :id and ad.developer = :developer and d.user = ad.developer and o.application = ad.application")
     ApplicationResponse selectApplicationForAppDeveloper(@Param("id") Long id, @Param("developer") User developer);
 
-    @Query("select new pl.jsql.api.dto.response.ApplicationResponse(ad.application.id, ad.application.apiKey, ad.application.name, d.key) from ApplicationDevelopers ad, DeveloperKey d where ad.application.id = :id and ad.developer = :appAdmin and d.user = ad.developer")
+    @Query("select new pl.jsql.api.dto.response.ApplicationResponse(ad.application.id, ad.application.apiKey, ad.application.name, d.key, o.prod) from ApplicationDevelopers ad, DeveloperKey d, Options o where ad.application.id = :id and ad.developer = :appAdmin and d.user = ad.developer and o.application = ad.application")
     ApplicationResponse selectApplicationForAppAdmin(@Param("id") Long id, @Param("appAdmin") User appAdmin);
 
-    @Query("select new pl.jsql.api.dto.response.ApplicationResponse(a.id, a.apiKey, a.name, d.key) from Application a, DeveloperKey d where a.id = :id and a.companyAdmin = :companyAdmin and d.user = a.productionDeveloper")
+    @Query("select new pl.jsql.api.dto.response.ApplicationResponse(a.id, a.apiKey, a.name, d.key, o.prod) from Application a, DeveloperKey d, Options o where a.id = :id and a.companyAdmin = :companyAdmin and d.user = a.productionDeveloper and o.application = a")
     ApplicationResponse selectApplicationForCompanyAdmin(@Param("id")Long id, @Param("companyAdmin") User companyAdmin);
 
     @Query("select count(a) from Application a where a.companyAdmin = :companyAdmin and a.active = true")

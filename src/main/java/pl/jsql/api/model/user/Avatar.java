@@ -17,8 +17,8 @@ public class Avatar {
     @Column(length = 20)
     public String type;
 
-    @Column(length = 200)
-    public String name;
+    @Lob
+    public Byte[] image;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinColumn(name = "user_id")
