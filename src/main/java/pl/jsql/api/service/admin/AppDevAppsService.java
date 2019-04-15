@@ -3,7 +3,7 @@ package pl.jsql.api.service.admin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.jsql.api.dto.request.DeveloperAssignRequest;
-import pl.jsql.api.dto.response.AppDeveloperApplicationsResponse;
+import pl.jsql.api.dto.response.AppDeveloperApplicationResponse;
 import pl.jsql.api.dto.response.MessageResponse;
 import pl.jsql.api.model.hashing.Application;
 import pl.jsql.api.model.hashing.ApplicationDevelopers;
@@ -51,7 +51,7 @@ public class AppDevAppsService {
 
     }
 
-    public AppDeveloperApplicationsResponse getById(Long developerId) {
+    public AppDeveloperApplicationResponse getById(Long developerId) {
 
         User user = userDao.findById(developerId).orElse(null);
 
@@ -59,11 +59,11 @@ public class AppDevAppsService {
             return null;
         }
 
-        AppDeveloperApplicationsResponse appDeveloperApplicationsResponse = new AppDeveloperApplicationsResponse();
-        appDeveloperApplicationsResponse.email = user.email;
-        appDeveloperApplicationsResponse.applications = applicationDevelopersDao.findByApplicationActive(user);
+        AppDeveloperApplicationResponse appDeveloperApplicationResponse = new AppDeveloperApplicationResponse();
+        appDeveloperApplicationResponse.email = user.email;
+        appDeveloperApplicationResponse.applications = applicationDevelopersDao.findByApplicationActive(user);
 
-        return appDeveloperApplicationsResponse;
+        return appDeveloperApplicationResponse;
 
     }
 
