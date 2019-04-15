@@ -1,8 +1,6 @@
 package pl.jsql.api.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.sun.deploy.util.ArrayUtil;
-import net.bytebuddy.utility.RandomString;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,14 +19,8 @@ import pl.jsql.api.repo.AvatarDao;
 import pl.jsql.api.repo.SessionDao;
 import pl.jsql.api.security.service.SecurityService;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 
 @Transactional
@@ -59,7 +51,7 @@ public class AvatarService {
 
         Avatar avatar = avatarDao.findByUser(currentUser);
 
-        if(avatar == null){
+        if (avatar == null) {
             avatar = new Avatar();
         }
 
@@ -77,7 +69,7 @@ public class AvatarService {
 
     public AvatarResponse getAvatar(String sessionToken) throws IOException {
 
-        if(avatarCache.get(sessionToken) != null){
+        if (avatarCache.get(sessionToken) != null) {
             return avatarCache.get(sessionToken);
         }
 
@@ -86,7 +78,7 @@ public class AvatarService {
         Avatar avatar = null;
         AvatarResponse avatarResponse = new AvatarResponse();
 
-        if(session != null){
+        if (session != null) {
             avatar = avatarDao.findByUser(session.user);
         }
 
