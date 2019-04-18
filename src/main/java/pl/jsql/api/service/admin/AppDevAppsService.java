@@ -13,6 +13,7 @@ import pl.jsql.api.repo.ApplicationDevelopersDao;
 import pl.jsql.api.repo.UserDao;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 @Transactional
 @Service
@@ -51,7 +52,7 @@ public class AppDevAppsService {
 
     }
 
-    public AppDeveloperApplicationResponse getById(Long developerId) {
+    public List<AppDeveloperApplicationResponse> getById(Long developerId) {
 
         User user = userDao.findById(developerId).orElse(null);
 
@@ -59,11 +60,7 @@ public class AppDevAppsService {
             return null;
         }
 
-        AppDeveloperApplicationResponse appDeveloperApplicationResponse = new AppDeveloperApplicationResponse();
-        appDeveloperApplicationResponse.email = user.email;
-        appDeveloperApplicationResponse.applications = applicationDevelopersDao.findByApplicationActive(user);
-
-        return appDeveloperApplicationResponse;
+        return applicationDevelopersDao.selectByApplicationActive(user);
 
     }
 
