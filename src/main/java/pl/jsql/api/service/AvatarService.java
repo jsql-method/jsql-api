@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Base64Utils;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.multipart.MultipartFile;
 import pl.jsql.api.dto.response.AvatarResponse;
 import pl.jsql.api.dto.response.MessageResponse;
@@ -17,7 +18,10 @@ import pl.jsql.api.model.user.Session;
 import pl.jsql.api.model.user.User;
 import pl.jsql.api.repo.AvatarDao;
 import pl.jsql.api.repo.SessionDao;
+import pl.jsql.api.repo.UserDao;
 import pl.jsql.api.security.service.SecurityService;
+import pl.jsql.api.utils.HashingUtil;
+import pl.jsql.api.utils.TokenUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +39,9 @@ public class AvatarService {
 
     @Autowired
     private SessionDao sessionDao;
+
+    @Autowired
+    private UserDao userDao;
 
     private HashMap<String, AvatarResponse> avatarCache = new HashMap<>();
 
@@ -61,26 +68,16 @@ public class AvatarService {
 
         avatarDao.save(avatar);
 
+        avatarCache.remove(HashingUtil.md5(currentUser.email));
         avatarCache.remove(securityService.getAuthorizationToken());
 
         return new MessageResponse("avatar_uploaded");
 
     }
 
-    public AvatarResponse getAvatar(String sessionToken) throws IOException {
+    public AvatarResponse getAvatar(Avatar avatar, Boolean saveToSessionCache) throws IOException {
 
-        if (avatarCache.get(sessionToken) != null) {
-            return avatarCache.get(sessionToken);
-        }
-
-        Session session = sessionDao.selectByHash(sessionToken);
-
-        Avatar avatar = null;
         AvatarResponse avatarResponse = new AvatarResponse();
-
-        if (session != null) {
-            avatar = avatarDao.findByUser(session.user);
-        }
 
         if (avatar == null) {
 
@@ -112,9 +109,47 @@ public class AvatarService {
 
         avatarResponse.data = Base64Utils.encodeToString(imageBytes);
 
-        avatarCache.put(sessionToken, avatarResponse);
+        avatarCache.put(avatar.user.email, avatarResponse);
+
+        if (saveToSessionCache) {
+            avatarCache.put(securityService.getAuthorizationToken(), avatarResponse);
+        }
 
         return avatarResponse;
+
+    }
+
+    public AvatarResponse getAvatarBySession(String sessionToken) throws IOException {
+
+        if (avatarCache.get(sessionToken) != null) {
+            return avatarCache.get(sessionToken);
+        }
+
+        Session session = sessionDao.selectByHash(sessionToken);
+
+        Avatar avatar = null;
+
+        if (session != null) {
+            avatar = avatarDao.findByUser(session.user);
+        }
+
+        return this.getAvatar(avatar, true);
+    }
+
+    public AvatarResponse getAvatarById(Long id) throws IOException {
+
+        if (avatarCache.get(id.toString()) != null) {
+            return avatarCache.get(id.toString());
+        }
+
+        User user = userDao.findById(id).orElse(null);
+        Avatar avatar = null;
+
+        if(user != null){
+            avatar = avatarDao.findByUser(user);
+        }
+
+        return this.getAvatar(avatar, false);
 
     }
 

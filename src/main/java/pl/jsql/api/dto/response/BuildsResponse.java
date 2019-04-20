@@ -4,8 +4,8 @@ import java.util.List;
 
 public class BuildsResponse {
 
-    public Integer totalBuilds;
-    public Integer todayBuilds;
+    public Long totalBuilds;
+    public Long todayBuilds;
 
     public List<BuildResponse> builds;
 

@@ -26,4 +26,11 @@ public class BuildResponse {
         this.queriesCount = queriesCount;
     }
 
+    public BuildResponse(String applicationName, String developerName, Date hashingDate, Integer queriesCount) {
+        this.applicationName = applicationName;
+        this.developerName = developerName;
+        this.hashingDate = hashingDate;
+        this.queriesCount = queriesCount;
+    }
+
 }

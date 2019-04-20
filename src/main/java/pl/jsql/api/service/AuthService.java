@@ -90,6 +90,7 @@ public class AuthService {
         user.company = company;
         user.token = HashingUtil.encode(user.email + new Date());
         user.activationDate = new Date();
+        user.enabled = false;
         user = userDao.save(user);
 
         this.createDeveloperKey(user);

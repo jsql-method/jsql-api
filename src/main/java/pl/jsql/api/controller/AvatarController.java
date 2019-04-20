@@ -14,6 +14,7 @@ import pl.jsql.api.dto.response.BasicResponse;
 import pl.jsql.api.dto.response.MessageResponse;
 import pl.jsql.api.security.annotation.Security;
 import pl.jsql.api.service.AvatarService;
+import pl.jsql.api.utils.HashingUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -39,7 +40,22 @@ public class AvatarController extends ValidateController {
     @GetMapping("/{session}")
     public Object getPreview(@PathVariable("session") String session, HttpServletRequest request) throws IOException {
 
-        AvatarResponse avatar = avatarService.getAvatar(session);
+        AvatarResponse avatar = avatarService.getAvatarBySession(session);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(avatar.type);
+        headers.setContentLength(avatar.length);
+
+        return new HttpEntity<>(avatar.bytes, headers);
+
+    }
+
+    @Security(requireActiveSession = false)
+    @GetMapping("/hash/{hash}")
+    public Object getPreviewById(@PathVariable("hash") String hash, HttpServletRequest request) throws IOException {
+
+        Long id = HashingUtil.decomposeAvatarHash(hash);
+        AvatarResponse avatar = avatarService.getAvatarById(id);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(avatar.type);

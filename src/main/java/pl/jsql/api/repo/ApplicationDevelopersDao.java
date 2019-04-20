@@ -46,7 +46,7 @@ public interface ApplicationDevelopersDao extends CrudRepository<ApplicationDeve
     void deleteAllByApplication(@Param("application") Application application);
 
     @Query("select new pl.jsql.api.dto.response.AppDeveloperApplicationResponse(true, t.developer.id, t.application.id, t.application.name) from ApplicationDevelopers t where t.application.active = true and t.developer = :developer")
-    List<AppDeveloperApplicationResponse> selectByApplicationActive(User user);
+    List<AppDeveloperApplicationResponse> selectByApplicationActive(@Param("developer") User developer);
 
 }
 
