@@ -126,8 +126,8 @@ public class AuthService {
         User user = new User();
         user.password = HashingUtil.encode(userRequest.password);
         user.email = userRequest.email;
-        user.firstName = userRequest.firstName;
-        user.lastName = userRequest.lastName;
+        user.firstName = userRequest.firstName.trim();
+        user.lastName = userRequest.lastName.trim();
         user.isProductionDeveloper = false;
         user.registerDate = new Date();
         user.enabled = true;
@@ -164,6 +164,7 @@ public class AuthService {
 
         SessionResponse sessionResponse = new SessionResponse();
 
+        sessionResponse.id = user.id;
         sessionResponse.sessionToken = session.sessionHash;
         sessionResponse.developerKey = developerKeyDao.findByUser(user).key;
         sessionResponse.fullName = user.firstName + " " + user.lastName;

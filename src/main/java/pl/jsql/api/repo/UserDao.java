@@ -38,5 +38,8 @@ public interface UserDao extends CrudRepository<User, Long> {
 
     @Query("select case when count(u) > 0 then TRUE else FALSE end from User u where u.email = :email")
     boolean existByEmail(@Param("email") String email);
+
+    @Query("select case when count(u) > 0 then TRUE else FALSE end from User u where u.firstName = :firstName and u.lastName = :lastName and u.company = :company")
+    boolean existByFullnameForCompany(@Param("firstName") String firstName, @Param("lastName") String lastName, @Param("company") Company company);
 }
 

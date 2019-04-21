@@ -1,11 +1,13 @@
 package pl.jsql.api.dto.request;
 
 import pl.jsql.api.validator.UniqueEmail;
+import pl.jsql.api.validator.UniqueUserNameForCurrentCompany;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
+@UniqueUserNameForCurrentCompany
 public class AppDeveloperRequest {
 
     @NotEmpty(message = "${validation.message.notEmpty}")

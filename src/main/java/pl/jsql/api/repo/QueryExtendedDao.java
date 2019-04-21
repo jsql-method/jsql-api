@@ -98,7 +98,7 @@ public class QueryExtendedDao {
 
         StringBuilder builder = new StringBuilder();
 
-        builder.append("SELECT count(t) FROM Query t where t.queryDate >= :from and t.queryDate <= :to ");
+        builder.append("SELECT count(t) FROM Query t where t.queryDate >= :dateFrom and t.queryDate <= :dateTo ");
         builder.append("and t.user = :currentUser  ");
 
         if(used != null){

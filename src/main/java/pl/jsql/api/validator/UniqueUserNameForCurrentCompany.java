@@ -7,12 +7,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Constraint(validatedBy = UniqueApplicationNameForCurrentCompanyValidator.class)
-@Target({ElementType.METHOD, ElementType.FIELD})
+@Constraint(validatedBy = UniqueUserNameForCurrentCompanyValidator.class)
+@Target({ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface UniqueApplicationForCurrentCompany {
+public @interface UniqueUserNameForCurrentCompany {
 
-    String message() default "${validation.message.application.availability}";
+    String message() default "${validation.message.user.username.availability}";
 
     Class<?>[] groups() default {};
 

@@ -1,11 +1,16 @@
 package pl.jsql.api.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.util.Date;
 
 public class QueriesChartDataResponse {
 
     public Long id;
+
+    @JsonFormat(pattern = "dd-MM-yyyy")
     public Date queryDate;
+
     public String developerName;
     public String applicationName;
 

@@ -17,6 +17,7 @@ abstract public class ValidateController {
     public BasicResponse<MessageResponse> handleMethodNotValidException(MethodArgumentNotValidException ex) {
 
         HashMap<String, String> errors = new HashMap<>();
+        String errorMessage = null;
 
         for (ObjectError objectError : ex.getBindingResult().getAllErrors()) {
 
@@ -28,10 +29,22 @@ abstract public class ValidateController {
                 message = message.replace("$", "").replace("}", "").replace("{", "");
 
                 errors.put(fieldError.getField(), message);
+            }else{
+                errorMessage = objectError.getDefaultMessage();
+                errorMessage = errorMessage.replace("$", "").replace("}", "").replace("{", "");
             }
 
         }
 
-        return new BasicResponse<>(204, new MessageResponse(errors));
+        MessageResponse messageResponse = null;
+
+        if(errorMessage != null){
+            messageResponse = new MessageResponse(true, errorMessage, errors);
+        }else{
+            messageResponse = new MessageResponse(errors);
+        }
+
+        return new BasicResponse<>(204, messageResponse);
     }
+
 }
