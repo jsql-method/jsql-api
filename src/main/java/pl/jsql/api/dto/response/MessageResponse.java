@@ -25,6 +25,17 @@ public class  MessageResponse {
         this.message = message;
     }
 
+    public MessageResponse(Boolean isError, String message, HashMap<String, String> messages) {
+
+        if(isError){
+            this.errorMessage = message;
+        }else{
+            this.message = message;
+        }
+
+        this.messages = messages;
+    }
+
     public MessageResponse(String message, HashMap<String, String> messages) {
         this.message = message;
         this.messages = messages;

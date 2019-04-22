@@ -1,5 +1,6 @@
 package pl.jsql.api;
 
+import org.apache.commons.lang3.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.jsql.api.dto.request.ApplicationCreateRequest;
@@ -8,14 +9,23 @@ import pl.jsql.api.enums.PlansEnum;
 import pl.jsql.api.enums.RoleTypeEnum;
 import pl.jsql.api.enums.SettingEnum;
 import pl.jsql.api.model.dict.Setting;
+import pl.jsql.api.model.hashing.Application;
+import pl.jsql.api.model.hashing.Query;
+import pl.jsql.api.model.stats.Build;
+import pl.jsql.api.model.stats.Request;
 import pl.jsql.api.model.user.Role;
 import pl.jsql.api.model.user.User;
 import pl.jsql.api.repo.*;
 import pl.jsql.api.service.ApplicationService;
 import pl.jsql.api.service.AuthService;
 import pl.jsql.api.service.UserService;
+import pl.jsql.api.utils.TokenUtil;
 
 import javax.annotation.PostConstruct;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 
 @Component
 public class InitializeData {
@@ -65,9 +75,10 @@ public class InitializeData {
 
     }
 
+    String email = "dawid.senko@jsql.it";
+
     private void createFullCompanyAdmin() {
 
-        String email = "dawid.senko@jsql.it";
         authService.register(new UserRequest(email, "test1234", "Paweł", "Stachurski", "JSQL Sp.z.o.o.", PlansEnum.LARGE));
 
         User user = userDao.findByEmail(email);
@@ -78,11 +89,177 @@ public class InitializeData {
 
     }
 
+    @Autowired
+    private BuildDao buildDao;
+
+    @Autowired
+    private ApplicationDao applicationDao;
+
+    private void testBuildsData() throws ParseException {
+
+        User user = userDao.findByEmail(email);
+        Application application = applicationDao.selectAll().get(0);
+
+        for(int i = 0; i < 50; i++){
+
+            Build build = new Build();
+            build.user = user;
+            build.application = application;
+            build.hashingDate = new SimpleDateFormat("dd/MM/yyyy hh/mm").parse("18/04/2019 12/"+i);
+            build.queriesCount = RandomUtils.nextInt(10, 50);
+
+            buildDao.save(build);
+
+        }
+
+        for(int i = 0; i < 10; i++){
+
+            Build build = new Build();
+            build.user = user;
+            build.application = application;
+            build.hashingDate = new SimpleDateFormat("dd/MM/yyyy hh/mm").parse("18/04/2019 "+i+"/20");
+            build.queriesCount = RandomUtils.nextInt(10, 50);
+
+            buildDao.save(build);
+
+        }
+
+
+        for(int i = 0; i < 25; i++){
+
+            Build build = new Build();
+            build.user = user;
+            build.application = application;
+            build.hashingDate = new SimpleDateFormat("dd/MM/yyyy").parse(i+"/04/2019");
+            build.queriesCount = RandomUtils.nextInt(10, 50);
+
+            buildDao.save(build);
+
+        }
+
+
+    }
+
+    @Autowired
+    private RequestDao requestDao;
+
+    private void testRequestsData() throws ParseException {
+
+        User user = userDao.findByEmail(email);
+        Application application = applicationDao.selectAll().get(0);
+
+        for(int i = 0; i < 50; i++){
+
+            Request request = new Request();
+            request.user = user;
+            request.application = application;
+            request.requestDate = new SimpleDateFormat("dd/MM/yyyy hh/mm").parse("18/04/2019 12/"+i);
+            request.queryHash = TokenUtil.generateToken(i, 50);
+            request.query = "select * from user";
+
+            requestDao.save(request);
+
+        }
+
+        for(int i = 0; i < 10; i++){
+
+            Request request = new Request();
+            request.user = user;
+            request.application = application;
+            request.requestDate = new SimpleDateFormat("dd/MM/yyyy hh/mm").parse("18/04/2019 "+i+"/20");
+            request.queryHash = TokenUtil.generateToken(i, 50);
+            request.query = "select * from user where id = :id";
+
+            requestDao.save(request);
+
+        }
+
+
+        for(int i = 0; i < 25; i++){
+
+            Request request = new Request();
+            request.user = user;
+            request.application = application;
+            request.requestDate = new SimpleDateFormat("dd/MM/yyyy").parse(i+"/04/2019");
+            request.queryHash = TokenUtil.generateToken(i, 50);
+            request.query = "delete from user where id = :id";
+
+            requestDao.save(request);
+
+        }
+
+
+    }
+
+    @Autowired
+    private QueryDao queryDao;
+
+    private void testQueriesData() throws ParseException {
+
+        User user = userDao.findByEmail(email);
+        Application application = applicationDao.selectAll().get(0);
+
+        for(int i = 0; i < 50; i++){
+
+            Query query = new Query();
+            query.user = user;
+            query.application = application;
+            query.queryDate = new SimpleDateFormat("dd/MM/yyyy hh/mm").parse("18/04/2019 12/"+i);
+            query.hash = TokenUtil.generateToken(i, 50);
+            query.query = "select * from user";
+            query.used = (i % 2) == 0;
+            query.dynamic = (i % 2) == 0;
+
+            queryDao.save(query);
+
+        }
+
+        for(int i = 0; i < 10; i++){
+
+            Query query = new Query();
+            query.user = user;
+            query.application = application;
+            query.queryDate = new SimpleDateFormat("dd/MM/yyyy hh/mm").parse("18/04/2019 "+i+"/20");
+            query.hash = TokenUtil.generateToken(i, 50);
+            query.query = "select * from user where id = :id";
+            query.used = (i % 2) == 0;
+            query.dynamic = (i % 2) == 0;
+
+            queryDao.save(query);
+
+
+        }
+
+
+        for(int i = 0; i < 25; i++){
+
+            Query query = new Query();
+            query.user = user;
+            query.application = application;
+            query.queryDate = new SimpleDateFormat("dd/MM/yyyy").parse(i+"/04/2019");
+            query.hash = TokenUtil.generateToken(i, 50);
+            query.query = "delete from user where id = :id";
+            query.used = (i % 2) == 0;
+            query.dynamic = (i % 2) == 0;
+
+            queryDao.save(query);
+
+
+        }
+
+
+    }
+
     @PostConstruct
-    public void init() {
+    public void init() throws ParseException {
         initRoles();
         initSettings();
         createFullCompanyAdmin();
+
+        testBuildsData();
+        testRequestsData();
+        testQueriesData();
+
     }
 
 }

@@ -62,5 +62,8 @@ public interface ApplicationDao extends CrudRepository<Application, Long> {
     @Query("select case when count(a) > 0 then TRUE else FALSE end from Application a where a.name = :name and a.companyAdmin = :companyAdmin")
     boolean existByNameForCompany(@Param("name") String name, @Param("companyAdmin") User companyAdmin);
 
+    @Query("select a from Application a")
+    List<Application> selectAll();
+
 }
 

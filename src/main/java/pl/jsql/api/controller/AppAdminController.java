@@ -3,6 +3,7 @@ package pl.jsql.api.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import pl.jsql.api.controller.generic.ValidateController;
+import pl.jsql.api.dto.request.AppAdminRequest;
 import pl.jsql.api.dto.request.DemoteAppAdminRequest;
 import pl.jsql.api.dto.request.UserRequest;
 import pl.jsql.api.dto.response.AppAdminResponse;
@@ -32,8 +33,8 @@ public class AppAdminController extends ValidateController {
 
     @Security(roles = {RoleTypeEnum.ADMIN, RoleTypeEnum.COMPANY_ADMIN})
     @PostMapping
-    public BasicResponse<MessageResponse> create(@RequestBody @Valid UserRequest userRequest) {
-        MessageResponse messageResponse = appAdminService.register(userRequest);
+    public BasicResponse<MessageResponse> create(@RequestBody @Valid AppAdminRequest appAdminRequest) {
+        MessageResponse messageResponse = appAdminService.register(appAdminRequest);
         return new BasicResponse<>(200, messageResponse);
     }
 

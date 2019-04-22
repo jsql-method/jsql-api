@@ -9,7 +9,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 @Component
-public class UniqueNameForCurrentCompanyValidator implements ConstraintValidator<UniqueApplicationForCurrentCompany, String> {
+public class UniqueApplicationNameForCurrentCompanyValidator implements ConstraintValidator<UniqueApplicationForCurrentCompany, String> {
 
     @Autowired
     private ApplicationDao applicationDao;

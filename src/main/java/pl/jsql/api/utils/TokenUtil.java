@@ -20,6 +20,10 @@ public class  TokenUtil {
         return RandomStringUtils.randomAlphanumeric(length) + String.valueOf(identity);
     }
 
+    public static String generateToken(String identity, Integer length) {
+        return RandomStringUtils.randomAlphanumeric(length) + identity;
+    }
+
     public static String mixString(String s1, String s2, String s3){
 
         StringBuilder stringBuilder = new StringBuilder();
