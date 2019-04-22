@@ -20,6 +20,10 @@ public class  TokenUtil {
         return RandomStringUtils.randomAlphanumeric(length) + String.valueOf(identity);
     }
 
+    public static String generateToken(String identity, Integer length) {
+        return RandomStringUtils.randomAlphanumeric(length) + identity;
+    }
+
     public static String mixString(String s1, String s2, String s3){
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -60,7 +64,7 @@ public class  TokenUtil {
     }
 
     public static String generateToken(String name) {
-        return RandomStringUtils.randomAlphanumeric(20)+HashingUtil.encode(name)+RandomStringUtils.randomAlphanumeric(20)+ UUID.randomUUID();
+        return HashingUtil.encode(name+UUID.randomUUID());
     }
 
     public static String hash(String str){

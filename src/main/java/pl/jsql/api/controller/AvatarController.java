@@ -14,6 +14,7 @@ import pl.jsql.api.dto.response.BasicResponse;
 import pl.jsql.api.dto.response.MessageResponse;
 import pl.jsql.api.security.annotation.Security;
 import pl.jsql.api.service.AvatarService;
+import pl.jsql.api.utils.HashingUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -31,22 +32,30 @@ public class AvatarController extends ValidateController {
     @Security
     @PostMapping
     public BasicResponse<MessageResponse> uploadAvatar(@RequestParam MultipartFile file, HttpServletRequest request) throws IOException {
-        MessageResponse response = avatarService.uploadAvatar(file, request.getServletContext().getRealPath("/"));
+        MessageResponse response = avatarService.uploadAvatar(file);
         return new BasicResponse<>(200, response);
     }
 
-    @Security
-    @GetMapping
-    public Object getPreview(HttpServletRequest request) throws IOException {
+    @Security(requireActiveSession = false)
+    @GetMapping("/{session}")
+    public Object getPreview(@PathVariable("session") String session, HttpServletRequest request) throws IOException {
 
-        AvatarResponse avatar = avatarService.getAvatar(request.getServletContext().getRealPath("/"));
+        AvatarResponse avatar = avatarService.getAvatarBySession(session);
 
-        if (avatar.bytes == null) {
-            return ResponseEntity
-                    .ok()
-                    .contentType(MediaType.TEXT_PLAIN)
-                    .body("Not found");
-        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(avatar.type);
+        headers.setContentLength(avatar.length);
+
+        return new HttpEntity<>(avatar.bytes, headers);
+
+    }
+
+    @Security(requireActiveSession = false)
+    @GetMapping("/hash/{hash}")
+    public Object getPreviewById(@PathVariable("hash") String hash, HttpServletRequest request) throws IOException {
+
+        Long id = HashingUtil.decomposeAvatarHash(hash);
+        AvatarResponse avatar = avatarService.getAvatarById(id);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(avatar.type);

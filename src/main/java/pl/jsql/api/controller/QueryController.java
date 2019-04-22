@@ -20,7 +20,7 @@ public class QueryController extends ValidateController {
     @Autowired
     private ApiService apiService;
 
-    @Security(roles = {RoleTypeEnum.ADMIN, RoleTypeEnum.APP_ADMIN, RoleTypeEnum.APP_DEV})
+    @Security(roles = {RoleTypeEnum.ADMIN, RoleTypeEnum.APP_ADMIN, RoleTypeEnum.COMPANY_ADMIN, RoleTypeEnum.APP_DEV})
     @PatchMapping("/query/{id}")
     public BasicResponse<MessageResponse> updateQuery(@PathVariable("id") Long id, @RequestBody @Valid QueryUpdateRequest queryUpdateRequest) {
         MessageResponse response = apiService.updateQueriesById(id, queryUpdateRequest);

@@ -3,10 +3,12 @@ package pl.jsql.api.service.admin;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pl.jsql.api.dto.request.AppAdminRequest;
 import pl.jsql.api.dto.request.DemoteAppAdminRequest;
 import pl.jsql.api.dto.request.UserRequest;
 import pl.jsql.api.dto.response.AppAdminResponse;
 import pl.jsql.api.dto.response.MessageResponse;
+import pl.jsql.api.dto.response.UserResponse;
 import pl.jsql.api.enums.RoleTypeEnum;
 import pl.jsql.api.model.hashing.ApplicationDevelopers;
 import pl.jsql.api.model.user.Company;
@@ -45,12 +47,12 @@ public class AppAdminService {
     @Autowired
     private PlanDao planDao;
 
-    public MessageResponse register(UserRequest userRequest) {
+    public MessageResponse register(AppAdminRequest appAdminRequest) {
 
         User companyAdmin = securityService.getCurrentAccount();
         List<ApplicationDevelopers> list = applicationDevelopersDao.findByUserQuery(companyAdmin);
 
-        User appAdmin = userDao.findByEmail(userRequest.email);
+        User appAdmin = userDao.findByEmail(appAdminRequest.email);
 
         if (appAdmin == null) {
 
@@ -58,9 +60,13 @@ public class AppAdminService {
             int allowedUsers = planDao.findFirstByCompany(companyAdmin.company).plan.maxUsers;
 
             if (allowedUsers <= usersCount) {
-                return new MessageResponse("developers_limit_reached");
+                return new MessageResponse(true,"developers_limit_reached");
             }
 
+            UserRequest userRequest = new UserRequest();
+            userRequest.email = appAdminRequest.email;
+            userRequest.firstName = appAdminRequest.firstName;
+            userRequest.lastName = appAdminRequest.lastName;
             userRequest.company = companyAdmin.company.id;
             userRequest.role = RoleTypeEnum.APP_ADMIN;
             userRequest.password = RandomStringUtils.randomAlphanumeric(10);
@@ -69,9 +75,9 @@ public class AppAdminService {
             appAdmin = userDao.findByEmail(userRequest.email);
 
         } else if (appAdmin.role.authority == RoleTypeEnum.APP_ADMIN) {
-            return new MessageResponse("user_already_exists");
+            return new MessageResponse(true,"user_already_exists");
         } else if (appAdmin.role.authority == RoleTypeEnum.COMPANY_ADMIN || appAdmin.role.authority == RoleTypeEnum.ADMIN) {
-            return new MessageResponse("unauthorized");
+            return new MessageResponse(true,"unauthorized");
         } else {
             appAdmin.role = roleDao.findByAuthority(RoleTypeEnum.APP_ADMIN);
         }
@@ -96,10 +102,14 @@ public class AppAdminService {
 
     public List<AppAdminResponse> getAll() {
 
-        Company company = securityService.getCurrentAccount().company;
+        User currentUser = securityService.getCurrentAccount();
 
         Role adminRole = roleDao.findByAuthority(RoleTypeEnum.APP_ADMIN);
-        List<AppAdminResponse> appAdminResponses = userDao.findAppAdminsByCompanyAndRole(company, adminRole);
+        List<AppAdminResponse> appAdminResponses = userDao.findAppAdminsByCompanyAndRole(currentUser.company, adminRole);
+
+        if(securityService.getCurrentRole() == RoleTypeEnum.COMPANY_ADMIN){
+            appAdminResponses.add(new AppAdminResponse(currentUser.id, currentUser.email, currentUser.firstName, currentUser.lastName, currentUser.enabled, true));
+        }
 
         return appAdminResponses;
 
@@ -110,7 +120,7 @@ public class AppAdminService {
         User appAdmin = userDao.findByEmail(demoteAppAdminRequest.email);
 
         if (appAdmin == null) {
-            return new MessageResponse("no_such_admin");
+            return new MessageResponse(true,"no_such_admin");
         }
 
         appAdmin.role = roleDao.findByAuthority(RoleTypeEnum.APP_DEV);
@@ -124,7 +134,7 @@ public class AppAdminService {
         User user = userDao.findById(id).orElse(null);
 
         if (user == null) {
-            return new MessageResponse("admin_does_not_exists");
+            return new MessageResponse(true,"admin_does_not_exists");
         }
 
         applicationDevelopersDao.clearJoinsByUser(user);

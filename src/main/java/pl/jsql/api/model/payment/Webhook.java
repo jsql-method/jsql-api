@@ -1,6 +1,8 @@
 package pl.jsql.api.model.payment;
 
 import org.hibernate.annotations.Type;
+import pl.jsql.api.enums.PabblyStatus;
+
 import javax.persistence.*;
 
 @Entity
@@ -13,5 +15,8 @@ public class Webhook {
 
     @Type(type = "org.hibernate.type.TextType")
     public String requestText;
+
+    @Enumerated(EnumType.STRING)
+    public PabblyStatus pabblyStatus;
 
 }

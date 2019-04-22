@@ -1,6 +1,8 @@
 package pl.jsql.api.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.commons.mail.EmailException;
+import org.apache.commons.mail.HtmlEmail;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -18,6 +20,8 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 @Service
 public class EmailService {
@@ -25,33 +29,84 @@ public class EmailService {
     @Autowired
     private SettingDao settingDao;
 
-    @Autowired
-    public JavaMailSender mailSender;
+   // @Autowired
+   // public JavaMailSender mailSender;
 
     @Value("${spring.mail.from}")
     private String mailFrom;
 
-    private void sendEmail(String to, String subject, String content) {
+    @Value("${spring.mail.host}")
+    private String mailHost;
+
+    @Value("${spring.mail.port}")
+    private Integer mailPort;
+
+    @Value("${spring.mail.username}")
+    private String mailUsername;
+
+    @Value("${spring.mail.password}")
+    private String mailPassword;
+
+    @Value("${spring.mail.properties.mail.smtp.auth}")
+    private String mailAuth;
+
+    @Value("${spring.mail.properties.mail.smtp.starttls.enable}")
+    private String mailTls;
+
+    private void sendEmail(User user, String subject, String content) {
+
+        String to = user.email;
+        String fullName = user.firstName + " "+user.lastName;
 
         new Thread(() -> {
 
             try {
 
-                MimeMessage message = mailSender.createMimeMessage();
-                MimeMessageHelper helper = new MimeMessageHelper(message, false, "utf-8");
-                message.setContent(content, "text/html; charset=utf-8");
-                helper.setTo(to);
-                helper.setSubject(subject);
-                helper.setFrom(EmailService.this.mailFrom);
-                message.setText(content, "utf-8");
-                EmailService.this.mailSender.send(message);
+                HtmlEmail email = new HtmlEmail();
+                email.setHostName(mailHost);
+                email.setAuthentication(mailUsername, mailPassword);
+                email.setSmtpPort(mailPort);
+                email.setStartTLSEnabled(true);
+                email.addTo(to, fullName);
+                email.setFrom(mailFrom, "JSQL");
+                email.setSubject(subject);
 
-            } catch (MessagingException e) {
+                URL url = new URL("https://jsql.it/wp-content/uploads/2018/10/cropped-jsql-logo-alfa-300x215.png");
+                String cid = email.embed(url, "JSQL Logo");
+
+                email.setHtmlMsg(content.replace("{cid}",cid));
+                email.setCharset("UTF-8");
+                email.send();
+
+            } catch (MalformedURLException | EmailException e) {
                 e.printStackTrace();
             }
 
         }).start();
 
+    }
+
+    @Value("${deactivationCompany.mail.subject}")
+    private String deactivationCompanyAdminEmailSubject;
+
+    public void sendDeactivationCompanyAdminMail(User user) {
+
+        //String origin = settingDao.findByType(SettingEnum.ORIGIN_URL).value;
+
+        InputStream is = TypeReference.class.getResourceAsStream("/templates/deactivate-company.html");
+
+        Document template = null;
+        try {
+            template = Jsoup.parse(is, "UTF-8", "");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String html = template.html();
+        html = html.replace("{fullName}", user.firstName + " " + user.lastName);
+        html = html.replace("{accountId}", user.id.toString());
+
+        this.sendEmail(user, deactivationCompanyAdminEmailSubject, html);
     }
 
     @Value("${activationCompany.mail.subject}")
@@ -61,7 +116,7 @@ public class EmailService {
 
         String origin = settingDao.findByType(SettingEnum.ORIGIN_URL).value;
 
-        InputStream is = TypeReference.class.getResourceAsStream("/templates/verify.html");
+        InputStream is = TypeReference.class.getResourceAsStream("/templates/activate-company.html");
 
         Document template = null;
         try {
@@ -70,13 +125,11 @@ public class EmailService {
             e.printStackTrace();
         }
 
-        Element usrNickname = template.getElementById("usr_nickname");
-        Element usrActivateBtn = template.getElementById("usr_activatebtn");
+        String html = template.html();
+        html = html.replace("{fullName}", user.firstName + " " + user.lastName);
+        html = html.replace("{activationUrl}", origin + "/activate/" + user.token);
 
-        usrNickname.text(user.firstName + " " + user.lastName);
-        usrActivateBtn.attr("href", origin + "/auth/activate/" + user.token);
-
-        this.sendEmail(user.email, activationCompanyAdminEmailSubject, template.html());
+        this.sendEmail(user, activationCompanyAdminEmailSubject, html);
     }
 
     @Value("${activationDeveloper.mail.subject}")
@@ -86,7 +139,7 @@ public class EmailService {
 
         String origin = settingDao.findByType(SettingEnum.ORIGIN_URL).value;
 
-        InputStream is = TypeReference.class.getResourceAsStream("/templates/welcome_member.html");
+        InputStream is = TypeReference.class.getResourceAsStream("/templates/activate-developer.html");
 
         Document template = null;
         try {
@@ -95,17 +148,14 @@ public class EmailService {
             e.printStackTrace();
         }
 
-        Element usr_email = template.getElementById("usr_email");
-        Element usr_password = template.getElementById("usr_password");
-        Element usr_nickname = template.getElementById("usr_nickname");
-        Element usrActivateBtn = template.getElementById("usr_activatebtn");
+        String html = template.html();
+        html = html.replace("{fullName}", user.firstName + " " + user.lastName);
+        html = html.replace("{email}", user.email);
+        html = html.replace("{password}", password);
+        html = html.replace("{companyName}", user.company.name);
+        html = html.replace("{activationUrl}", origin + "/activate/" + user.token);
 
-        usr_email.text("Your login: " + user.email);
-        usr_password.text("Your password: " + password);
-        usr_nickname.text(user.firstName + " " + user.lastName);
-        usrActivateBtn.attr("href", origin + "/auth/activate/" + user.token);
-
-        this.sendEmail(user.email, activationDeveloperEmailSubject, template.html());
+        this.sendEmail(user, activationDeveloperEmailSubject, html);
     }
 
     @Value("${forgotPassword.mail.subject}")
@@ -113,7 +163,9 @@ public class EmailService {
 
     public void sendForgotPasswordEmail(User user) {
 
-        InputStream is = TypeReference.class.getResourceAsStream("/templates/forgot_password.html");
+        String origin = settingDao.findByType(SettingEnum.ORIGIN_URL).value;
+
+        InputStream is = TypeReference.class.getResourceAsStream("/templates/forgot-password.html");
 
         Document template = null;
 
@@ -123,13 +175,11 @@ public class EmailService {
             e.printStackTrace();
         }
 
-        Element usrNickname = template.getElementById("usr_nickname");
-        Element usrResetBtn = template.getElementById("usr_resetbtn");
+        String html = template.html();
+        html = html.replace("{fullName}", user.firstName + " " + user.lastName);
+        html = html.replace("{activationUrl}", origin + "/reset-password/" + user.token);
 
-        usrNickname.text(user.firstName + " " + user.lastName);
-        usrResetBtn.attr("href", settingDao.findByType(SettingEnum.ORIGIN_URL).value + "/auth/reset/" + user.token);
-
-        this.sendEmail(forgotPasswordEmailSubject, template.html(), user.email);
+        this.sendEmail(user, forgotPasswordEmailSubject, html);
 
     }
 

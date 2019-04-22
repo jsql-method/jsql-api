@@ -4,9 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.jsql.api.dto.request.OptionsRequest;
+import pl.jsql.api.dto.request.ProductionToggleRequest;
 import pl.jsql.api.dto.response.MessageResponse;
 import pl.jsql.api.dto.response.OptionsResponse;
 import pl.jsql.api.dto.response.OptionsValuesResponse;
+import pl.jsql.api.dto.response.SelectResponse;
 import pl.jsql.api.enums.DatabaseDialectEnum;
 import pl.jsql.api.enums.EncodingEnum;
 import pl.jsql.api.enums.RoleTypeEnum;
@@ -19,6 +21,7 @@ import pl.jsql.api.repo.*;
 import pl.jsql.api.security.service.SecurityService;
 
 import java.util.Arrays;
+import java.util.List;
 
 
 @Transactional
@@ -79,6 +82,8 @@ public class OptionsService {
         optionsResponse.databaseDialect = options.databaseDialect;
         optionsResponse.allowedPlainQueries = options.allowedPlainQueries;
         optionsResponse.prod = options.prod;
+        optionsResponse.application = application;
+        optionsResponse.apiKey = application.apiKey;
 
         return optionsResponse;
 
@@ -106,8 +111,8 @@ public class OptionsService {
         options.hashMaxLength = optionsRequest.hashMaxLength == null ? options.hashMaxLength : optionsRequest.hashMaxLength;
         options.removeQueriesAfterBuild = optionsRequest.removeQueriesAfterBuild == null ? options.removeQueriesAfterBuild : optionsRequest.removeQueriesAfterBuild;
         options.allowedPlainQueries = optionsRequest.allowedPlainQueries == null ? options.allowedPlainQueries : optionsRequest.allowedPlainQueries;
-        options.prod = optionsRequest.prod == null ? options.prod : optionsRequest.prod;
 
+        optionsDao.save(options);
 
         return new MessageResponse();
 
@@ -117,11 +122,28 @@ public class OptionsService {
 
         OptionsValuesResponse optionsValuesResponse = new OptionsValuesResponse();
 
-        optionsValuesResponse.databaseDialectValues = Arrays.asList(DatabaseDialectEnum.values());
-        optionsValuesResponse.encodingAlgorithmValues = Arrays.asList(EncodingEnum.values());
+        optionsValuesResponse.databaseDialectValues = DatabaseDialectEnum.toSelectResponse();
+        optionsValuesResponse.encodingAlgorithmValues = EncodingEnum.toSelectResponse();
 
         return optionsValuesResponse;
 
     }
 
+
+    public MessageResponse toggleProduction(Long applicationId, ProductionToggleRequest productionToggleRequest) {
+
+        Application application = applicationDao.findById(applicationId).orElse(null);
+
+        if (application == null) {
+            throw new NotFoundException("application_not_found");
+        }
+
+        Options options = optionsDao.findByApplication(application);
+        options.prod = productionToggleRequest.prod;
+
+        optionsDao.save(options);
+
+        return new MessageResponse();
+
+    }
 }

@@ -126,7 +126,7 @@ public class ApplicationService {
     public MessageResponse create(User companyAdmin, ApplicationCreateRequest applicationCreateRequest) {
 
         if (!this.canCreateApplication(companyAdmin)) {
-            return new MessageResponse("applications_limit_reached");
+            return new MessageResponse(true, "applications_limit_reached");
         }
 
         Application app = applicationDao.findByNameAndCompany(applicationCreateRequest.name, companyAdmin.company);
@@ -138,10 +138,10 @@ public class ApplicationService {
 
             applicationDao.save(app);
 
-            return new MessageResponse();
+            return new MessageResponse(app.id.toString());
 
         } else if (app != null) {
-            return new MessageResponse("application_already_exists");
+            return new MessageResponse(true,"application_already_exists");
         }
 
 
@@ -150,14 +150,11 @@ public class ApplicationService {
         assignNewAppsToAppAdmins(companyAdmin, application);
         initializeApplicationOptions(application);
 
-        return new MessageResponse();
+        return new MessageResponse(application.id.toString());
 
     }
 
     private User createFakeDeveloper(String name, Company company) {
-
-        System.out.println("company id: "+company.id);
-        System.out.println("company name: "+company.name);
 
         String email = name + "@applicationDeveloper";
         UserRequest userRequest = new UserRequest();
@@ -171,11 +168,7 @@ public class ApplicationService {
 
         authService.register(userRequest);
 
-        System.out.println("fake dev 1 "+userRequest.companyName);
-        System.out.println("fake dev 2 "+userRequest.company);
-
         User applicationDeveloper = userDao.findByEmail(email);
-        System.out.println("fake dev 3");
 
         applicationDeveloper.isProductionDeveloper = true;
         applicationDeveloper.enabled = true;
@@ -189,13 +182,13 @@ public class ApplicationService {
         User companyAdmin = securityService.getCompanyAdmin();
 
         if (!this.canCreateApplication(companyAdmin)) {
-            return new MessageResponse("applications_limit_reached");
+            return new MessageResponse(true,"applications_limit_reached");
         }
 
         Application application = applicationDao.findById(id).orElse(null);
 
         if(application == null){
-            return new MessageResponse("application_not_found");
+            return new MessageResponse(true,"application_not_found");
         }
 
         application.active = false;
@@ -262,18 +255,16 @@ public class ApplicationService {
         options.saltRandomize = true;
         options.hashLengthLikeQuery = false;
         options.hashMinLength = 100;
-        options.hashMaxLength = 300;
+        options.hashMaxLength = 200;
         options.removeQueriesAfterBuild = true;
         options.databaseDialect = DatabaseDialectEnum.POSTGRES;
+        options.allowedPlainQueries = false;
 
         optionsDao.save(options);
 
     }
 
     public Application createApplication(User companyAdmin, ApplicationCreateRequest applicationCreateRequest) {
-
-        System.out.println("createApplication "+companyAdmin);
-        System.out.println("createApplication "+companyAdmin.company);
 
         String apiKey = this.generateApiKey(applicationCreateRequest.name);
 
@@ -282,7 +273,6 @@ public class ApplicationService {
         application.companyAdmin = companyAdmin;
         application.name = applicationCreateRequest.name;
 
-        System.out.println("companyAdmin : "+companyAdmin.company);
         application.productionDeveloper = this.createFakeDeveloper(applicationCreateRequest.name, companyAdmin.company);
         application.active = true;
 

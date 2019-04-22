@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import pl.jsql.api.dto.response.AppDeveloperApplicationResponse;
 import pl.jsql.api.model.hashing.Application;
 import pl.jsql.api.model.hashing.ApplicationDevelopers;
 import pl.jsql.api.model.user.User;
@@ -43,6 +44,9 @@ public interface ApplicationDevelopersDao extends CrudRepository<ApplicationDeve
     @Modifying
     @Query("delete from ApplicationDevelopers ad where ad.application = :application")
     void deleteAllByApplication(@Param("application") Application application);
+
+    @Query("select new pl.jsql.api.dto.response.AppDeveloperApplicationResponse(true, t.developer.id, t.application.id, t.application.name) from ApplicationDevelopers t where t.application.active = true and t.developer = :developer")
+    List<AppDeveloperApplicationResponse> selectByApplicationActive(@Param("developer") User developer);
 
 }
 

@@ -3,7 +3,7 @@ package pl.jsql.api.service.admin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.jsql.api.dto.request.DeveloperAssignRequest;
-import pl.jsql.api.dto.response.AppDeveloperApplicationsResponse;
+import pl.jsql.api.dto.response.AppDeveloperApplicationResponse;
 import pl.jsql.api.dto.response.MessageResponse;
 import pl.jsql.api.model.hashing.Application;
 import pl.jsql.api.model.hashing.ApplicationDevelopers;
@@ -13,6 +13,7 @@ import pl.jsql.api.repo.ApplicationDevelopersDao;
 import pl.jsql.api.repo.UserDao;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 @Transactional
 @Service
@@ -33,7 +34,7 @@ public class AppDevAppsService {
         User developer = userDao.findById(developerAssignRequest.developer).orElse(null);
 
         if (application == null || developer == null) {
-            return new MessageResponse("no_such_developer");
+            return new MessageResponse(true,"no_such_developer");
         }
 
         ApplicationDevelopers applicationDevelopers = applicationDevelopersDao.findByUserAndAppQuery(developer, application);
@@ -51,7 +52,7 @@ public class AppDevAppsService {
 
     }
 
-    public AppDeveloperApplicationsResponse getById(Long developerId) {
+    public List<AppDeveloperApplicationResponse> getById(Long developerId) {
 
         User user = userDao.findById(developerId).orElse(null);
 
@@ -59,11 +60,7 @@ public class AppDevAppsService {
             return null;
         }
 
-        AppDeveloperApplicationsResponse appDeveloperApplicationsResponse = new AppDeveloperApplicationsResponse();
-        appDeveloperApplicationsResponse.email = user.email;
-        appDeveloperApplicationsResponse.applications = applicationDevelopersDao.findByApplicationActive(user);
-
-        return appDeveloperApplicationsResponse;
+        return applicationDevelopersDao.selectByApplicationActive(user);
 
     }
 
@@ -73,7 +70,7 @@ public class AppDevAppsService {
         Application app = applicationDao.findById(developerAssignRequest.application).orElse(null);
 
         if (user == null || app == null) {
-            return new MessageResponse("no_such_developer");
+            return new MessageResponse(true,"no_such_developer");
         }
 
         applicationDevelopersDao.clearJoinsByUserAndApp(user, app);

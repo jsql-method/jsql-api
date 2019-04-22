@@ -40,42 +40,26 @@ public class JsqlApplication extends SpringDataWebConfiguration {
         return new SimpleDateFormat(dateFormat);
     }
 
-    @Value("${spring.mail.host}")
-    private String mailHost;
 
-    @Value("${spring.mail.port}")
-    private Integer mailPort;
 
-    @Value("${spring.mail.username}")
-    private String mailUsername;
-
-    @Value("${spring.mail.password}")
-    private String mailPassword;
-
-    @Value("${spring.mail.properties.mail.smtp.auth}")
-    private String mailAuth;
-
-    @Value("${spring.mail.properties.mail.smtp.starttls.enable}")
-    private String mailTls;
-
-    @Bean
-    public JavaMailSender mailSender() {
-
-        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost(mailHost);
-        mailSender.setPort(mailPort);
-
-        mailSender.setUsername(mailUsername);
-        mailSender.setPassword(mailPassword);
-
-        Properties props = mailSender.getJavaMailProperties();
-        props.put("mail.transport.protocol", "smtp");
-        props.put("mail.smtp.auth", mailAuth);
-        props.put("mail.smtp.starttls.enable", mailTls);
-
-        return mailSender;
-
-    }
+//    @Bean
+//    public JavaMailSender mailSender() {
+//
+//        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+//        mailSender.setHost(mailHost);
+//        mailSender.setPort(mailPort);
+//
+//        mailSender.setUsername(mailUsername);
+//        mailSender.setPassword(mailPassword);
+//
+//        Properties props = mailSender.getJavaMailProperties();
+//        props.put("mail.transport.protocol", "smtp");
+//        props.put("mail.smtp.auth", mailAuth);
+//        props.put("mail.smtp.starttls.enable", mailTls);
+//
+//        return mailSender;
+//
+//    }
 
     @Bean
     SecurityInterceptor securityInterceptor() {

@@ -10,19 +10,18 @@ public class QueryResponse {
     public Date queryDate;
     public Boolean used;
     public Boolean dynamic;
-    public String developerEmail;
-
+    public String developerName;
     public String applicationName;
     public Long applicationId;
 
-    public QueryResponse(Long id, String query, String hash, Date queryDate, Boolean used, Boolean dynamic, String developerEmail, String applicationName, Long applicationId) {
+    public QueryResponse(Long id, String query, String hash, Date queryDate, Boolean used, Boolean dynamic, String developerName, String applicationName, Long applicationId) {
         this.id = id;
         this.query = query;
         this.hash = hash;
         this.queryDate = queryDate;
         this.used = used;
         this.dynamic = dynamic;
-        this.developerEmail = developerEmail;
+        this.developerName = developerName;
         this.applicationName = applicationName;
         this.applicationId = applicationId;
     }

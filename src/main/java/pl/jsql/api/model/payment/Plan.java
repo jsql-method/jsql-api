@@ -19,7 +19,7 @@ public class Plan {
     public Long id;
 
     @JsonIgnore
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinColumn(name = "company_id")
     public Company company;
 
