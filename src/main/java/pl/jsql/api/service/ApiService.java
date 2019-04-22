@@ -113,7 +113,7 @@ public class ApiService {
 
             responseQueryHashList.add(new QueryPairResponse(resultHashString, queryString));
 
-            statsService.saveRequest(optionsResponse.application, developer, resultHashString);
+            statsService.saveRequest(optionsResponse.application, developer, resultHashString, queryString);
 
         } else {
 
@@ -124,7 +124,7 @@ public class ApiService {
 
                     responseQueryHashList.add(new QueryPairResponse(hash, query.query));
 
-                    statsService.saveRequest(optionsResponse.application, developer, hash);
+                    statsService.saveRequest(optionsResponse.application, developer, hash, query.query);
 
                 }
 

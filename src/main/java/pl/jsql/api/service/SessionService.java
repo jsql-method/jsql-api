@@ -7,6 +7,8 @@ import pl.jsql.api.model.user.Session;
 import pl.jsql.api.model.user.User;
 import pl.jsql.api.repo.SessionDao;
 import pl.jsql.api.repo.UserDao;
+import pl.jsql.api.security.service.SecurityService;
+import pl.jsql.api.utils.HashingUtil;
 import pl.jsql.api.utils.TokenUtil;
 
 import javax.transaction.Transactional;
@@ -21,6 +23,9 @@ public class SessionService {
 
     @Autowired
     private UserDao userDao;
+
+    @Autowired
+    private SecurityService securityService;
 
     public Boolean isLogged(String sessionHash) {
         Session session = sessionDao.findBySessionHash(sessionHash);
@@ -41,6 +46,10 @@ public class SessionService {
             throw new SecurityException();
         }
 
+        if(!user.password.equals(HashingUtil.encode(loginRequest.password))){
+            throw new SecurityException();
+        }
+
         Session session = new Session();
         session.user = user;
         session.sessionHash = TokenUtil.hash(loginRequest.email + new Date().getTime());
@@ -49,6 +58,10 @@ public class SessionService {
 
         return sessionDao.save(session);
 
+    }
+
+    public Session getSession() {
+        return sessionDao.findBySessionHash(securityService.getAuthorizationToken());
     }
 
 }

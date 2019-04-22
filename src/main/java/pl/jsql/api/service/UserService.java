@@ -1,25 +1,23 @@
 package pl.jsql.api.service;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pl.jsql.api.dto.request.*;
+import pl.jsql.api.dto.request.ChangePasswordRequest;
+import pl.jsql.api.dto.request.ForgotPasswordRequest;
+import pl.jsql.api.dto.request.ResetPasswordRequest;
+import pl.jsql.api.dto.request.UpdateUserRequest;
 import pl.jsql.api.dto.response.MessageResponse;
 import pl.jsql.api.dto.response.UserResponse;
 import pl.jsql.api.enums.RoleTypeEnum;
-import pl.jsql.api.enums.SettingEnum;
-import pl.jsql.api.model.user.Company;
 import pl.jsql.api.model.user.User;
 import pl.jsql.api.repo.ApplicationDao;
 import pl.jsql.api.repo.ApplicationDevelopersDao;
-import pl.jsql.api.repo.SettingDao;
 import pl.jsql.api.repo.UserDao;
 import pl.jsql.api.security.service.SecurityService;
 import pl.jsql.api.utils.HashingUtil;
 import pl.jsql.api.utils.TokenUtil;
 
 import javax.transaction.Transactional;
-import java.util.concurrent.TimeUnit;
 
 ;
 
@@ -46,6 +44,10 @@ public class UserService {
 
         User currentUser = securityService.getCurrentAccount();
 
+        if (!currentUser.email.equals(updateUserRequest.email) && userDao.findByEmail(updateUserRequest.email) != null) {
+            return new MessageResponse(true, "email_already_in_use");
+        }
+
         currentUser.email = updateUserRequest.email == null ? currentUser.email : updateUserRequest.email;
         currentUser.firstName = updateUserRequest.email == null ? currentUser.firstName : updateUserRequest.firstName;
         currentUser.lastName = updateUserRequest.email == null ? currentUser.lastName : updateUserRequest.lastName;
@@ -62,7 +64,7 @@ public class UserService {
         User userEntry = userDao.findByToken(token);
 
         if (userEntry == null) {
-            return new MessageResponse("activation_token_not_found");
+            return new MessageResponse(true, "activation_token_not_found");
         }
 
         userEntry.enabled = true;
@@ -76,7 +78,8 @@ public class UserService {
         User user = userDao.findByEmail(forgotPasswordRequest.email);
 
         if (user == null) {
-            return new MessageResponse("user_not_exists");
+            return new MessageResponse();
+            //return new MessageResponse(true, "user_not_exists");
         }
 
         user.enabled = false;
@@ -95,7 +98,7 @@ public class UserService {
         User userEntry = userDao.findByToken(token);
 
         if (userEntry == null) {
-            return new MessageResponse("user_not_exists");
+            return new MessageResponse(true, "user_not_exists");
         }
 
         userEntry.enabled = true;
@@ -114,7 +117,7 @@ public class UserService {
 
         if (!oldPasswordHash.equals(currentUser.password)) {
 
-            return new MessageResponse("old_password_does_not_match");
+            return new MessageResponse(true, "old_password_does_not_match");
 
         }
 
@@ -130,7 +133,7 @@ public class UserService {
     }
 
     public MessageResponse disableDeveloperAccount(Long developerId) {
-       return disableAccount(securityService.getCurrentAccount(), developerId);
+        return disableAccount(securityService.getCurrentAccount(), developerId);
     }
 
     public MessageResponse disableAccount(User currentUser, Long developerId) {
@@ -142,11 +145,11 @@ public class UserService {
             accountToDelete = userDao.findById(developerId).orElse(null);
 
             if (accountToDelete == null) {
-                return new MessageResponse("user_does_not_exist");
+                return new MessageResponse(true, "user_does_not_exist");
             }
 
             if (currentUser.role.authority == RoleTypeEnum.APP_DEV || currentUser.company != accountToDelete.company) {
-                return new MessageResponse("unable_to_disable_account");
+                return new MessageResponse(true, "unable_to_disable_account");
             }
 
         }
@@ -154,19 +157,23 @@ public class UserService {
         applicationDevelopersDao.clearJoinsByUser(accountToDelete);
         applicationDevelopersDao.deleteAllByUser(accountToDelete);
 
+        if (accountToDelete.role.authority == RoleTypeEnum.COMPANY_ADMIN) {
+            emailService.sendDeactivationCompanyAdminMail(accountToDelete);
+        }
+
         accountToDelete.email = TokenUtil.generateToken(accountToDelete.email);
         accountToDelete.firstName = TokenUtil.generateToken(accountToDelete.firstName);
         accountToDelete.lastName = TokenUtil.generateToken(accountToDelete.lastName);
         accountToDelete.enabled = false;
 
-        if(accountToDelete.role.authority == RoleTypeEnum.COMPANY_ADMIN){
+        if (accountToDelete.role.authority == RoleTypeEnum.COMPANY_ADMIN) {
             accountToDelete.company.isLicensed = false;
             applicationDao.updateApplicationToNotActiveByUser(accountToDelete);
         }
 
         userDao.save(accountToDelete);
 
-       return new MessageResponse();
+        return new MessageResponse();
 
     }
 

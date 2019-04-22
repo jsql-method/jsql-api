@@ -31,7 +31,7 @@ public class ApplicationController extends ValidateController {
 
     @Security(roles = {RoleTypeEnum.ADMIN, RoleTypeEnum.COMPANY_ADMIN, RoleTypeEnum.APP_ADMIN})
     @PostMapping
-    public BasicResponse create(@RequestBody @Valid ApplicationCreateRequest applicationCreateRequest) {
+    public BasicResponse<MessageResponse> create(@RequestBody @Valid ApplicationCreateRequest applicationCreateRequest) {
         MessageResponse response = applicationService.create(applicationCreateRequest);
         return new BasicResponse<>(200, response);
     }

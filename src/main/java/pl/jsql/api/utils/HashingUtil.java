@@ -3,6 +3,8 @@ package pl.jsql.api.utils;
 import org.apache.commons.codec.digest.DigestUtils;
 import pl.jsql.api.dto.response.OptionsResponse;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * Usługa zabezpieczająca hasła użytkowników
  *
@@ -35,4 +37,11 @@ public class HashingUtil {
         return DigestUtils.sha256Hex(name);
     }
 
+    public static String md5(String email) {
+        return DigestUtils.md5Hex(email);
+    }
+
+    public static Long decomposeAvatarHash(String hash) {
+        return new Long(hash.replace("gfd3dsfs",""));
+    }
 }

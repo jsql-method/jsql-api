@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import pl.jsql.api.controller.generic.ValidateController;
 import pl.jsql.api.dto.request.OptionsRequest;
+import pl.jsql.api.dto.request.ProductionToggleRequest;
 import pl.jsql.api.dto.response.BasicResponse;
 import pl.jsql.api.dto.response.MessageResponse;
 import pl.jsql.api.dto.response.OptionsResponse;
@@ -33,6 +34,13 @@ public class OptionsController extends ValidateController {
     @PatchMapping("/{id}")
     public BasicResponse<MessageResponse> update(@PathVariable("id") Long id, @RequestBody @Valid OptionsRequest optionsRequest) {
         MessageResponse response = optionsService.update(id, optionsRequest);
+        return new BasicResponse<>(200, response);
+    }
+
+    @Security(roles = {RoleTypeEnum.ADMIN, RoleTypeEnum.COMPANY_ADMIN, RoleTypeEnum.APP_ADMIN})
+    @PatchMapping("/toggle-production/{id}")
+    public BasicResponse<MessageResponse> update(@PathVariable("id") Long id, @RequestBody @Valid ProductionToggleRequest productionToggleRequest) {
+        MessageResponse response = optionsService.toggleProduction(id, productionToggleRequest);
         return new BasicResponse<>(200, response);
     }
 

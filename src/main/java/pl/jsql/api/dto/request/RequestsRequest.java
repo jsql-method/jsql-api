@@ -8,10 +8,10 @@ import java.util.List;
 public class  RequestsRequest {
 
     @Pattern(regexp = "[0-9]{2}-[0-9]{2}-[0-9]{4}", message = "${validation.message.pattern}")
-    public Date dateFrom;
+    public String dateFrom;
 
     @Pattern(regexp = "[0-9]{2}-[0-9]{2}-[0-9]{4}", message = "${validation.message.pattern}")
-    public Date dateTo;
+    public String dateTo;
 
     @NotNull(message = "${validation.message.notNull}")
     public List<Long> applications;

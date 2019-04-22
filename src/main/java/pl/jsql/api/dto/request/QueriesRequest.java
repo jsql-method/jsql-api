@@ -8,10 +8,10 @@ import java.util.List;
 public class QueriesRequest {
 
     @Pattern(regexp = "[0-9]{2}-[0-9]{2}-[0-9]{4}", message = "${validation.message.pattern}")
-    public Date dateFrom;
+    public String dateFrom;
 
     @Pattern(regexp = "[0-9]{2}-[0-9]{2}-[0-9]{4}", message = "${validation.message.pattern}")
-    public Date dateTo;
+    public String dateTo;
 
     @NotNull(message = "${validation.message.notNull}")
     public List<Long> applications;
@@ -19,10 +19,10 @@ public class QueriesRequest {
     @NotNull(message = "${validation.message.notNull}")
     public List<Long> developers;
 
-    @NotNull(message = "${validation.message.notNull}")
     public Boolean used;
 
-    @NotNull(message = "${validation.message.notNull}")
     public Boolean dynamic;
+
+    public String search;
 
 }

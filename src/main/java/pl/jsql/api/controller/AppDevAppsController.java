@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import pl.jsql.api.controller.generic.ValidateController;
 import pl.jsql.api.dto.request.DeveloperAssignRequest;
-import pl.jsql.api.dto.response.AppDeveloperApplicationsResponse;
+import pl.jsql.api.dto.response.AppDeveloperApplicationResponse;
 import pl.jsql.api.dto.response.BasicResponse;
 import pl.jsql.api.dto.response.MessageResponse;
 import pl.jsql.api.enums.RoleTypeEnum;
@@ -12,6 +12,7 @@ import pl.jsql.api.security.annotation.Security;
 import pl.jsql.api.service.admin.AppDevAppsService;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @CrossOrigin
 @RestController
@@ -30,8 +31,8 @@ public class AppDevAppsController extends ValidateController {
 
     @Security
     @GetMapping("/{developerId}")
-    public BasicResponse<AppDeveloperApplicationsResponse> getByDeveloperId(@PathVariable("developerId") Long developerId) {
-        AppDeveloperApplicationsResponse response = appDevAppsService.getById(developerId);
+    public BasicResponse<List<AppDeveloperApplicationResponse>> getByDeveloperId(@PathVariable("developerId") Long developerId) {
+        List<AppDeveloperApplicationResponse> response = appDevAppsService.getById(developerId);
         return new BasicResponse<>(200, response);
     }
 

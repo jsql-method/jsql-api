@@ -58,8 +58,6 @@ public class AuthService {
     @Transactional
     public MessageResponse register(UserRequest userRequest) {
 
-        System.out.println("userRequest : "+userRequest.toString());
-
         User user = createUser(userRequest);
 
         if (userRequest.role != null && !userRequest.role.equals(RoleTypeEnum.COMPANY_ADMIN) && !userRequest.role.equals(RoleTypeEnum.ADMIN)) {
@@ -70,14 +68,12 @@ public class AuthService {
 
         Company company;
 
-        System.out.println("userRequest.company : "+userRequest.company);
         if (userRequest.company != null) {
 
             company = companyDao.findById(userRequest.company).orElse(null);
 
-            System.out.println("comapny2: "+company);
             if (company == null) {
-                return new MessageResponse("company_not_found");
+                return new MessageResponse(true,"company_not_found");
             }
 
         } else {
@@ -89,18 +85,16 @@ public class AuthService {
 
             company = companyDao.save(company);
 
-            System.out.println("new company: "+company);
-
         }
 
         user.company = company;
         user.token = HashingUtil.encode(user.email + new Date());
         user.activationDate = new Date();
+        user.enabled = false;
         user = userDao.save(user);
 
         this.createDeveloperKey(user);
 
-        System.out.println("userRequest : "+userRequest);
         if(userRequest.isFakeDeveloper){
             return new MessageResponse();
         }
@@ -132,8 +126,8 @@ public class AuthService {
         User user = new User();
         user.password = HashingUtil.encode(userRequest.password);
         user.email = userRequest.email;
-        user.firstName = userRequest.firstName;
-        user.lastName = userRequest.lastName;
+        user.firstName = userRequest.firstName.trim();
+        user.lastName = userRequest.lastName.trim();
         user.isProductionDeveloper = false;
         user.registerDate = new Date();
         user.enabled = true;
@@ -147,12 +141,35 @@ public class AuthService {
         Session session = sessionService.createSession(loginRequest);
         User user = session.user;
 
+        if(!user.enabled){
+            throw new SecurityException();
+        }
+
         SessionResponse sessionResponse = new SessionResponse();
 
         sessionResponse.sessionToken = session.sessionHash;
         sessionResponse.developerKey = developerKeyDao.findByUser(user).key;
         sessionResponse.fullName = user.firstName + " " + user.lastName;
         sessionResponse.companyName = user.company.name;
+        sessionResponse.role = user.role.authority.toString();
+
+        return sessionResponse;
+
+    }
+
+    public SessionResponse getSession(){
+
+        Session session = sessionService.getSession();
+        User user = session.user;
+
+        SessionResponse sessionResponse = new SessionResponse();
+
+        sessionResponse.id = user.id;
+        sessionResponse.sessionToken = session.sessionHash;
+        sessionResponse.developerKey = developerKeyDao.findByUser(user).key;
+        sessionResponse.fullName = user.firstName + " " + user.lastName;
+        sessionResponse.companyName = user.company.name;
+        sessionResponse.role = user.role.authority.toString();
 
         return sessionResponse;
 

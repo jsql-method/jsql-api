@@ -4,8 +4,8 @@ import java.util.List;
 
 public class RequestsResponse {
 
-    public Integer totalRequests;
-    public Integer todayRequests;
+    public Long totalRequests;
+    public Long todayRequests;
 
     public List<RequestResponse> requests;
 

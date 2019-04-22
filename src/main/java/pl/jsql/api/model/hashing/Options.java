@@ -22,6 +22,7 @@ public class Options {
     @JoinColumn(name = "application_id")
     public Application application;
 
+    @Enumerated(EnumType.STRING)
     public EncodingEnum encodingAlgorithm;
 
     @NotNull
@@ -52,10 +53,9 @@ public class Options {
     @NotNull
     public Boolean removeQueriesAfterBuild;
 
-    @Column
-    @ColumnDefault("false")
     public Boolean allowedPlainQueries;
 
+    @Enumerated(EnumType.STRING)
     public DatabaseDialectEnum databaseDialect;
 
     @NotNull
