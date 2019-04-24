@@ -75,11 +75,9 @@ public class InitializeData {
 
     }
 
-    String email = "dawid.senko@jsql.it";
+    private void createFullCompanyAdmin(String email) {
 
-    private void createFullCompanyAdmin() {
-
-        authService.register(new UserRequest(email, "test1234", "Paweł", "Stachurski", "JSQL Sp.z.o.o.", PlansEnum.LARGE));
+        authService.register(new UserRequest(email, "test1234", "Użytkownik", "Testowy "+email.substring(0,1), "JSQL Sp.z.o.o.", PlansEnum.LARGE));
 
         User user = userDao.findByEmail(email);
         userService.activateAccount(user.token);
@@ -95,7 +93,7 @@ public class InitializeData {
     @Autowired
     private ApplicationDao applicationDao;
 
-    private void testBuildsData() throws ParseException {
+    private void testBuildsData(String email) throws ParseException {
 
         User user = userDao.findByEmail(email);
         Application application = applicationDao.selectAll().get(0);
@@ -143,7 +141,7 @@ public class InitializeData {
     @Autowired
     private RequestDao requestDao;
 
-    private void testRequestsData() throws ParseException {
+    private void testRequestsData(String email) throws ParseException {
 
         User user = userDao.findByEmail(email);
         Application application = applicationDao.selectAll().get(0);
@@ -194,7 +192,7 @@ public class InitializeData {
     @Autowired
     private QueryDao queryDao;
 
-    private void testQueriesData() throws ParseException {
+    private void testQueriesData(String email) throws ParseException {
 
         User user = userDao.findByEmail(email);
         Application application = applicationDao.selectAll().get(0);
@@ -250,15 +248,20 @@ public class InitializeData {
 
     }
 
+    public void createTestData(String email) throws ParseException {
+        createFullCompanyAdmin(email);
+        testBuildsData(email);
+        testRequestsData(email);
+        testQueriesData(email);
+    }
+
     @PostConstruct
     public void init() throws ParseException {
         initRoles();
         initSettings();
-        createFullCompanyAdmin();
 
-        testBuildsData();
-        testRequestsData();
-        testQueriesData();
+        createTestData("pawel.stachurski@jsql.it");
+        createTestData("dawid.senko@jsql.it");
 
     }
 
