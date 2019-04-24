@@ -156,7 +156,7 @@ public class ApplicationService {
 
     private User createFakeDeveloper(String name, Company company) {
 
-        String email = name + "@applicationDeveloper";
+        String email = name + "@applicationDeveloper"+company.id;
         UserRequest userRequest = new UserRequest();
         userRequest.email = email;
         userRequest.firstName = "application";
