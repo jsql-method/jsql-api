@@ -8,6 +8,8 @@ import pl.jsql.api.dto.response.MessageResponse;
 import pl.jsql.api.dto.response.OptionsResponse;
 import pl.jsql.api.dto.response.QueryPairResponse;
 import pl.jsql.api.dto.response.SimpleOptionsResponse;
+import pl.jsql.api.exceptions.UnauthorizedException;
+import pl.jsql.api.model.hashing.Application;
 import pl.jsql.api.model.hashing.Query;
 import pl.jsql.api.model.user.User;
 import pl.jsql.api.repo.ApplicationDao;
@@ -82,6 +84,12 @@ public class ApiService {
     public List<QueryPairResponse> getRequestQueriesResult(List<String> requestHashes, Boolean grouped) {
 
         OptionsResponse optionsResponse = hashingService.getClientOptions();
+        Application application = applicationDao.findByApiKey(optionsResponse.apiKey);
+
+        if (application == null) {
+            throw new UnauthorizedException();
+        }
+
         List<QueryPairResponse> responseQueryHashList = new ArrayList<>();
 
         User developer = developerKeyDao.findByKey(securityService.getMemberKey()).user;
@@ -99,7 +107,7 @@ public class ApiService {
                             .append(hash);
                     query
                             .append(" ")
-                            .append(queryService.getQuery(optionsResponse.application, optionsResponse.allowedPlainQueries, developer, hash).query);
+                            .append(queryService.getQuery(application, optionsResponse.allowedPlainQueries, developer, hash).query);
                 }
 
             }
@@ -107,24 +115,24 @@ public class ApiService {
             String resultHashString = resultHash.toString();
             String queryString = query.toString();
 
-            if (queryDao.findByApplicationAndUserAndHash(optionsResponse.application, developer, resultHashString) == null) {
-                queryService.saveQueryPair(optionsResponse.application, developer, queryString, resultHashString, true);
+            if (queryDao.findByApplicationAndUserAndHash(application, developer, resultHashString) == null) {
+                queryService.saveQueryPair(application, developer, queryString, resultHashString, true);
             }
 
             responseQueryHashList.add(new QueryPairResponse(resultHashString, queryString));
 
-            statsService.saveRequest(optionsResponse.application, developer, resultHashString, queryString);
+            statsService.saveRequest(application, developer, resultHashString, queryString);
 
         } else {
 
             for (String hash : requestHashes) {
                 if (hash.length() > 0) {
 
-                    Query query = queryService.getQuery(optionsResponse.application, optionsResponse.allowedPlainQueries, developer, hash);
+                    Query query = queryService.getQuery(application, optionsResponse.allowedPlainQueries, developer, hash);
 
                     responseQueryHashList.add(new QueryPairResponse(hash, query.query));
 
-                    statsService.saveRequest(optionsResponse.application, developer, hash, query.query);
+                    statsService.saveRequest(application, developer, hash, query.query);
 
                 }
 
@@ -136,26 +144,31 @@ public class ApiService {
 
     }
 
-   public List<QueryPairResponse> getRequestHashesResult(List<String> requestQueries) {
+    public List<QueryPairResponse> getRequestHashesResult(List<String> requestQueries) {
 
         OptionsResponse optionsResponse = hashingService.getClientOptions();
+        Application application = applicationDao.findByApiKey(optionsResponse.apiKey);
+
+        if (application == null) {
+            throw new UnauthorizedException();
+        }
 
         User developer = developerKeyDao.findByKey(securityService.getMemberKey()).user;
 
         if (optionsResponse.removeQueriesAfterBuild) {
-            queryService.deleteForApplicationAndMember(optionsResponse.application, developer);
+            queryService.deleteForApplicationAndMember(application, developer);
         }
 
         List<QueryPairResponse> responseQueryHashList = new ArrayList<>();
 
-        for(String query : requestQueries){
+        for (String query : requestQueries) {
 
             if (query.length() > 0) {
 
                 String hash = hashingService.hashQuery(optionsResponse, query).trim();
 
-                if (queryDao.findByApplicationAndUserAndHash(optionsResponse.application, developer, hash) == null) {
-                    queryService.saveQueryPair(optionsResponse.application, developer, query, hash);
+                if (queryDao.findByApplicationAndUserAndHash(application, developer, hash) == null) {
+                    queryService.saveQueryPair(application, developer, query, hash);
                 }
 
                 responseQueryHashList.add(new QueryPairResponse(hash, query));
@@ -165,7 +178,7 @@ public class ApiService {
         }
 
 
-        statsService.saveBuild(optionsResponse.application, developer, requestQueries.size());
+        statsService.saveBuild(application, developer, requestQueries.size());
 
         return responseQueryHashList;
 

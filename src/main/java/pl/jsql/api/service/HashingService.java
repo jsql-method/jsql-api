@@ -107,10 +107,16 @@ public class HashingService {
             hash = TokenUtil.generateMixToken(options.apiKey, hash, options.hashMinLength, options.hashMaxLength);
         }
 
-        Query query = queryDao.findByHashAndApplication(hash, options.application);
+        Application application = applicationDao.findByApiKey(options.apiKey);
+
+        if(application == null){
+            throw new CryptographyException("cannot_generate_query_hash_e1");
+        }
+
+        Query query = queryDao.findByHashAndApplication(hash, application);
 
         if (query != null) {
-            throw new CryptographyException("cannot_generate_query_hash");
+            throw new CryptographyException("cannot_generate_query_hash_e2");
         }
 
         return hash;

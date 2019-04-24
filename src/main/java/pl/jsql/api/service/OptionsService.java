@@ -82,7 +82,6 @@ public class OptionsService {
         optionsResponse.databaseDialect = options.databaseDialect;
         optionsResponse.allowedPlainQueries = options.allowedPlainQueries;
         optionsResponse.prod = options.prod;
-        optionsResponse.application = application;
         optionsResponse.apiKey = application.apiKey;
 
         return optionsResponse;

@@ -61,4 +61,12 @@ public class Options {
     @NotNull
     public Boolean prod = false;
 
+    /**
+     * Nowe do providera
+     */
+
+//    @NotNull
+//    public Integer databaseConnectionTimeout;
+
+
 }

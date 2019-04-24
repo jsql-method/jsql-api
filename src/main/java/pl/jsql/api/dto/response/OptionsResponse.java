@@ -8,8 +8,6 @@ public class OptionsResponse {
 
     public String apiKey;
 
-    public Application application;
-
     public EncodingEnum encodingAlgorithm;
 
     public Boolean isSalt;
