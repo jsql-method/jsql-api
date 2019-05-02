@@ -3,6 +3,7 @@ package pl.jsql.api.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.jsql.api.dto.response.DatabaseConnectionResponse;
 import pl.jsql.api.dto.response.OptionsResponse;
 import pl.jsql.api.exceptions.CryptographyException;
 import pl.jsql.api.exceptions.UnauthorizedException;
@@ -58,9 +59,59 @@ public class HashingService {
         optionsResponse.databaseDialect = options.databaseDialect;
         optionsResponse.allowedPlainQueries = options.allowedPlainQueries;
         optionsResponse.prod = options.prod;
+        optionsResponse.randomSaltAfter = options.randomSaltAfter;
+        optionsResponse.randomSaltBefore = options.randomSaltBefore;
+
+        DatabaseConnectionResponse prodDatabaseConnectionResponse = new DatabaseConnectionResponse();
+        prodDatabaseConnectionResponse.databaseConnectionPassword = options.prodDatabaseConnectionPassword;
+        prodDatabaseConnectionResponse.databaseConnectionTimeout = options.prodDatabaseConnectionTimeout;
+        prodDatabaseConnectionResponse.databaseConnectionUrl = options.prodDatabaseConnectionUrl;
+        prodDatabaseConnectionResponse.databaseConnectionUsername = options.prodDatabaseConnectionUsername;
+
+        optionsResponse.productionDatabaseOptions = prodDatabaseConnectionResponse;
+
+        DatabaseConnectionResponse devDatabaseConnectionResponse = new DatabaseConnectionResponse();
+        devDatabaseConnectionResponse.databaseConnectionPassword = options.devDatabaseConnectionPassword;
+        devDatabaseConnectionResponse.databaseConnectionTimeout = options.devDatabaseConnectionTimeout;
+        devDatabaseConnectionResponse.databaseConnectionUrl = options.devDatabaseConnectionUrl;
+        devDatabaseConnectionResponse.databaseConnectionUsername = options.devDatabaseConnectionUsername;
+
+        optionsResponse.developerDatabaseOptions = devDatabaseConnectionResponse;
 
         return optionsResponse;
 
+
+    }
+
+    public boolean isValidSalt(OptionsResponse options, String hash) {
+
+        if (options.isSalt) {
+
+            if (options.saltRandomize) {
+
+                if (options.saltBefore) {
+                    return hash.startsWith(options.randomSaltBefore);
+                }
+
+                if (options.saltAfter) {
+                    return hash.endsWith(options.randomSaltBefore);
+                }
+
+            } else if (options.salt != null && !options.salt.isEmpty()) {
+
+                if (options.saltBefore) {
+                    return hash.startsWith(options.salt);
+                }
+
+                if (options.saltAfter) {
+                    return hash.endsWith(options.salt);
+                }
+
+            }
+
+        }
+
+        return true;
 
     }
 
@@ -72,25 +123,26 @@ public class HashingService {
 
             if (options.saltRandomize) {
 
-                if (options.saltBefore) {
-                    hash = hash + TokenUtil.generateToken(sqlQuery);
-                }
-
-                if (options.saltAfter) {
-                    hash = TokenUtil.generateToken(sqlQuery) + hash;
+                if (options.saltAfter && options.saltBefore) {
+                    hash = options.randomSaltBefore + hash + options.randomSaltAfter;
+                } else if (options.saltBefore) {
+                    hash = options.randomSaltBefore + hash;
+                } else if (options.saltAfter) {
+                    hash = hash + options.randomSaltAfter;
                 }
 
             } else if (options.salt != null && !options.salt.isEmpty()) {
 
-                if (options.saltBefore) {
+                if (options.saltAfter && options.saltBefore) {
+                    hash = options.salt + hash + options.salt;
+                } else if (options.saltBefore) {
                     hash = options.salt + hash;
-                }
-
-                if (options.saltAfter) {
+                } else if (options.saltAfter) {
                     hash = hash + options.salt;
                 }
 
             }
+
         }
 
         return hash;
@@ -109,7 +161,7 @@ public class HashingService {
 
         Application application = applicationDao.findByApiKey(options.apiKey);
 
-        if(application == null){
+        if (application == null) {
             throw new CryptographyException("cannot_generate_query_hash_e1");
         }
 

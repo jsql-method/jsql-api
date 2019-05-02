@@ -71,4 +71,8 @@ public class  TokenUtil {
         return DigestUtils.sha256Hex(str + System.currentTimeMillis());
     }
 
+    public static String randomSalt(){
+        return hash(String.valueOf(UUID.randomUUID())).substring(0, 10);
+    }
+
 }

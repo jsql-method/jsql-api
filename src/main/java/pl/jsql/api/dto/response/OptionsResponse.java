@@ -34,4 +34,12 @@ public class OptionsResponse {
 
     public Boolean prod;
 
+    public String randomSaltBefore;
+
+    public String randomSaltAfter;
+
+    public DatabaseConnectionResponse productionDatabaseOptions;
+
+    public DatabaseConnectionResponse developerDatabaseOptions;
+
 }

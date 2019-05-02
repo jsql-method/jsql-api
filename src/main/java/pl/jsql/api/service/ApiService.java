@@ -52,6 +52,12 @@ public class ApiService {
         SimpleOptionsResponse simpleOptionsResponse = new SimpleOptionsResponse();
         simpleOptionsResponse.databaseDialect = optionsResponse.databaseDialect;
 
+        if(optionsResponse.prod){
+            simpleOptionsResponse.databaseConnectionTimeout = optionsResponse.productionDatabaseOptions.databaseConnectionTimeout;
+        }else{
+            simpleOptionsResponse.databaseConnectionTimeout = optionsResponse.developerDatabaseOptions.databaseConnectionTimeout;
+        }
+
         return simpleOptionsResponse;
 
     }
@@ -102,12 +108,16 @@ public class ApiService {
             for (String hash : requestHashes) {
 
                 if (hash.length() > 0) {
+
+                    Query query1 = queryService.getQuery(application, optionsResponse, developer, hash);
+                    queryService.markQueryAsUsed(query1);
+
                     resultHash
                             .append("=+")
                             .append(hash);
                     query
                             .append(" ")
-                            .append(queryService.getQuery(application, optionsResponse.allowedPlainQueries, developer, hash).query);
+                            .append(query1.query);
                 }
 
             }
@@ -116,7 +126,8 @@ public class ApiService {
             String queryString = query.toString();
 
             if (queryDao.findByApplicationAndUserAndHash(application, developer, resultHashString) == null) {
-                queryService.saveQueryPair(application, developer, queryString, resultHashString, true);
+                Query query1 = queryService.saveQueryPair(application, developer, queryString, resultHashString, true);
+                queryService.markQueryAsUsed(query1);
             }
 
             responseQueryHashList.add(new QueryPairResponse(resultHashString, queryString));
@@ -128,7 +139,8 @@ public class ApiService {
             for (String hash : requestHashes) {
                 if (hash.length() > 0) {
 
-                    Query query = queryService.getQuery(application, optionsResponse.allowedPlainQueries, developer, hash);
+                    Query query = queryService.getQuery(application, optionsResponse, developer, hash);
+                    queryService.markQueryAsUsed(query);
 
                     responseQueryHashList.add(new QueryPairResponse(hash, query.query));
 
@@ -168,7 +180,7 @@ public class ApiService {
                 String hash = hashingService.hashQuery(optionsResponse, query).trim();
 
                 if (queryDao.findByApplicationAndUserAndHash(application, developer, hash) == null) {
-                    queryService.saveQueryPair(application, developer, query, hash);
+                   queryService.saveQueryPair(application, developer, query, hash);
                 }
 
                 responseQueryHashList.add(new QueryPairResponse(hash, query));

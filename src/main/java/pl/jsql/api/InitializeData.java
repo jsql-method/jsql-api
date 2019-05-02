@@ -10,6 +10,7 @@ import pl.jsql.api.enums.RoleTypeEnum;
 import pl.jsql.api.enums.SettingEnum;
 import pl.jsql.api.model.dict.Setting;
 import pl.jsql.api.model.hashing.Application;
+import pl.jsql.api.model.hashing.DeveloperKey;
 import pl.jsql.api.model.hashing.Query;
 import pl.jsql.api.model.stats.Build;
 import pl.jsql.api.model.stats.Request;
@@ -75,6 +76,9 @@ public class InitializeData {
 
     }
 
+    @Autowired
+    private DeveloperKeyDao developerKeyDao;
+
     private void createFullCompanyAdmin(String email) {
 
         authService.register(new UserRequest(email, "test1234", "Użytkownik", "Testowy "+email.substring(0,1), "JSQL Sp.z.o.o.", PlansEnum.LARGE));
@@ -83,7 +87,12 @@ public class InitializeData {
         userService.activateAccount(user.token);
         user = userDao.findByEmail(email);
 
-        applicationService.create(user, new ApplicationCreateRequest("Test application"));
+        applicationService.create(user, new ApplicationCreateRequest("Test application"), true);
+
+        DeveloperKey developerKey = developerKeyDao.findByUser(user);
+        developerKey.key = email;
+
+        developerKeyDao.save(developerKey);
 
     }
 
@@ -250,9 +259,9 @@ public class InitializeData {
 
     public void createTestData(String email) throws ParseException {
         createFullCompanyAdmin(email);
-        testBuildsData(email);
-        testRequestsData(email);
-        testQueriesData(email);
+    //    testBuildsData(email);
+   //     testRequestsData(email);
+    //    testQueriesData(email);
     }
 
     @PostConstruct
