@@ -4,6 +4,7 @@ import org.apache.commons.lang3.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.jsql.api.dto.request.ApplicationCreateRequest;
+import pl.jsql.api.dto.request.ResetPasswordRequest;
 import pl.jsql.api.dto.request.UserRequest;
 import pl.jsql.api.enums.PlansEnum;
 import pl.jsql.api.enums.RoleTypeEnum;
@@ -81,10 +82,10 @@ public class InitializeData {
 
     private void createFullCompanyAdmin(String email) {
 
-        authService.register(new UserRequest(email, "test1234", "Użytkownik", "Testowy "+email.substring(0,1), "JSQL Sp.z.o.o.", PlansEnum.LARGE));
+        authService.register(new UserRequest(email, "x", "Użytkownik", "Testowy "+email.substring(0,1), "JSQL Sp.z.o.o.", PlansEnum.LARGE));
 
         User user = userDao.findByEmail(email);
-        userService.activateAccount(user.token);
+        userService.resetPassword(user.token, new ResetPasswordRequest("test1234"));
         user = userDao.findByEmail(email);
 
         applicationService.create(user, new ApplicationCreateRequest("Test application"), true);
