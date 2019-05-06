@@ -58,21 +58,6 @@ public class UserService {
 
     }
 
-
-    public MessageResponse activateAccount(String token) {
-
-        User userEntry = userDao.findByToken(token);
-
-        if (userEntry == null) {
-            return new MessageResponse(true, "activation_token_not_found");
-        }
-
-        userEntry.enabled = true;
-        userDao.save(userEntry);
-
-        return new MessageResponse();
-    }
-
     public MessageResponse forgotPassword(ForgotPasswordRequest forgotPasswordRequest) {
 
         User user = userDao.findByEmail(forgotPasswordRequest.email);
