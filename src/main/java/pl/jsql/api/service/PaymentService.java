@@ -56,7 +56,8 @@ public class PaymentService {
 
     public void activeOrUnactivePlan(Map<String, Object> request) {
 
-        PabblyStatus eventType = PabblyStatus.valueOf((String) request.get("event_type"));
+        String eventTypeStr = (String) request.get("event_type");
+        PabblyStatus eventType = PabblyStatus.valueOf(eventTypeStr.toUpperCase());
         Map<String, Object> requestData = (Map<String, Object>) request.get("data");
         Map<String, Object> requestPlan = (Map<String, Object>) requestData.get("plan");
 
