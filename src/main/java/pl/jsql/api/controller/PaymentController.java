@@ -15,12 +15,13 @@ import pl.jsql.api.repo.WebhookDao;
 import pl.jsql.api.security.annotation.Security;
 import pl.jsql.api.service.PaymentService;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @CrossOrigin
 @RestController
 @RequestMapping("/api/payment")
-public class PaymentController extends ValidateController {
+public class PaymentController {
 
     @Autowired
     private WebhookDao webhookDao;
@@ -29,25 +30,30 @@ public class PaymentController extends ValidateController {
     private PaymentService paymentService;
 
     @Security(requireActiveSession = false)
-    @GetMapping
-    public ResponseEntity test() {
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @Security(requireActiveSession = false)
     @PostMapping
     public ResponseEntity create(@RequestBody Object pabblyPaymentRequest) {
 
-        System.out.println("pabblyPaymentRequest :"+pabblyPaymentRequest);
+        try {
 
-        System.out.println("pabblyPaymentRequest json : "+new Gson().toJson(pabblyPaymentRequest));
+            System.out.println("pabblyPaymentRequest :"+pabblyPaymentRequest);
 
-        Webhook webhook = new Webhook();
-        webhook.requestText = new Gson().toJson(pabblyPaymentRequest);
-        webhook.pabblyStatus = PabblyStatus.valueOf((String) pabblyPaymentRequest.get("event_type"));
-        webhookDao.save(webhook);
+            System.out.println("pabblyPaymentRequest json : "+new Gson().toJson(pabblyPaymentRequest));
 
-        paymentService.activeOrUnactivePlan((Map<String, Object>) pabblyPaymentRequest);
+            HashMap<String, Object> request = (HashMap<String, Object>) pabblyPaymentRequest;
+
+            Webhook webhook = new Webhook();
+            webhook.requestText = new Gson().toJson(pabblyPaymentRequest);
+            webhook.pabblyStatus = PabblyStatus.valueOf((String) request.get("event_type"));
+            webhookDao.save(webhook);
+
+            paymentService.activeOrUnactivePlan(request);
+
+        }catch (Exception e){
+
+            System.out.println("ERROR PAYMENTY");
+            e.printStackTrace();
+
+        }
 
         return new ResponseEntity<>(new BasicResponse<>(200, new MessageResponse()), HttpStatus.OK);
 
