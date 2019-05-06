@@ -47,7 +47,14 @@ public class PaymentController {
             webhookDao.save(webhook);
 
             if(webhook.pabblyStatus != PabblyStatus.TEST_WEBHOOK_URL){
-                paymentService.activeOrUnactivePlan(request);
+
+                try {
+                    paymentService.activeOrUnactivePlan(request);
+                }catch (Exception e){
+                    System.out.println("ERROR PAYMENT2");
+                    e.printStackTrace();
+                }
+
             }
 
         }catch (Exception e){
