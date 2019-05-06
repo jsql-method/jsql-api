@@ -1,7 +1,11 @@
 package pl.jsql.api.service;
 
 import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import pl.jsql.api.dto.request.ForgotPasswordRequest;
 import pl.jsql.api.dto.request.PabblyPaymentRequest;
@@ -10,6 +14,7 @@ import pl.jsql.api.dto.response.PlanResponse;
 import pl.jsql.api.enums.PabblyStatus;
 import pl.jsql.api.enums.PlansEnum;
 import pl.jsql.api.model.payment.Plan;
+import pl.jsql.api.model.payment.Webhook;
 import pl.jsql.api.model.user.User;
 import pl.jsql.api.repo.*;
 import pl.jsql.api.security.service.SecurityService;
@@ -29,6 +34,12 @@ import java.util.Map;
 public class PaymentService {
 
     private final String GET_CUSTOMER = "https://payments.pabbly.com/api/v1/customer/";
+
+    @Value("${pabbly.api.key}")
+    private String pabblyApiKey;
+
+    @Value("${pabbly.secret.key}")
+    private String pabblySecret;
 
     @Autowired
     private UserDao userDao;
@@ -54,6 +65,9 @@ public class PaymentService {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private WebhookDao webhookDao;
+
     public void activeOrUnactivePlan(Map<String, Object> request) {
 
         String eventTypeStr = (String) request.get("event_type");
@@ -64,13 +78,12 @@ public class PaymentService {
         String userEmail;
         User user;
 
-
         if (eventType == PabblyStatus.SUBSCRIPTION_ACTIVATE || eventType == PabblyStatus.SUBSCRIPTION_CREATE) {
 
             userEmail = (String) requestData.get("email_id");
             String planDescription = (String) requestPlan.get("plan_code");
             PlansEnum plan = PlansEnum.valueOf(planDescription.toUpperCase());
-            int trialPeriod = (int) requestPlan.get("trial_period");
+           // int trialPeriod = (int) requestPlan.get("trial_period");
 
             user = userDao.findByEmail(userEmail);
 
@@ -82,7 +95,7 @@ public class PaymentService {
 
             }
 
-            user = userDao.findByEmail(userEmail);
+          //  user = userDao.findByEmail(userEmail);
             // userService.forgotPassword(new ForgotPasswordRequest(user.email));
 
         } else if (eventType == PabblyStatus.PAYMENT_FAILURE) {
@@ -129,7 +142,7 @@ public class PaymentService {
 
     }
 
-    public UserRequest getCustomer(String customerId) {
+    private UserRequest getCustomer(String customerId) {
 
         UserRequest userRequest = new UserRequest();
 
@@ -144,16 +157,10 @@ public class PaymentService {
 
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Authorization", "Basic username:password");
+            conn.setRequestProperty("Authorization", "Basic "+ Base64.encodeBase64String((pabblyApiKey+":"+pabblySecret).getBytes()));
             conn.setUseCaches(false);
 
-            System.out.println("conn.getResponseCode(): " + conn.getResponseCode());
-
             if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
-
-                System.out.println("conn: " + conn);
-
-                System.out.println("conn.getErrorStream(): " + conn.getErrorStream());
 
                 InputStream inputStream = conn.getErrorStream();
 
@@ -193,14 +200,22 @@ public class PaymentService {
 
             System.out.println("jsonStr : " + jsonStr);
 
-            HashMap<String, Object> json = new Gson().fromJson(builder.toString(), HashMap.class);
-            HashMap<String, Object> requestData = (HashMap<String, Object>) json.get("data");
+            Webhook webhook = new Webhook();
+            webhook.requestText = jsonStr;
+            webhook.pabblyStatus = PabblyStatus.GET_CLIENT;
+            webhookDao.save(webhook);
 
-            userRequest.companyName = (String) requestData.get("email_id");
+            HashMap json = new Gson().fromJson(builder.toString(), HashMap.class);
+            LinkedTreeMap requestData = (LinkedTreeMap) json.get("data");
+
+            String companyName = (String) requestData.get("company_name");
+
             userRequest.lastName = (String) requestData.get("last_name");
             userRequest.email = (String) requestData.get("email_id");
             userRequest.firstName = (String) requestData.get("first_name");
             userRequest.password = "";
+
+            userRequest.companyName = companyName.length() > 0 ? companyName : (String) requestData.get("company_name");
 
         } catch (Exception e) {
             e.printStackTrace();
