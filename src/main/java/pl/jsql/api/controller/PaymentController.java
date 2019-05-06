@@ -43,14 +43,23 @@ public class PaymentController {
 
             Webhook webhook = new Webhook();
             webhook.requestText = new Gson().toJson(pabblyPaymentRequest);
-            webhook.pabblyStatus = PabblyStatus.valueOf((String) request.get("event_type"));
+            webhook.pabblyStatus = PabblyStatus.valueOf(request.get("event_type").toString().toUpperCase());
             webhookDao.save(webhook);
 
-            paymentService.activeOrUnactivePlan(request);
+            if(webhook.pabblyStatus != PabblyStatus.TEST_WEBHOOK_URL){
+
+                try {
+                    paymentService.activeOrUnactivePlan(request);
+                }catch (Exception e){
+                    System.out.println("ERROR PAYMENT2");
+                    e.printStackTrace();
+                }
+
+            }
 
         }catch (Exception e){
 
-            System.out.println("ERROR PAYMENTY");
+            System.out.println("ERROR PAYMENT");
             e.printStackTrace();
 
         }
