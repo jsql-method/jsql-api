@@ -1,6 +1,8 @@
 package pl.jsql.api.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.jsql.api.controller.generic.ValidateController;
 import pl.jsql.api.dto.response.BasicResponse;
@@ -14,6 +16,8 @@ import pl.jsql.api.service.HashingService;
 
 import javax.validation.Valid;
 import java.util.List;
+
+import static pl.jsql.api.security.interceptor.HashingSecurityInterceptor.*;
 
 @CrossOrigin
 @RestController
@@ -29,40 +33,40 @@ public class ApiController extends ValidateController {
     @Security(requireActiveSession = false)
     @HashingSecurity
     @GetMapping("/options")
-    public BasicResponse<SimpleOptionsResponse> getOptions(@RequestHeader(value = "devKey", required = true) String devKey, @RequestHeader(value = "apiKey", required = true) String apiKey) {
+    public ResponseEntity<BasicResponse<SimpleOptionsResponse>> getOptions(@RequestHeader(value = DEV_KEY_HEADER, required = true) String devKey, @RequestHeader(value = API_KEY_HEADER, required = true) String apiKey) {
         SimpleOptionsResponse simpleOptionsResponse = apiService.getClientDatabaseOptions();
-        return new BasicResponse<>(200, simpleOptionsResponse);
+        return new ResponseEntity<>(new BasicResponse<>(200, simpleOptionsResponse), HttpStatus.OK);
     }
 
     @Security(requireActiveSession = false)
     @HashingSecurity
     @GetMapping("/options/all")
-    public BasicResponse<OptionsResponse> getAllOptions(@RequestHeader(value = "devKey", required = true) String devKey, @RequestHeader(value = "apiKey", required = true) String apiKey) {
+    public ResponseEntity<BasicResponse<OptionsResponse>> getAllOptions(@RequestHeader(value = DEV_KEY_HEADER, required = true) String devKey, @RequestHeader(value = API_KEY_HEADER, required = true) String apiKey) {
         OptionsResponse response = hashingService.getClientOptions();
-        return new BasicResponse<>(200, response);
+        return new ResponseEntity<>(new BasicResponse<>(200, response), HttpStatus.OK);
     }
 
     @Security(requireActiveSession = false)
     @HashingSecurity
     @PostMapping("/hashes")
-    public BasicResponse<List<QueryPairResponse>> hashQuery(@RequestBody List<String> request, @RequestHeader(value = "devKey", required = true) String devKey, @RequestHeader(value = "apiKey", required = true) String apiKey) {
+    public ResponseEntity<BasicResponse<List<QueryPairResponse>>> hashQuery(@RequestBody List<String> request, @RequestHeader(value = DEV_KEY_HEADER, required = true) String devKey, @RequestHeader(value = API_KEY_HEADER, required = true) String apiKey) {
         List<QueryPairResponse> response = apiService.getRequestHashesResult(request);
-        return new BasicResponse<>(200, response);
+        return new ResponseEntity<>(new BasicResponse<>(200, response), HttpStatus.OK);
     }
 
     @Security(requireActiveSession = false)
     @HashingSecurity
     @PostMapping("/queries")
-    public BasicResponse<List<QueryPairResponse>> getHashedAsQuery(@RequestBody List<String> request, @RequestHeader(value = "devKey", required = true) String devKey, @RequestHeader(value = "apiKey", required = true) String apiKey) {
+    public ResponseEntity<BasicResponse<List<QueryPairResponse>>> getHashedAsQuery(@RequestBody List<String> request, @RequestHeader(value = DEV_KEY_HEADER, required = true) String devKey, @RequestHeader(value = API_KEY_HEADER, required = true) String apiKey) {
         List<QueryPairResponse> response = apiService.getRequestQueriesResult(request);
-        return new BasicResponse<>(200, response);
+        return new ResponseEntity<>(new BasicResponse<>(200, response), HttpStatus.OK);
     }
 
     @Security(requireActiveSession = false)
     @HashingSecurity
     @PostMapping("/queries/grouped")
-    public BasicResponse<List<QueryPairResponse>> getHashedAsQueryGrouped(@RequestBody List<String> request, @RequestHeader(value = "devKey", required = true) String devKey, @RequestHeader(value = "apiKey", required = true) String apiKey) {
+    public ResponseEntity<BasicResponse<List<QueryPairResponse>>> getHashedAsQueryGrouped(@RequestBody List<String> request, @RequestHeader(value = DEV_KEY_HEADER, required = true) String devKey, @RequestHeader(value = API_KEY_HEADER, required = true) String apiKey) {
         List<QueryPairResponse> response = apiService.getRequestQueriesResult(request, true);
-        return new BasicResponse<>(200, response);
+        return new ResponseEntity<>(new BasicResponse<>(200, response), HttpStatus.OK);
     }
 }

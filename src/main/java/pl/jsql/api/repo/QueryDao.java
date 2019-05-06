@@ -21,6 +21,9 @@ public interface QueryDao extends CrudRepository<Query, Long> {
     @org.springframework.data.jpa.repository.Query("delete from Query q where q.application = :application and q.user = :user")
     void deleteByQuery(@Param("application") Application application, @Param("user") User user);
 
+    @Modifying
+    @org.springframework.data.jpa.repository.Query("update Query q set q.used = true where q = :query")
+    void markQueryAsUsed(@Param("query") Query query);
 }
 
 
