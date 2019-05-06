@@ -28,11 +28,13 @@ public class PaymentController extends ValidateController {
     @Autowired
     private PaymentService paymentService;
 
+    @Security(requireActiveSession = false)
     @GetMapping
     public ResponseEntity test() {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @Security(requireActiveSession = false)
     @PostMapping
     public ResponseEntity create(@RequestBody Map<String, Object> pabblyPaymentRequest) {
 
