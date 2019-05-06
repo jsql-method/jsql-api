@@ -6,6 +6,7 @@ import pl.jsql.api.dto.request.ForgotPasswordRequest;
 import pl.jsql.api.dto.request.PabblyPaymentRequest;
 import pl.jsql.api.dto.request.UserRequest;
 import pl.jsql.api.dto.response.PlanResponse;
+import pl.jsql.api.enums.PabblyStatus;
 import pl.jsql.api.enums.PlansEnum;
 import pl.jsql.api.model.payment.Plan;
 import pl.jsql.api.model.user.User;
@@ -43,13 +44,9 @@ public class PaymentService {
     @Autowired
     private UserService userService;
 
-    private static final String SUBSCRIPTION_CREATE = "subscription_create";
-    private static final String SUBSCRIPTION_ACTIVATE = "subscription_activate";
-    private static final String PAYMENT_FAILURE = "payment_failure";
-
     public void activeOrUnactivePlan(Map<String, Object> request) {
 
-        String eventType = (String) request.get("event_type");
+        PabblyStatus eventType = PabblyStatus.valueOf((String) request.get("event_type"));
         Map<String, Object> requestData = (Map<String, Object>) request.get("data");
         Map<String, Object> requestPlan = (Map<String, Object>) requestData.get("plan");
 
@@ -57,7 +54,7 @@ public class PaymentService {
         User user;
         Plan plan;
 
-        if (eventType.equals(SUBSCRIPTION_ACTIVATE) || eventType.equals(SUBSCRIPTION_CREATE)) {
+        if (eventType == PabblyStatus.SUBSCRIPTION_ACTIVATE ||  eventType == PabblyStatus.SUBSCRIPTION_CREATE) {
 
             userEmail = (String) requestData.get("email_id");
             String planDescription = (String) requestPlan.get("plan_code");
@@ -98,7 +95,7 @@ public class PaymentService {
 
             planDao.save(plan);
 
-        } else if (eventType.equals(PAYMENT_FAILURE)) {
+        } else if (eventType == PabblyStatus.PAYMENT_FAILURE) {
 
             Map<String, Object> requestTransaction = (Map<String, Object>) requestData.get("transaction");
             Map<String, Object> requestPaymentMethod = (Map<String, Object>) requestTransaction.get("payment_method");
