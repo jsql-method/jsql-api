@@ -215,7 +215,9 @@ public class PaymentService {
             userRequest.firstName = (String) requestData.get("first_name");
             userRequest.password = "";
 
-            userRequest.companyName = companyName.length() > 0 ? companyName : (String) requestData.get("company_name");
+            userRequest.companyName = companyName != null ? companyName : (userRequest.firstName + " " + userRequest.lastName);
+
+            System.out.println("userRequest.companyName  : "+userRequest.companyName );
 
         } catch (Exception e) {
             e.printStackTrace();
