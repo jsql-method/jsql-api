@@ -36,14 +36,18 @@ public class PaymentController extends ValidateController {
 
     @Security(requireActiveSession = false)
     @PostMapping
-    public ResponseEntity create(@RequestBody Map<String, Object> pabblyPaymentRequest) {
+    public ResponseEntity create(@RequestBody Object pabblyPaymentRequest) {
+
+        System.out.println("pabblyPaymentRequest :"+pabblyPaymentRequest);
+
+        System.out.println("pabblyPaymentRequest json : "+new Gson().toJson(pabblyPaymentRequest));
 
         Webhook webhook = new Webhook();
         webhook.requestText = new Gson().toJson(pabblyPaymentRequest);
         webhook.pabblyStatus = PabblyStatus.valueOf((String) pabblyPaymentRequest.get("event_type"));
         webhookDao.save(webhook);
 
-        paymentService.activeOrUnactivePlan(pabblyPaymentRequest);
+        paymentService.activeOrUnactivePlan((Map<String, Object>) pabblyPaymentRequest);
 
         return new ResponseEntity<>(new BasicResponse<>(200, new MessageResponse()), HttpStatus.OK);
 
