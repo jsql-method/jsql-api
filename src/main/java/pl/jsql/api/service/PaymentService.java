@@ -1,5 +1,6 @@
 package pl.jsql.api.service;
 
+import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.jsql.api.dto.request.ForgotPasswordRequest;
@@ -14,11 +15,20 @@ import pl.jsql.api.repo.*;
 import pl.jsql.api.security.service.SecurityService;
 
 import javax.transaction.Transactional;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 
 @Transactional
 @Service
 public class PaymentService {
+
+    private final String GET_CUSTOMER = "https://payments.pabbly.com/api/v1/customer/";
 
     @Autowired
     private UserDao userDao;
@@ -52,48 +62,27 @@ public class PaymentService {
 
         String userEmail;
         User user;
-        Plan plan;
 
-        if (eventType == PabblyStatus.SUBSCRIPTION_ACTIVATE ||  eventType == PabblyStatus.SUBSCRIPTION_CREATE) {
+
+        if (eventType == PabblyStatus.SUBSCRIPTION_ACTIVATE || eventType == PabblyStatus.SUBSCRIPTION_CREATE) {
 
             userEmail = (String) requestData.get("email_id");
             String planDescription = (String) requestPlan.get("plan_code");
+            PlansEnum plan = PlansEnum.valueOf(planDescription.toUpperCase());
             int trialPeriod = (int) requestPlan.get("trial_period");
 
             user = userDao.findByEmail(userEmail);
 
             if (user == null) {
 
-                UserRequest userRequest = new UserRequest();
+                UserRequest userRequest = getCustomer((String) requestData.get("customer_id"));
+                userRequest.plan = plan;
                 authService.register(userRequest);
-                user = userDao.findByEmail(userEmail);
 
             }
 
-            plan = planDao.findFirstByCompany(user.company);
-
-            switch (PlansEnum.valueOf(planDescription.toUpperCase())) {
-
-                case STARTER:
-                    plan.active = true;
-                    plan.plan = PlansEnum.STARTER;
-                    break;
-
-                case BUSINESS:
-                    plan.active = true;
-                    plan.plan = PlansEnum.BUSINESS;
-                    break;
-
-                case LARGE:
-                    plan.active = true;
-                    plan.plan = PlansEnum.LARGE;
-                    break;
-
-            }
-
-            userService.forgotPassword(new ForgotPasswordRequest(user.email));
-
-            planDao.save(plan);
+            user = userDao.findByEmail(userEmail);
+            // userService.forgotPassword(new ForgotPasswordRequest(user.email));
 
         } else if (eventType == PabblyStatus.PAYMENT_FAILURE) {
 
@@ -107,7 +96,7 @@ public class PaymentService {
                 return;
             }
 
-            plan = planDao.findFirstByCompany(user.company);
+            Plan plan = planDao.findFirstByCompany(user.company);
             plan.active = false;
             planDao.save(plan);
 
@@ -137,6 +126,93 @@ public class PaymentService {
 
         return planResponse;
 
+    }
+
+    public UserRequest getCustomer(String customerId) {
+
+        UserRequest userRequest = new UserRequest();
+
+        HttpURLConnection conn = null;
+
+        try {
+
+            URL url = new URL(GET_CUSTOMER + customerId);
+            conn = (HttpURLConnection) url.openConnection();
+
+            conn.setDoOutput(true);
+
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestProperty("Authorization", "Basic username:password");
+            conn.setUseCaches(false);
+
+            System.out.println("conn.getResponseCode(): " + conn.getResponseCode());
+
+            if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
+
+                System.out.println("conn: " + conn);
+
+                System.out.println("conn.getErrorStream(): " + conn.getErrorStream());
+
+                InputStream inputStream = conn.getErrorStream();
+
+                if (inputStream == null) {
+                    conn.disconnect();
+                    throw new Exception("HTTP error code : " + conn.getResponseCode());
+                }
+
+                BufferedReader br = new BufferedReader(new InputStreamReader((conn.getErrorStream())));
+                StringBuilder builder = new StringBuilder();
+                while (br.ready()) {
+                    builder.append(br.readLine());
+                }
+
+                conn.disconnect();
+
+                String response = builder.toString().trim();
+
+                if (response.length() > 0 && response.contains("<div>")) {
+                    response = response.substring(response.lastIndexOf("</div><div>") + 11, response.lastIndexOf("</div></body></html>"));
+                }
+
+                throw new Exception("HTTP error code : " + conn.getResponseCode() + "\nHTTP error message : " + response);
+            }
+
+            BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+
+            StringBuilder builder = new StringBuilder();
+
+            while (br.ready()) {
+                builder.append(br.readLine());
+            }
+
+            conn.disconnect();
+
+            String jsonStr = builder.toString();
+
+            System.out.println("jsonStr : " + jsonStr);
+
+            HashMap<String, Object> json = new Gson().fromJson(builder.toString(), HashMap.class);
+            HashMap<String, Object> requestData = (HashMap<String, Object>) json.get("data");
+
+            userRequest.companyName = (String) requestData.get("email_id");
+            userRequest.lastName = (String) requestData.get("last_name");
+            userRequest.email = (String) requestData.get("email_id");
+            userRequest.firstName = (String) requestData.get("first_name");
+            userRequest.password = "";
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+
+            if (conn != null) {
+                conn.disconnect();
+            }
+
+        }
+
+
+        return userRequest;
     }
 
 }
