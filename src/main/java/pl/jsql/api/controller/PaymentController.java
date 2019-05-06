@@ -2,6 +2,8 @@ package pl.jsql.api.controller;
 
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.jsql.api.controller.generic.ValidateController;
 import pl.jsql.api.dto.request.PabblyPaymentRequest;
@@ -26,9 +28,13 @@ public class PaymentController extends ValidateController {
     @Autowired
     private PaymentService paymentService;
 
-    @Security(requireActiveSession = false)
+    @GetMapping
+    public ResponseEntity test() {
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @PostMapping
-    public BasicResponse<MessageResponse> create(@RequestBody Map<String, Object> pabblyPaymentRequest) {
+    public ResponseEntity create(@RequestBody Map<String, Object> pabblyPaymentRequest) {
 
         Webhook webhook = new Webhook();
         webhook.requestText = new Gson().toJson(pabblyPaymentRequest);
@@ -37,7 +43,7 @@ public class PaymentController extends ValidateController {
 
         paymentService.activeOrUnactivePlan(pabblyPaymentRequest);
 
-        return new BasicResponse<>(200, new MessageResponse());
+        return new ResponseEntity<>(new BasicResponse<>(200, new MessageResponse()), HttpStatus.OK);
 
     }
 
