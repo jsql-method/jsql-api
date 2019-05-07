@@ -5,6 +5,7 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Type;
 import pl.jsql.api.enums.DatabaseDialectEnum;
 import pl.jsql.api.enums.EncodingEnum;
+import pl.jsql.api.utils.TokenUtil;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -60,5 +61,29 @@ public class Options {
 
     @NotNull
     public Boolean prod = false;
+
+    @NotNull
+    public String randomSaltBefore = TokenUtil.randomSalt();
+
+    @NotNull
+    public String randomSaltAfter = TokenUtil.randomSalt();
+
+    @NotNull
+    public Integer prodDatabaseConnectionTimeout;
+
+    public String prodDatabaseConnectionUrl;
+
+    public String prodDatabaseConnectionUsername;
+
+    public String prodDatabaseConnectionPassword;
+
+    @NotNull
+    public Integer devDatabaseConnectionTimeout;
+
+    public String devDatabaseConnectionUrl;
+
+    public String devDatabaseConnectionUsername;
+
+    public String devDatabaseConnectionPassword;
 
 }

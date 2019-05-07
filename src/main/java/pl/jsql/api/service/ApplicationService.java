@@ -1,5 +1,6 @@
 package pl.jsql.api.service;
 
+import jdk.nashorn.internal.parser.Token;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -119,11 +120,15 @@ public class ApplicationService {
     public MessageResponse create(ApplicationCreateRequest applicationCreateRequest) {
 
         User companyAdmin = securityService.getCompanyAdmin();
-        return this.create(companyAdmin, applicationCreateRequest);
+        return this.create(companyAdmin, applicationCreateRequest, false);
 
     }
 
     public MessageResponse create(User companyAdmin, ApplicationCreateRequest applicationCreateRequest) {
+        return this.create(companyAdmin, applicationCreateRequest, false);
+    }
+
+    public MessageResponse create(User companyAdmin, ApplicationCreateRequest applicationCreateRequest, Boolean testApiKey) {
 
         if (!this.canCreateApplication(companyAdmin)) {
             return new MessageResponse(true, "applications_limit_reached");
@@ -149,6 +154,11 @@ public class ApplicationService {
         assignUserToAppMember(companyAdmin, application);
         assignNewAppsToAppAdmins(companyAdmin, application);
         initializeApplicationOptions(application);
+
+        if(testApiKey){
+            application.apiKey = companyAdmin.email;
+            applicationDao.save(application);
+        }
 
         return new MessageResponse(application.id.toString());
 
@@ -197,6 +207,7 @@ public class ApplicationService {
         applicationDevelopersDao.deleteAllByApplication(application);
         userDao.delete(application.productionDeveloper);
 
+        application.name = application.name+"=="+ TokenUtil.randomSalt();
         application.productionDeveloper = null;
         applicationDao.save(application);
 
@@ -254,11 +265,21 @@ public class ApplicationService {
         options.saltAfter = true;
         options.saltRandomize = true;
         options.hashLengthLikeQuery = false;
-        options.hashMinLength = 100;
-        options.hashMaxLength = 200;
+        options.hashMinLength = 20;
+        options.hashMaxLength = 50;
         options.removeQueriesAfterBuild = true;
         options.databaseDialect = DatabaseDialectEnum.POSTGRES;
         options.allowedPlainQueries = false;
+
+        options.prodDatabaseConnectionUrl = "";
+        options.prodDatabaseConnectionUsername = "";
+        options.prodDatabaseConnectionPassword = "";
+        options.prodDatabaseConnectionTimeout = 10;
+
+        options.devDatabaseConnectionUrl = "";
+        options.devDatabaseConnectionUsername = "";
+        options.devDatabaseConnectionPassword = "";
+        options.devDatabaseConnectionTimeout = 10;
 
         optionsDao.save(options);
 

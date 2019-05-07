@@ -14,6 +14,7 @@ import pl.jsql.api.model.hashing.DeveloperKey;
 import pl.jsql.api.repo.ApplicationDao;
 import pl.jsql.api.repo.ApplicationDevelopersDao;
 import pl.jsql.api.repo.DeveloperKeyDao;
+import pl.jsql.api.service.OptionsService;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -21,8 +22,8 @@ import javax.servlet.http.HttpServletRequest;
 @Component
 public class HashingSecurityInterceptor {
 
-    public static final String API_KEY_HEADER = "ApiKey";
-    public static final String DEV_KEY_HEADER = "DevKey";
+    public static final String API_KEY_HEADER = "Api-Key";
+    public static final String DEV_KEY_HEADER = "Dev-Key";
 
     @Autowired
     private HttpServletRequest request;
@@ -35,6 +36,9 @@ public class HashingSecurityInterceptor {
 
     @Autowired
     private ApplicationDevelopersDao applicationDevelopersDao;
+
+    @Autowired
+    private OptionsService optionsService;
 
     @Pointcut("@annotation(pl.jsql.api.security.annotation.HashingSecurity)")
     private void hashingSecurityAnnotation() {
@@ -54,6 +58,14 @@ public class HashingSecurityInterceptor {
         DeveloperKey developerKey = developerKeyDao.findByKey(devKey);
 
         if (application == null || developerKey == null) {
+            return new ResponseEntity<>(new MessageResponse(true,"Unauthorized"), HttpStatus.UNAUTHORIZED);
+        }
+
+        if(!optionsService.isProduction(application) && developerKey.user.isProductionDeveloper){
+            return new ResponseEntity<>(new MessageResponse(true,"Unauthorized"), HttpStatus.UNAUTHORIZED);
+        }
+
+        if(optionsService.isProduction(application) && !developerKey.user.isProductionDeveloper){
             return new ResponseEntity<>(new MessageResponse(true,"Unauthorized"), HttpStatus.UNAUTHORIZED);
         }
 

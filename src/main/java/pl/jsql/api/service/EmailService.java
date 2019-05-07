@@ -53,6 +53,36 @@ public class EmailService {
     @Value("${spring.mail.properties.mail.smtp.starttls.enable}")
     private String mailTls;
 
+    private void sendInnerEmail(String subject, String content) {
+
+        new Thread(() -> {
+
+            try {
+
+                HtmlEmail email = new HtmlEmail();
+                email.setHostName(mailHost);
+                email.setAuthentication(mailUsername, mailPassword);
+                email.setSmtpPort(mailPort);
+                email.setStartTLSEnabled(true);
+                email.addTo("office@jsql.it", "Account deactivation");
+                email.setFrom(mailFrom, "JSQL");
+                email.setSubject(subject);
+
+                URL url = new URL("https://jsql.it/wp-content/uploads/2018/10/cropped-jsql-logo-alfa-300x215.png");
+                String cid = email.embed(url, "JSQL Logo");
+
+                email.setHtmlMsg(content.replace("{cid}",cid));
+                email.setCharset("UTF-8");
+                email.send();
+
+            } catch (MalformedURLException | EmailException e) {
+                e.printStackTrace();
+            }
+
+        }).start();
+
+    }
+
     private void sendEmail(User user, String subject, String content) {
 
         String to = user.email;
@@ -104,7 +134,7 @@ public class EmailService {
 
         String html = template.html();
         html = html.replace("{fullName}", user.firstName + " " + user.lastName);
-        html = html.replace("{accountId}", user.id.toString());
+        html = html.replace("{token}", user.token);
 
         this.sendEmail(user, deactivationCompanyAdminEmailSubject, html);
     }
@@ -180,6 +210,29 @@ public class EmailService {
         html = html.replace("{activationUrl}", origin + "/reset-password/" + user.token);
 
         this.sendEmail(user, forgotPasswordEmailSubject, html);
+
+    }
+
+
+    public void sendFeedbackEmail(User user, String message) {
+
+        InputStream is = TypeReference.class.getResourceAsStream("/templates/feedback.html");
+
+        Document template = null;
+
+        try {
+            template = Jsoup.parse(is, "UTF-8", "");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String html = template.html();
+        html = html.replace("{fullName}", user.firstName + " " + user.lastName);
+        html = html.replace("{accountId}", user.id.toString());
+        html = html.replace("{companyName}", user.company.name);
+        html = html.replace("{message}", message);
+
+        this.sendInnerEmail("Feedback - account deactivation", html);
 
     }
 

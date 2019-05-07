@@ -3,6 +3,8 @@ package pl.jsql.api.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.jsql.api.dto.response.OptionsResponse;
+import pl.jsql.api.exceptions.CryptographyException;
 import pl.jsql.api.model.hashing.Application;
 import pl.jsql.api.model.hashing.Query;
 import pl.jsql.api.model.user.User;
@@ -15,39 +17,64 @@ import java.util.Date;
 public class QueryService {
 
     @Autowired
-    QueryDao queryDao;
+    private QueryDao queryDao;
+
+    @Autowired
+    private HashingService hashingService;
 
     public void deleteForApplicationAndMember(Application application, User user) {
         queryDao.deleteByQuery(application, user);
     }
 
-    public void saveQueryPair(Application application, User user, String sqlQuery, String hash, Boolean dynamic) {
+    public Query saveQueryPair(Application application, User user, String sqlQuery, String hash, Boolean dynamic) {
 
         Query query = new Query();
         query.application = application;
         query.user = user;
         query.query = sqlQuery;
         query.hash = hash;
-        query.used = true;
+        query.used = false;
         query.dynamic = dynamic;
         query.queryDate = new Date();
 
-        queryDao.save(query);
+        return queryDao.save(query);
 
     }
 
-    public void saveQueryPair(Application application, User user, String sqlQuery, String hash) {
-        saveQueryPair(application, user, sqlQuery, hash, false);
+    public void markQueryAsUsed(Query query) {
+        queryDao.markQueryAsUsed(query);
     }
 
-    public Query getQuery(Application application, Boolean allowedPlainQueries, User user, String hash) {
+    public Query saveQueryPair(Application application, User user, String sqlQuery, String hash) {
+        return saveQueryPair(application, user, sqlQuery, hash, false);
+    }
 
-        if (allowedPlainQueries) {
-            return queryDao.findByApplicationAndUserAndQuery(application, user, hash);
+    public Query getQuery(Application application, OptionsResponse optionsResponse, User user, String hash) {
+
+        Query query = null;
+
+        if (optionsResponse.allowedPlainQueries) {
+            query = queryDao.findByApplicationAndUserAndQuery(application, user, hash);
+
+            if (query == null) {
+                throw new CryptographyException("Query not found");
+            }
+
+            return query;
+
         }
 
-        return queryDao.findByApplicationAndUserAndHash(application, user, hash);
+        if (!hashingService.isValidSalt(optionsResponse, hash)) {
+            throw new CryptographyException("Salt incorrect");
+        }
 
+        query = queryDao.findByApplicationAndUserAndHash(application, user, hash);
+
+        if (query == null) {
+            throw new CryptographyException("Query not found");
+        }
+
+        return query;
     }
 
 }

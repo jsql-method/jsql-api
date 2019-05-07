@@ -12,15 +12,12 @@ public enum PabblyStatus {
     SUBSCRIPTION_EXPIRE,
     SUBSCRIPTION_RENEW,
     SUBSCRIPTION_DELETE,
+    TEST_WEBHOOK_URL,
 
     SUCCESSFULL_PAYMENT,
     PAYMENT_FAILURE,
-    PAYMENT_REFUND;
-
-    public String name;
-
-    PabblyStatus() {
-        this.name = this.name().toLowerCase();
-    }
+    PAYMENT_REFUND,
+    GET_CLIENT,
+    HOSTED_VERIFY;
 
 }
