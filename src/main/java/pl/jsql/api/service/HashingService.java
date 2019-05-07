@@ -151,18 +151,18 @@ public class HashingService {
 
     private String generateQueryHash(OptionsResponse options, String sqlQuery) {
 
+        Application application = applicationDao.findByApiKey(options.apiKey);
+
+        if (application == null) {
+            throw new CryptographyException("cannot_generate_query_hash_e1");
+        }
+
         String hash = HashingUtil.encode(options, sqlQuery);
 
         if (options.hashLengthLikeQuery) {
             hash = TokenUtil.generateMixToken(options.apiKey, hash, sqlQuery.length());
         } else {
             hash = TokenUtil.generateMixToken(options.apiKey, hash, options.hashMinLength, options.hashMaxLength);
-        }
-
-        Application application = applicationDao.findByApiKey(options.apiKey);
-
-        if (application == null) {
-            throw new CryptographyException("cannot_generate_query_hash_e1");
         }
 
         Query query = queryDao.findByHashAndApplication(hash, application);

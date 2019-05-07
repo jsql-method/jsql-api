@@ -1,6 +1,7 @@
 package pl.jsql.api.service;
 
 import com.google.gson.Gson;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -78,7 +79,7 @@ public class StatsService {
     }
 
     @Autowired
-    private SimpleDateFormat simpleDateFormat;
+    private FastDateFormat simpleDateFormat;
 
     public PaginatedDataResponse<BuildsResponse> getBuilds(BuildsRequest buildRequest, Integer page) throws ParseException {
 

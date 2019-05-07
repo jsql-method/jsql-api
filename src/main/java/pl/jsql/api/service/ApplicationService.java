@@ -207,7 +207,7 @@ public class ApplicationService {
         applicationDevelopersDao.deleteAllByApplication(application);
         userDao.delete(application.productionDeveloper);
 
-        application.name = application.name+" "+ TokenUtil.randomSalt();
+        application.name = application.name+"=="+ TokenUtil.randomSalt();
         application.productionDeveloper = null;
         applicationDao.save(application);
 
