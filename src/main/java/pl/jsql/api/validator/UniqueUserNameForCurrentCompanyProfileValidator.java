@@ -40,26 +40,16 @@ public class UniqueUserNameForCurrentCompanyProfileValidator implements Constrai
             e.printStackTrace();
         }
 
-        System.out.println("firstName: "+firstName);
-        System.out.println("lastName: "+lastName);
-
         if(firstName == null && lastName == null){
-            System.out.println("valid1");
             return true;
         }
 
         User currentAccount = securityService.getCurrentAccount();
 
-        System.out.println("currentAccount.firstName: "+currentAccount.firstName);
-        System.out.println("currentAccount.lastName: "+currentAccount.lastName);
-
         if(currentAccount.firstName.equals(firstName) && currentAccount.lastName.equals(lastName)){
-            System.out.println("valid2");
             return true;
         }
 
-        System.out.println("exist: "+userDao.existByFullnameForCompany(firstName, lastName, currentAccount.company));
-        
         return !userDao.existByFullnameForCompany(firstName, lastName, currentAccount.company);
     }
 
