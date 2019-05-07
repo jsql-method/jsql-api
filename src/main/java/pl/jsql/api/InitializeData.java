@@ -106,7 +106,7 @@ public class InitializeData {
     private void testBuildsData(String email) throws ParseException {
 
         User user = userDao.findByEmail(email);
-        Application application = applicationDao.selectAll().get(0);
+        Application application = applicationDao.selectByCompanyAdmin(user.company);
 
         for(int i = 0; i < 50; i++){
 
@@ -154,7 +154,7 @@ public class InitializeData {
     private void testRequestsData(String email) throws ParseException {
 
         User user = userDao.findByEmail(email);
-        Application application = applicationDao.selectAll().get(0);
+        Application application = applicationDao.selectByCompanyAdmin(user.company);
 
         for(int i = 0; i < 50; i++){
 
@@ -205,7 +205,7 @@ public class InitializeData {
     private void testQueriesData(String email) throws ParseException {
 
         User user = userDao.findByEmail(email);
-        Application application = applicationDao.selectAll().get(0);
+        Application application = applicationDao.selectByCompanyAdmin(user.company);
 
         for(int i = 0; i < 50; i++){
 
@@ -260,9 +260,9 @@ public class InitializeData {
 
     public void createTestData(String email) throws ParseException {
         createFullCompanyAdmin(email);
-    //    testBuildsData(email);
-   //     testRequestsData(email);
-    //    testQueriesData(email);
+        testBuildsData(email);
+        testRequestsData(email);
+        testQueriesData(email);
     }
 
     @PostConstruct
