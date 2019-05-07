@@ -9,6 +9,7 @@ import pl.jsql.api.dto.request.UserRequest;
 import pl.jsql.api.dto.response.AppDeveloperResponse;
 import pl.jsql.api.dto.response.MessageResponse;
 import pl.jsql.api.enums.RoleTypeEnum;
+import pl.jsql.api.exceptions.UnauthorizedException;
 import pl.jsql.api.model.hashing.Application;
 import pl.jsql.api.model.hashing.ApplicationDevelopers;
 import pl.jsql.api.model.user.Company;
@@ -80,6 +81,10 @@ public class AppDevService {
 
         if (user == null) {
             return new MessageResponse(true,"developer_does_not_exists");
+        }
+
+        if(user.role.authority != RoleTypeEnum.APP_DEV){
+            throw new UnauthorizedException();
         }
 
         applicationDevelopersDao.clearJoinsByUser(user);
