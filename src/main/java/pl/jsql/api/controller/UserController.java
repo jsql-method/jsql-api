@@ -29,6 +29,13 @@ public class UserController extends ValidateController {
     }
 
     @Security(requireActiveSession = false)
+    @PostMapping("/feedback/{token}")
+    public BasicResponse<MessageResponse> feedback(@PathVariable("token") String token, @RequestBody @Valid FeedbackRequest feedbackRequest) {
+        MessageResponse response = userService.sendFeedback(token, feedbackRequest);
+        return new BasicResponse<>(200, response);
+    }
+
+    @Security(requireActiveSession = false)
     @PostMapping("/forgot-password")
     public BasicResponse<MessageResponse> forgotPassword(@RequestBody @Valid ForgotPasswordRequest forgotPasswordRequest) {
         MessageResponse response = userService.forgotPassword(forgotPasswordRequest);

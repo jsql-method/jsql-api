@@ -2,10 +2,7 @@ package pl.jsql.api.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pl.jsql.api.dto.request.ChangePasswordRequest;
-import pl.jsql.api.dto.request.ForgotPasswordRequest;
-import pl.jsql.api.dto.request.ResetPasswordRequest;
-import pl.jsql.api.dto.request.UpdateUserRequest;
+import pl.jsql.api.dto.request.*;
 import pl.jsql.api.dto.response.MessageResponse;
 import pl.jsql.api.dto.response.UserResponse;
 import pl.jsql.api.enums.RoleTypeEnum;
@@ -18,6 +15,7 @@ import pl.jsql.api.utils.HashingUtil;
 import pl.jsql.api.utils.TokenUtil;
 
 import javax.transaction.Transactional;
+import javax.validation.Valid;
 
 ;
 
@@ -173,6 +171,20 @@ public class UserService {
         userResponse.lastName = user.lastName;
 
         return userResponse;
+
+    }
+
+    public MessageResponse sendFeedback(String token, @Valid FeedbackRequest feedbackRequest) {
+
+        User user = userDao.findByToken(token);
+
+        if (user == null) {
+            return new MessageResponse(true, "user_not_exists");
+        }
+
+        emailService.sendFeedbackEmail(user, feedbackRequest.message);
+
+        return new MessageResponse();
 
     }
 

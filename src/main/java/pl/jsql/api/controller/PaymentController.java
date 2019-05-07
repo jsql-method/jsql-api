@@ -9,12 +9,14 @@ import pl.jsql.api.controller.generic.ValidateController;
 import pl.jsql.api.dto.request.PabblyPaymentRequest;
 import pl.jsql.api.dto.response.BasicResponse;
 import pl.jsql.api.dto.response.MessageResponse;
+import pl.jsql.api.dto.response.PaymentResponse;
 import pl.jsql.api.enums.PabblyStatus;
 import pl.jsql.api.model.payment.Webhook;
 import pl.jsql.api.repo.WebhookDao;
 import pl.jsql.api.security.annotation.Security;
 import pl.jsql.api.service.PaymentService;
 
+import javax.websocket.server.PathParam;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,6 +30,16 @@ public class PaymentController {
 
     @Autowired
     private PaymentService paymentService;
+
+    @Security(requireActiveSession = false)
+    @PostMapping("/verify/{token}")
+    public ResponseEntity verifyHosted(@PathVariable("token") String token) {
+
+        PaymentResponse paymentResponse = paymentService.verifyHosted(token);
+
+        return new ResponseEntity<>(new BasicResponse<>(200, paymentResponse), HttpStatus.OK);
+
+    }
 
     @Security(requireActiveSession = false)
     @PostMapping
