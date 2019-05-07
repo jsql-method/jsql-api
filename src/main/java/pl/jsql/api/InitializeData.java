@@ -260,9 +260,9 @@ public class InitializeData {
 
     public void createTestData(String email) throws ParseException {
         createFullCompanyAdmin(email);
-        testBuildsData(email);
-        testRequestsData(email);
-        testQueriesData(email);
+      //  testBuildsData(email);
+      //  testRequestsData(email);
+    //    testQueriesData(email);
     }
 
     @PostConstruct
