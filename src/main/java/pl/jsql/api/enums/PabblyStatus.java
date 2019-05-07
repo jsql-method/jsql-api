@@ -17,6 +17,7 @@ public enum PabblyStatus {
     SUCCESSFULL_PAYMENT,
     PAYMENT_FAILURE,
     PAYMENT_REFUND,
-    GET_CLIENT;
+    GET_CLIENT,
+    HOSTED_VERIFY;
 
 }

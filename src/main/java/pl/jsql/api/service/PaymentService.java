@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import pl.jsql.api.dto.request.ForgotPasswordRequest;
 import pl.jsql.api.dto.request.PabblyPaymentRequest;
 import pl.jsql.api.dto.request.UserRequest;
+import pl.jsql.api.dto.response.PaymentResponse;
 import pl.jsql.api.dto.response.PlanResponse;
 import pl.jsql.api.enums.PabblyStatus;
 import pl.jsql.api.enums.PlansEnum;
@@ -24,6 +25,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
@@ -34,6 +36,7 @@ import java.util.Map;
 public class PaymentService {
 
     private final String GET_CUSTOMER = "https://payments.pabbly.com/api/v1/customer/";
+    private final String GET_HOSTED = "https://payments.pabbly.com/api/v1/verifyhosted";
 
     @Value("${pabbly.api.key}")
     private String pabblyApiKey;
@@ -233,4 +236,108 @@ public class PaymentService {
         return userRequest;
     }
 
+    public PaymentResponse verifyHosted(String token) {
+
+        PaymentResponse paymentResponse = new PaymentResponse();
+
+        HttpURLConnection conn = null;
+
+        try {
+
+            URL url = new URL(GET_HOSTED);
+            conn = (HttpURLConnection) url.openConnection();
+
+            conn.setDoOutput(true);
+            conn.setDoInput(true);
+
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestProperty("Authorization", "Basic "+ Base64.encodeBase64String((pabblyApiKey+":"+pabblySecret).getBytes()));
+            conn.setUseCaches(false);
+
+
+                OutputStream os = conn.getOutputStream();
+
+                HashMap<String, String> request = new HashMap<>();
+                request.put("hostedpage", token);
+
+                os.write(new Gson().toJson(request).getBytes());
+                System.out.println("request: " + new Gson().toJson(request));
+
+                os.flush();
+
+
+            if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
+
+                InputStream inputStream = conn.getErrorStream();
+
+                if (inputStream == null) {
+                    conn.disconnect();
+                    throw new Exception("HTTP error code : " + conn.getResponseCode());
+                }
+
+                BufferedReader br = new BufferedReader(new InputStreamReader((conn.getErrorStream())));
+                StringBuilder builder = new StringBuilder();
+                while (br.ready()) {
+                    builder.append(br.readLine());
+                }
+
+                conn.disconnect();
+
+                String response = builder.toString().trim();
+
+                if (response.length() > 0 && response.contains("<div>")) {
+                    response = response.substring(response.lastIndexOf("</div><div>") + 11, response.lastIndexOf("</div></body></html>"));
+                }
+
+                throw new Exception("HTTP error code : " + conn.getResponseCode() + "\nHTTP error message : " + response);
+            }
+
+            BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+
+            StringBuilder builder = new StringBuilder();
+
+            while (br.ready()) {
+                builder.append(br.readLine());
+            }
+
+            conn.disconnect();
+
+            String jsonStr = builder.toString();
+
+            System.out.println("jsonStr : " + jsonStr);
+
+            Webhook webhook = new Webhook();
+            webhook.requestText = jsonStr;
+            webhook.pabblyStatus = PabblyStatus.HOSTED_VERIFY;
+            webhookDao.save(webhook);
+
+            HashMap json = new Gson().fromJson(builder.toString(), HashMap.class);
+            LinkedTreeMap requestData = (LinkedTreeMap) json.get("data");
+
+            String active = (String) requestData.get("plan_active");
+
+            if(active.equals("true")){
+                paymentResponse.active = true;
+            }else{
+                paymentResponse.active = false;
+            }
+
+            paymentResponse.plan = (String) requestData.get("plan_name");
+            paymentResponse.price = (BigDecimal) requestData.get("price");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+
+            if (conn != null) {
+                conn.disconnect();
+            }
+
+        }
+
+
+        return paymentResponse;
+
+    }
 }
