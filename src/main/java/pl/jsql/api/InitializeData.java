@@ -80,9 +80,9 @@ public class InitializeData {
     @Autowired
     private DeveloperKeyDao developerKeyDao;
 
-    private void createFullCompanyAdmin(String email) {
+    private void createFullCompanyAdmin(String email, String name, String surname) {
 
-        authService.register(new UserRequest(email, "x", "Użytkownik", "Testowy "+email.substring(0,1), "JSQL Sp.z.o.o.", PlansEnum.LARGE));
+        authService.register(new UserRequest(email, "x", name, surname, "JSQL Sp.z.o.o.", PlansEnum.LARGE));
 
         User user = userDao.findByEmail(email);
         userService.resetPassword(user.token, new ResetPasswordRequest("test1234"));
@@ -258,8 +258,8 @@ public class InitializeData {
 
     }
 
-    public void createTestData(String email) throws ParseException {
-        createFullCompanyAdmin(email);
+    public void createTestData(String email, String name, String surname) throws ParseException {
+        createFullCompanyAdmin(email, name, surname);
       //  testBuildsData(email);
       //  testRequestsData(email);
     //    testQueriesData(email);
@@ -270,8 +270,8 @@ public class InitializeData {
         initRoles();
         initSettings();
 
-        createTestData("pawel.stachurski@jsql.it");
-        createTestData("dawid.senko@jsql.it");
+        createTestData("pawel.stachurski@jsql.it", "Paweł", "Stachurski");
+        createTestData("dawid.senko@jsql.it", "Dawid", "Senko");
 
     }
 
