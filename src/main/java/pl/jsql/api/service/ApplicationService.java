@@ -119,12 +119,12 @@ public class ApplicationService {
     public MessageResponse create(ApplicationCreateRequest applicationCreateRequest) {
 
         User companyAdmin = securityService.getCompanyAdmin();
-        return this.create(companyAdmin, applicationCreateRequest);
+        return this.create(companyAdmin, applicationCreateRequest, false);
 
     }
 
     public MessageResponse create(User companyAdmin, ApplicationCreateRequest applicationCreateRequest) {
-        return this.create(companyAdmin, applicationCreateRequest);
+        return this.create(companyAdmin, applicationCreateRequest, false);
     }
 
     public MessageResponse create(User companyAdmin, ApplicationCreateRequest applicationCreateRequest, Boolean testApiKey) {
