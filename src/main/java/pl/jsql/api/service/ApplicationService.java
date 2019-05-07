@@ -1,5 +1,6 @@
 package pl.jsql.api.service;
 
+import jdk.nashorn.internal.parser.Token;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -206,6 +207,7 @@ public class ApplicationService {
         applicationDevelopersDao.deleteAllByApplication(application);
         userDao.delete(application.productionDeveloper);
 
+        application.name = application.name+"=="+ TokenUtil.randomSalt();
         application.productionDeveloper = null;
         applicationDao.save(application);
 

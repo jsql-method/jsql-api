@@ -10,6 +10,7 @@ import pl.jsql.api.dto.response.AppAdminResponse;
 import pl.jsql.api.dto.response.MessageResponse;
 import pl.jsql.api.dto.response.UserResponse;
 import pl.jsql.api.enums.RoleTypeEnum;
+import pl.jsql.api.exceptions.UnauthorizedException;
 import pl.jsql.api.model.hashing.ApplicationDevelopers;
 import pl.jsql.api.model.user.Company;
 import pl.jsql.api.model.user.Role;
@@ -135,6 +136,10 @@ public class AppAdminService {
 
         if (user == null) {
             return new MessageResponse(true,"admin_does_not_exists");
+        }
+
+        if(user.role.authority != RoleTypeEnum.APP_ADMIN){
+            throw new UnauthorizedException();
         }
 
         applicationDevelopersDao.clearJoinsByUser(user);

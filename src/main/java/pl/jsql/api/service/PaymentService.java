@@ -314,8 +314,9 @@ public class PaymentService {
 
             HashMap json = new Gson().fromJson(builder.toString(), HashMap.class);
             LinkedTreeMap requestData = (LinkedTreeMap) json.get("data");
+            LinkedTreeMap planData = (LinkedTreeMap) requestData.get("plan");
 
-            String active = (String) requestData.get("plan_active");
+            String active = (String) planData.get("plan_active");
 
             if(active.equals("true")){
                 paymentResponse.active = true;
@@ -323,8 +324,8 @@ public class PaymentService {
                 paymentResponse.active = false;
             }
 
-            paymentResponse.plan = (String) requestData.get("plan_name");
-            paymentResponse.price = (BigDecimal) requestData.get("price");
+            paymentResponse.plan = (String) planData.get("plan_name");
+            paymentResponse.price = (Double) planData.get("price");
 
         } catch (Exception e) {
             e.printStackTrace();

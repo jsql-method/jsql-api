@@ -65,5 +65,8 @@ public interface ApplicationDao extends CrudRepository<Application, Long> {
     @Query("select a from Application a")
     List<Application> selectAll();
 
+    @Query("select a from Application a where a.companyAdmin in (select u from User u where u.company = :company)")
+    Application selectByCompanyAdmin(@Param("company") Company company);
+
 }
 

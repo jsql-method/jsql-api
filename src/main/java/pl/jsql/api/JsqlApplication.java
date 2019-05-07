@@ -1,5 +1,6 @@
 package pl.jsql.api;
 
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -19,6 +20,7 @@ import pl.jsql.api.security.interceptor.SecurityInterceptor;
 
 import java.text.SimpleDateFormat;
 import java.util.Properties;
+import java.util.TimeZone;
 
 @EnableScheduling
 @SpringBootApplication
@@ -36,30 +38,9 @@ public class JsqlApplication extends SpringDataWebConfiguration {
     private String dateFormat;
 
     @Bean
-    public SimpleDateFormat simpleDateFormat() {
-        return new SimpleDateFormat(dateFormat);
+    public FastDateFormat simpleDateFormat() {
+        return FastDateFormat.getInstance(dateFormat, TimeZone.getTimeZone("UTC"));
     }
-
-
-
-//    @Bean
-//    public JavaMailSender mailSender() {
-//
-//        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-//        mailSender.setHost(mailHost);
-//        mailSender.setPort(mailPort);
-//
-//        mailSender.setUsername(mailUsername);
-//        mailSender.setPassword(mailPassword);
-//
-//        Properties props = mailSender.getJavaMailProperties();
-//        props.put("mail.transport.protocol", "smtp");
-//        props.put("mail.smtp.auth", mailAuth);
-//        props.put("mail.smtp.starttls.enable", mailTls);
-//
-//        return mailSender;
-//
-//    }
 
     @Bean
     SecurityInterceptor securityInterceptor() {

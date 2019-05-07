@@ -3,7 +3,9 @@ package pl.jsql.api.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import pl.jsql.api.controller.generic.ValidateController;
+import pl.jsql.api.dto.request.AdvanceAppDevRequest;
 import pl.jsql.api.dto.request.AppDeveloperRequest;
+import pl.jsql.api.dto.request.DemoteAppAdminRequest;
 import pl.jsql.api.dto.response.AppDeveloperResponse;
 import pl.jsql.api.dto.response.BasicResponse;
 import pl.jsql.api.dto.response.MessageResponse;
@@ -41,6 +43,13 @@ public class AppDevController extends ValidateController {
     public BasicResponse<MessageResponse> delete(@PathVariable("id") Long id) {
         MessageResponse response = appDevService.delete(id);
         return new BasicResponse<>(200, response);
+    }
+
+    @Security(roles = {RoleTypeEnum.ADMIN, RoleTypeEnum.COMPANY_ADMIN})
+    @PatchMapping
+    public BasicResponse<MessageResponse> advance(@RequestBody @Valid AdvanceAppDevRequest advanceAppDevRequest) {
+        MessageResponse messageResponse = appDevService.advance(advanceAppDevRequest);
+        return new BasicResponse<>(200, messageResponse);
     }
 
 }
