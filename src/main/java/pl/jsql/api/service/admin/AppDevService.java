@@ -4,6 +4,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.jsql.api.dto.request.AdvanceAppDevRequest;
 import pl.jsql.api.dto.request.AppDeveloperRequest;
 import pl.jsql.api.dto.request.UserRequest;
 import pl.jsql.api.dto.response.AppDeveloperResponse;
@@ -19,6 +20,7 @@ import pl.jsql.api.security.service.SecurityService;
 import pl.jsql.api.service.AuthService;
 import pl.jsql.api.utils.TokenUtil;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Transactional
@@ -131,6 +133,40 @@ public class AppDevService {
 
         for (Application application : list) {
             unassignMember(user, application);
+        }
+
+        return new MessageResponse();
+
+    }
+
+    public MessageResponse advance(@Valid AdvanceAppDevRequest advanceAppDevRequest) {
+
+        User appAdmin = userDao.findByEmail(advanceAppDevRequest.email);
+
+        if (appAdmin == null) {
+            return new MessageResponse(true,"no_such_developer");
+        }
+
+        appAdmin.role = roleDao.findByAuthority(RoleTypeEnum.APP_ADMIN);
+
+        userDao.save(appAdmin);
+
+        User companyAdmin = securityService.getCurrentAccount();
+        List<ApplicationDevelopers> list = applicationDevelopersDao.findByUserQuery(companyAdmin);
+
+        for (ApplicationDevelopers applicationDevelopers : list) {
+
+            ApplicationDevelopers applicationDeveloper = applicationDevelopersDao.findByUserAndAppQuery(appAdmin, applicationDevelopers.application);
+
+            if (applicationDeveloper == null) {
+
+                applicationDeveloper = new ApplicationDevelopers();
+                applicationDeveloper.application = applicationDevelopers.application;
+                applicationDeveloper.developer = appAdmin;
+
+                applicationDevelopersDao.save(applicationDeveloper);
+
+            }
         }
 
         return new MessageResponse();
