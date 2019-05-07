@@ -9,4 +9,10 @@ public class  ResetPasswordRequest {
     @Size(min = 8, message = "${validation.message.size}")
     public String newPassword;
 
+    public ResetPasswordRequest() {
+    }
+
+    public ResetPasswordRequest(String newPassword) {
+        this.newPassword = newPassword;
+    }
 }

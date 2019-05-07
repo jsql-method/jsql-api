@@ -5,10 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.jsql.api.dto.request.OptionsRequest;
 import pl.jsql.api.dto.request.ProductionToggleRequest;
-import pl.jsql.api.dto.response.MessageResponse;
-import pl.jsql.api.dto.response.OptionsResponse;
-import pl.jsql.api.dto.response.OptionsValuesResponse;
-import pl.jsql.api.dto.response.SelectResponse;
+import pl.jsql.api.dto.response.*;
 import pl.jsql.api.enums.DatabaseDialectEnum;
 import pl.jsql.api.enums.EncodingEnum;
 import pl.jsql.api.enums.RoleTypeEnum;
@@ -82,8 +79,25 @@ public class OptionsService {
         optionsResponse.databaseDialect = options.databaseDialect;
         optionsResponse.allowedPlainQueries = options.allowedPlainQueries;
         optionsResponse.prod = options.prod;
-        optionsResponse.application = application;
         optionsResponse.apiKey = application.apiKey;
+        optionsResponse.randomSaltBefore = options.randomSaltBefore;
+        optionsResponse.randomSaltAfter = options.randomSaltAfter;
+
+        DatabaseConnectionResponse prodDatabaseConnectionResponse = new DatabaseConnectionResponse();
+        prodDatabaseConnectionResponse.databaseConnectionPassword = options.prodDatabaseConnectionPassword;
+        prodDatabaseConnectionResponse.databaseConnectionTimeout = options.prodDatabaseConnectionTimeout;
+        prodDatabaseConnectionResponse.databaseConnectionUrl = options.prodDatabaseConnectionUrl;
+        prodDatabaseConnectionResponse.databaseConnectionUsername = options.prodDatabaseConnectionUsername;
+
+        optionsResponse.productionDatabaseOptions = prodDatabaseConnectionResponse;
+
+        DatabaseConnectionResponse devDatabaseConnectionResponse = new DatabaseConnectionResponse();
+        devDatabaseConnectionResponse.databaseConnectionPassword = options.devDatabaseConnectionPassword;
+        devDatabaseConnectionResponse.databaseConnectionTimeout = options.devDatabaseConnectionTimeout;
+        devDatabaseConnectionResponse.databaseConnectionUrl = options.devDatabaseConnectionUrl;
+        devDatabaseConnectionResponse.databaseConnectionUsername = options.devDatabaseConnectionUsername;
+
+        optionsResponse.developerDatabaseOptions = devDatabaseConnectionResponse;
 
         return optionsResponse;
 
@@ -112,6 +126,16 @@ public class OptionsService {
         options.removeQueriesAfterBuild = optionsRequest.removeQueriesAfterBuild == null ? options.removeQueriesAfterBuild : optionsRequest.removeQueriesAfterBuild;
         options.allowedPlainQueries = optionsRequest.allowedPlainQueries == null ? options.allowedPlainQueries : optionsRequest.allowedPlainQueries;
 
+        options.prodDatabaseConnectionUsername = optionsRequest.productionDatabaseOptions.databaseConnectionUsername == null ? options.prodDatabaseConnectionUsername : optionsRequest.productionDatabaseOptions.databaseConnectionUsername;
+        options.prodDatabaseConnectionPassword = optionsRequest.productionDatabaseOptions.databaseConnectionPassword == null ? options.prodDatabaseConnectionPassword : optionsRequest.productionDatabaseOptions.databaseConnectionPassword;
+        options.prodDatabaseConnectionTimeout = optionsRequest.productionDatabaseOptions.databaseConnectionTimeout == null ? options.prodDatabaseConnectionTimeout : optionsRequest.productionDatabaseOptions.databaseConnectionTimeout;
+        options.prodDatabaseConnectionUrl = optionsRequest.productionDatabaseOptions.databaseConnectionUrl == null ? options.prodDatabaseConnectionUrl : optionsRequest.productionDatabaseOptions.databaseConnectionUrl;
+
+        options.devDatabaseConnectionUsername = optionsRequest.developerDatabaseOptions.databaseConnectionUsername == null ? options.devDatabaseConnectionUsername : optionsRequest.developerDatabaseOptions.databaseConnectionUsername;
+        options.devDatabaseConnectionPassword = optionsRequest.developerDatabaseOptions.databaseConnectionPassword == null ? options.devDatabaseConnectionPassword : optionsRequest.developerDatabaseOptions.databaseConnectionPassword;
+        options.devDatabaseConnectionTimeout = optionsRequest.developerDatabaseOptions.databaseConnectionTimeout == null ? options.devDatabaseConnectionTimeout : optionsRequest.developerDatabaseOptions.databaseConnectionTimeout;
+        options.devDatabaseConnectionUrl = optionsRequest.developerDatabaseOptions.databaseConnectionUrl == null ? options.devDatabaseConnectionUrl : optionsRequest.developerDatabaseOptions.databaseConnectionUrl;
+        
         optionsDao.save(options);
 
         return new MessageResponse();
@@ -146,4 +170,12 @@ public class OptionsService {
         return new MessageResponse();
 
     }
+
+    public Boolean isProduction(Application application){
+
+        Options options = optionsDao.findByApplication(application);
+        return options.prod;
+
+    }
+
 }

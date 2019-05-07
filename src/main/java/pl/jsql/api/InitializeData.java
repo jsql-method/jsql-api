@@ -4,12 +4,14 @@ import org.apache.commons.lang3.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.jsql.api.dto.request.ApplicationCreateRequest;
+import pl.jsql.api.dto.request.ResetPasswordRequest;
 import pl.jsql.api.dto.request.UserRequest;
 import pl.jsql.api.enums.PlansEnum;
 import pl.jsql.api.enums.RoleTypeEnum;
 import pl.jsql.api.enums.SettingEnum;
 import pl.jsql.api.model.dict.Setting;
 import pl.jsql.api.model.hashing.Application;
+import pl.jsql.api.model.hashing.DeveloperKey;
 import pl.jsql.api.model.hashing.Query;
 import pl.jsql.api.model.stats.Build;
 import pl.jsql.api.model.stats.Request;
@@ -75,15 +77,23 @@ public class InitializeData {
 
     }
 
-    private void createFullCompanyAdmin(String email) {
+    @Autowired
+    private DeveloperKeyDao developerKeyDao;
 
-        authService.register(new UserRequest(email, "test1234", "Użytkownik", "Testowy "+email.substring(0,1), "JSQL Sp.z.o.o.", PlansEnum.LARGE));
+    private void createFullCompanyAdmin(String email, String name, String surname) {
+
+        authService.register(new UserRequest(email, "x", name, surname, "JSQL Sp.z.o.o.", PlansEnum.LARGE));
 
         User user = userDao.findByEmail(email);
-        userService.activateAccount(user.token);
+        userService.resetPassword(user.token, new ResetPasswordRequest("test1234"));
         user = userDao.findByEmail(email);
 
-        applicationService.create(user, new ApplicationCreateRequest("Test application"));
+        applicationService.create(user, new ApplicationCreateRequest("Test application"), true);
+
+        DeveloperKey developerKey = developerKeyDao.findByUser(user);
+        developerKey.key = email;
+
+        developerKeyDao.save(developerKey);
 
     }
 
@@ -96,7 +106,7 @@ public class InitializeData {
     private void testBuildsData(String email) throws ParseException {
 
         User user = userDao.findByEmail(email);
-        Application application = applicationDao.selectAll().get(0);
+        Application application = applicationDao.selectByCompanyAdmin(user.company);
 
         for(int i = 0; i < 50; i++){
 
@@ -144,7 +154,7 @@ public class InitializeData {
     private void testRequestsData(String email) throws ParseException {
 
         User user = userDao.findByEmail(email);
-        Application application = applicationDao.selectAll().get(0);
+        Application application = applicationDao.selectByCompanyAdmin(user.company);
 
         for(int i = 0; i < 50; i++){
 
@@ -195,7 +205,7 @@ public class InitializeData {
     private void testQueriesData(String email) throws ParseException {
 
         User user = userDao.findByEmail(email);
-        Application application = applicationDao.selectAll().get(0);
+        Application application = applicationDao.selectByCompanyAdmin(user.company);
 
         for(int i = 0; i < 50; i++){
 
@@ -248,11 +258,11 @@ public class InitializeData {
 
     }
 
-    public void createTestData(String email) throws ParseException {
-        createFullCompanyAdmin(email);
-        testBuildsData(email);
-        testRequestsData(email);
-        testQueriesData(email);
+    public void createTestData(String email, String name, String surname) throws ParseException {
+        createFullCompanyAdmin(email, name, surname);
+      //  testBuildsData(email);
+      //  testRequestsData(email);
+    //    testQueriesData(email);
     }
 
     @PostConstruct
@@ -260,8 +270,8 @@ public class InitializeData {
         initRoles();
         initSettings();
 
-        createTestData("pawel.stachurski@jsql.it");
-        createTestData("dawid.senko@jsql.it");
+        createTestData("pawel.stachurski@jsql.it", "Paweł", "Stachurski");
+        createTestData("dawid.senko@jsql.it", "Dawid", "Senko");
 
     }
 

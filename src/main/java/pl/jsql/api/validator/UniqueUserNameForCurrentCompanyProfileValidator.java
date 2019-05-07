@@ -3,7 +3,6 @@ package pl.jsql.api.validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.jsql.api.model.user.User;
-import pl.jsql.api.repo.ApplicationDao;
 import pl.jsql.api.repo.UserDao;
 import pl.jsql.api.security.service.SecurityService;
 
@@ -12,7 +11,7 @@ import javax.validation.ConstraintValidatorContext;
 import java.lang.reflect.Field;
 
 @Component
-public class UniqueUserNameForCurrentCompanyValidator implements ConstraintValidator<UniqueUserNameForCurrentCompany, Object> {
+public class UniqueUserNameForCurrentCompanyProfileValidator implements ConstraintValidator<UniqueUserNameForCurrentCompanyProfile, Object> {
 
     @Autowired
     private UserDao userDao;
@@ -21,7 +20,7 @@ public class UniqueUserNameForCurrentCompanyValidator implements ConstraintValid
     private SecurityService securityService;
 
     @Override
-    public void initialize(UniqueUserNameForCurrentCompany constraintAnnotation) {
+    public void initialize(UniqueUserNameForCurrentCompanyProfile constraintAnnotation) {
 
     }
 
@@ -45,7 +44,13 @@ public class UniqueUserNameForCurrentCompanyValidator implements ConstraintValid
             return true;
         }
 
-        return !userDao.existByFullnameForCompany(firstName, lastName, securityService.getCurrentAccount().company);
+        User currentAccount = securityService.getCurrentAccount();
+
+        if(currentAccount.firstName.equals(firstName) && currentAccount.lastName.equals(lastName)){
+            return true;
+        }
+
+        return !userDao.existByFullnameForCompany(firstName, lastName, currentAccount.company);
     }
 
 

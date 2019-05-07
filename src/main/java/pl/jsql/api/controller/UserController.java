@@ -29,9 +29,9 @@ public class UserController extends ValidateController {
     }
 
     @Security(requireActiveSession = false)
-    @GetMapping("/activate/{token}")
-    public BasicResponse<MessageResponse> activate(@PathVariable("token") String token) {
-        MessageResponse response = userService.activateAccount(token);
+    @PostMapping("/feedback/{token}")
+    public BasicResponse<MessageResponse> feedback(@PathVariable("token") String token, @RequestBody @Valid FeedbackRequest feedbackRequest) {
+        MessageResponse response = userService.sendFeedback(token, feedbackRequest);
         return new BasicResponse<>(200, response);
     }
 
