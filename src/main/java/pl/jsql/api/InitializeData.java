@@ -82,7 +82,7 @@ public class InitializeData {
 
     private void createFullCompanyAdmin(String email, String name, String surname) {
 
-        authService.register(new UserRequest(email, "x", name, surname, "JSQL Sp.z.o.o.", PlansEnum.STARTER));
+        authService.register(new UserRequest(email, "x", name, surname, "JSQL Sp.z.o.o.", PlansEnum.BUSINESS));
 
         User user = userDao.findByEmail(email);
         userService.resetPassword(user.token, new ResetPasswordRequest("test1234"));
