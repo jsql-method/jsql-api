@@ -189,12 +189,6 @@ public class ApplicationService {
 
     public MessageResponse disableApplication(Long id) {
 
-        User companyAdmin = securityService.getCompanyAdmin();
-
-        if (!this.canCreateApplication(companyAdmin)) {
-            return new MessageResponse(true,"applications_limit_reached");
-        }
-
         Application application = applicationDao.findById(id).orElse(null);
 
         if(application == null){
