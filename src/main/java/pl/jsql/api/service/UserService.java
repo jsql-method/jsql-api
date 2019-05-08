@@ -148,6 +148,7 @@ public class UserService {
         accountToDelete.firstName = TokenUtil.generateToken(accountToDelete.firstName);
         accountToDelete.lastName = TokenUtil.generateToken(accountToDelete.lastName);
         accountToDelete.enabled = false;
+        accountToDelete.isDeleted = true;
 
         if (accountToDelete.role.authority == RoleTypeEnum.COMPANY_ADMIN) {
             accountToDelete.company.isLicensed = false;
