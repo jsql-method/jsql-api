@@ -119,6 +119,9 @@ public class UserService {
         return disableAccount(securityService.getCurrentAccount(), developerId);
     }
 
+    @Autowired
+    private PabblyService pabblyService;
+
     public MessageResponse disableAccount(User currentUser, Long developerId) {
 
         User accountToDelete = currentUser;
@@ -144,6 +147,7 @@ public class UserService {
             emailService.sendDeactivationCompanyAdminMail(accountToDelete);
         }
 
+        String email = accountToDelete.email;
         accountToDelete.email = TokenUtil.generateToken(accountToDelete.email);
         accountToDelete.firstName = TokenUtil.generateToken(accountToDelete.firstName);
         accountToDelete.lastName = TokenUtil.generateToken(accountToDelete.lastName);
@@ -156,6 +160,8 @@ public class UserService {
         }
 
         userDao.save(accountToDelete);
+
+        pabblyService.deleteSubscription(email);
 
         return new MessageResponse();
 

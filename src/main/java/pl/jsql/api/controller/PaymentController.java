@@ -47,10 +47,6 @@ public class PaymentController {
 
         try {
 
-            System.out.println("pabblyPaymentRequest :"+pabblyPaymentRequest);
-
-            System.out.println("pabblyPaymentRequest json : "+new Gson().toJson(pabblyPaymentRequest));
-
             HashMap<String, Object> request = (HashMap<String, Object>) pabblyPaymentRequest;
 
             Webhook webhook = new Webhook();
@@ -61,9 +57,11 @@ public class PaymentController {
             if(webhook.pabblyStatus != PabblyStatus.TEST_WEBHOOK_URL){
 
                 try {
-                    paymentService.activeOrUnactivePlan(request);
+                    paymentService.processPaymentStatus(request);
                 }catch (Exception e){
                     System.out.println("ERROR PAYMENT2");
+                    System.out.println("pabblyPaymentRequest :"+pabblyPaymentRequest);
+                    System.out.println("pabblyPaymentRequest json : "+new Gson().toJson(pabblyPaymentRequest));
                     e.printStackTrace();
                 }
 
@@ -72,6 +70,8 @@ public class PaymentController {
         }catch (Exception e){
 
             System.out.println("ERROR PAYMENT");
+            System.out.println("pabblyPaymentRequest :"+pabblyPaymentRequest);
+            System.out.println("pabblyPaymentRequest json : "+new Gson().toJson(pabblyPaymentRequest));
             e.printStackTrace();
 
         }

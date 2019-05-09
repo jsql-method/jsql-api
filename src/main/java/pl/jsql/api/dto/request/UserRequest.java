@@ -28,6 +28,8 @@ public class UserRequest {
     @Size(min = 1, max = 100, message = "${validation.message.size}")
     public String lastName;
 
+    public String pabblySubscriptionId;
+
     public RoleTypeEnum role;
     public Long company;
     public String companyName;
@@ -35,6 +37,8 @@ public class UserRequest {
     public PlansEnum plan;
 
     public Boolean isFakeDeveloper = false;
+
+    public Boolean isTrial = false;
 
     public UserRequest() {
     }

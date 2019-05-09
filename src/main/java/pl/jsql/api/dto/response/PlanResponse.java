@@ -15,6 +15,6 @@ public class PlanResponse {
     public Integer maxUsers;
     public Integer usedUsers;
     public String name;
-
+    public Boolean trial;
 
 }
