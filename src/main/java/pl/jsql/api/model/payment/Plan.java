@@ -32,6 +32,17 @@ public class Plan {
     @Temporal(TemporalType.TIMESTAMP)
     public Date activationDate;
 
+    @JsonFormat(pattern = "dd-MM-yyyy")
+    @Temporal(TemporalType.DATE)
+    public Date expiryDate;
+
+    @NotNull
+    public String pabblySubscriptionId;
+
     public Boolean active = false;
+
+    public Boolean trial = false;
+
+    public Integer trialDays = 0;
 
 }

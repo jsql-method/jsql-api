@@ -83,9 +83,6 @@ public class StatsService {
 
     public PaginatedDataResponse<BuildsResponse> getBuilds(BuildsRequest buildRequest, Integer page) throws ParseException {
 
-        System.out.println("buildRequest.dateFrom : " + buildRequest.dateFrom);
-        System.out.println("buildRequest.dateTo : " + buildRequest.dateTo);
-
         Date dateFrom = simpleDateFormat.parse(buildRequest.dateFrom);
         Date dateTo = simpleDateFormat.parse(buildRequest.dateTo);
 
@@ -124,9 +121,6 @@ public class StatsService {
 
     public List<BuildsChartDataResponse> getBuildsChart(@Valid BuildsRequest buildRequest) throws ParseException {
 
-        System.out.println("buildRequest.dateFrom : " + buildRequest.dateFrom);
-        System.out.println("buildRequest.dateTo : " + buildRequest.dateTo);
-
         Date dateFrom = simpleDateFormat.parse(buildRequest.dateFrom);
         Date dateTo = simpleDateFormat.parse(buildRequest.dateTo);
 
@@ -155,9 +149,6 @@ public class StatsService {
     }
 
     public PaginatedDataResponse<QueriesResponse> getQueries(QueriesRequest queriesRequest, Integer page) throws ParseException {
-
-        System.out.println("queriesRequest.dateFrom : " + queriesRequest.dateFrom);
-        System.out.println("queriesRequest.dateTo : " + queriesRequest.dateTo);
 
         Date dateFrom = simpleDateFormat.parse(queriesRequest.dateFrom);
         Date dateTo = simpleDateFormat.parse(queriesRequest.dateTo);
@@ -195,9 +186,6 @@ public class StatsService {
 
     public List<QueriesChartDataResponse> getQueriesChart(@Valid QueriesRequest queriesRequest) throws ParseException {
 
-        System.out.println("queriesRequest.dateFrom : " + queriesRequest.dateFrom);
-        System.out.println("queriesRequest.dateTo : " + queriesRequest.dateTo);
-
         Date dateFrom = simpleDateFormat.parse(queriesRequest.dateFrom);
         Date dateTo = simpleDateFormat.parse(queriesRequest.dateTo);
 
@@ -220,9 +208,6 @@ public class StatsService {
     }
 
     public PaginatedDataResponse<RequestsResponse> getRequests(RequestsRequest requestsRequest, Integer page) throws ParseException {
-
-        System.out.println("requestsRequest.dateFrom : " + requestsRequest.dateFrom);
-        System.out.println("requestsRequest.dateTo : " + requestsRequest.dateTo);
 
         Date dateFrom = simpleDateFormat.parse(requestsRequest.dateFrom);
         Date dateTo = simpleDateFormat.parse(requestsRequest.dateTo);

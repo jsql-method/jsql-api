@@ -24,6 +24,8 @@ public class PlanService {
         plan.activationDate = new Date();
         plan.active = true;
         plan.plan = userRequest.plan;
+        plan.trial = userRequest.isTrial;
+        plan.pabblySubscriptionId = userRequest.pabblySubscriptionId;
 
         planDao.save(plan);
 

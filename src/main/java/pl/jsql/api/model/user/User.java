@@ -62,4 +62,7 @@ public class User {
     @JsonIgnore
     public Boolean isProductionDeveloper = false;
 
+    @JsonIgnore
+    public Boolean isDeleted = false;
+
 }
