@@ -62,6 +62,8 @@ public class PaymentService {
         planResponse.usedUsers = activeUsers;
         planResponse.name = plan.plan.name;
         planResponse.trial = plan.trial;
+        planResponse.expiryDate = plan.expiryDate;
+        planResponse.trialDays = plan.trialDays;
 
         return planResponse;
 

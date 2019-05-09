@@ -43,4 +43,6 @@ public class Plan {
 
     public Boolean trial = false;
 
+    public Integer trialDays = 0;
+
 }

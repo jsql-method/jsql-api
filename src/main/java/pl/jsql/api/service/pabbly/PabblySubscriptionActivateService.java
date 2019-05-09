@@ -64,6 +64,7 @@ public class PabblySubscriptionActivateService implements IPabbly {
             plan.active = planActive;
             plan.trial = trial != 0;
             plan.plan = planEnum;
+            plan.trialDays = trial;
 
             planDao.save(plan);
 

@@ -15,7 +15,11 @@ public interface PlanDao extends CrudRepository<Plan, Long> {
     Plan findFirstByCompany(Company company);
 
     @Modifying
-    @Query("update Plan p set p.active = false, p.trial = false where p.expiryDate = current_date ")
+    @Query("update Plan p set p.active = false, p.trial = false where p.expiryDate = current_date")
     void updatePlanSetUnactiveWhereExpiryDateCurrent();
+
+    @Modifying
+    @Query("update Plan p set p.trialDays = p.trialDays - 1 where p.trialDays > 0")
+    void decrementTrialDays();
 
 }

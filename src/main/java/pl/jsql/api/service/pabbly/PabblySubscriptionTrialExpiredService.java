@@ -44,6 +44,7 @@ public class PabblySubscriptionTrialExpiredService implements IPabbly {
         Plan plan = planDao.findFirstByCompany(user.company);
         plan.active = false;
         plan.trial = trial != 0;
+        plan.trialDays = trial;
 
         planDao.save(plan);
 

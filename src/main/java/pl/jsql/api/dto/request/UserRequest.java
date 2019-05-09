@@ -39,6 +39,7 @@ public class UserRequest {
     public Boolean isFakeDeveloper = false;
 
     public Boolean isTrial = false;
+    public Integer trialDays;
 
     public UserRequest() {
     }
@@ -56,13 +57,14 @@ public class UserRequest {
         this.isFakeDeveloper = isFakeDeveloper;
     }
 
-    public UserRequest(String email, String password, String firstName, String lastName, String companyName, PlansEnum plan) {
+    public UserRequest(String email, String password, String firstName, String lastName, String companyName, PlansEnum plan, String pabblySubscriptionId) {
         this.email = email;
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
         this.companyName = companyName;
         this.plan = plan;
+        this.pabblySubscriptionId = pabblySubscriptionId;
     }
 
     @Override
