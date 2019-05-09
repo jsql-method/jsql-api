@@ -150,7 +150,7 @@ public class AppAdminService {
         user.lastName = TokenUtil.hash(user.lastName);
         user.lastName = TokenUtil.hash(user.password);
         user.enabled = false;
-        user.enabled = false;
+        user.isDeleted = true;
         user.company = null;
 
         userDao.save(user);

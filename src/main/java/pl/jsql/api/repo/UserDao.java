@@ -33,7 +33,7 @@ public interface UserDao extends CrudRepository<User, Long> {
     @Query("select count(u) from User u where u.company = :company and u.role.id <> 3 and u.isProductionDeveloper <> true")
     Integer countByCompany(@Param("company") Company company);
 
-    @Query("select count(u) from User u where u.company = :company and u.enabled = true")
+    @Query("select count(u) from User u where u.company = :company and u.isDeleted = false and u.isProductionDeveloper = false")
     Integer countActiveUsersByCompany(@Param("company") Company company);
 
     @Query("select case when count(u) > 0 then TRUE else FALSE end from User u where u.email = :email")
