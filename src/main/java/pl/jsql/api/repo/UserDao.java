@@ -25,6 +25,9 @@ public interface UserDao extends CrudRepository<User, Long> {
     User findCompanyAdmin(@Param("company") Company company);
 
     @Query("select u from User u where u.company = :company and u.role = :role and u.enabled = true")
+    List<User> findByCompanyAndRoleEnabled(@Param("company") Company company, @Param("role") Role role);
+
+    @Query("select u from User u where u.company = :company and u.role = :role")
     List<User> findByCompanyAndRole(@Param("company") Company company, @Param("role") Role role);
 
     @Query("select new pl.jsql.api.dto.response.AppDeveloperResponse(u.id, u.email, u.firstName, u.lastName, u.enabled) from User u where u.company = :company and u.role = :role and u.isProductionDeveloper <> true")
