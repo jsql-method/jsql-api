@@ -31,10 +31,7 @@ public class PabblySubscriptionCancelService implements IPabbly {
         String userEmail;
         User user;
 
-        Map<String, Object> requestTransaction = (Map<String, Object>) requestData.get("transaction");
-        Map<String, Object> requestPaymentMethod = (Map<String, Object>) requestTransaction.get("payment_method");
-
-        userEmail = (String) requestPaymentMethod.get("email");
+        userEmail = (String) requestData.get("email_id");
         user = userDao.findByEmail(userEmail);
 
         if (user == null) {

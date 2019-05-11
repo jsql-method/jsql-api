@@ -259,10 +259,16 @@ public class InitializeData {
     }
 
     public void createTestData(String email, String name, String surname) throws ParseException {
-        createFullCompanyAdmin(email, name, surname);
-      //  testBuildsData(email);
-      //  testRequestsData(email);
-    //    testQueriesData(email);
+
+        if(userDao.findByEmail(email) == null){
+
+            createFullCompanyAdmin(email, name, surname);
+            //  testBuildsData(email);
+            //  testRequestsData(email);
+            //    testQueriesData(email);
+
+        }
+
     }
 
     @PostConstruct

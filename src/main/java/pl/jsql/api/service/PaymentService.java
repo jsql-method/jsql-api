@@ -2,7 +2,6 @@ package pl.jsql.api.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pl.jsql.api.dto.request.UserRequest;
 import pl.jsql.api.dto.response.PaymentResponse;
 import pl.jsql.api.dto.response.PlanResponse;
 import pl.jsql.api.model.payment.Plan;
@@ -11,7 +10,6 @@ import pl.jsql.api.repo.ApplicationDao;
 import pl.jsql.api.repo.PlanDao;
 import pl.jsql.api.repo.UserDao;
 import pl.jsql.api.security.service.SecurityService;
-import pl.jsql.api.service.pabbly.PabblyGetCustomerService;
 import pl.jsql.api.service.pabbly.PabblyVerifyHostedService;
 
 import javax.transaction.Transactional;
