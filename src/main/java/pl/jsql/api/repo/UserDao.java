@@ -36,7 +36,7 @@ public interface UserDao extends CrudRepository<User, Long> {
     @Query("select new pl.jsql.api.dto.response.AppDeveloperResponse(u.id, u.email, u.firstName, u.lastName, u.enabled) from User u where u.company = :company and u.role = :role and u.isProductionDeveloper <> true")
     List<AppDeveloperResponse> findyByCompanyAndRoleWithoutFake(@Param("company") Company company, @Param("role") Role role);
 
-    @Query("select count(u) from User u where u.company = :company and u.role.id <> 3 and u.isProductionDeveloper <> true")
+    @Query("select count(u) from User u where u.company = :company and u.isProductionDeveloper <> false")
     Integer countByCompany(@Param("company") Company company);
 
     @Query("select count(u) from User u where u.company = :company and u.isDeleted = false and u.isProductionDeveloper = false")
