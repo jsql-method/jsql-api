@@ -44,6 +44,7 @@ public class PabblySubscriptionCreateService implements IPabbly {
             UserRequest userRequest = pabblyGetCustomerService.getCustomer((String) requestData.get("customer_id"));
             userRequest.plan = plan;
             userRequest.pabblySubscriptionId = (String) requestData.get("id");
+            userRequest.pabblyCustomerId = (String) requestData.get("customer_id");
             userRequest.isTrial = trial != 0;
             userRequest.trialDays = trial;
             authService.register(userRequest);

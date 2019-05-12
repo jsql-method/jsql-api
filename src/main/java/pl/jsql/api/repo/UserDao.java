@@ -6,10 +6,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pl.jsql.api.dto.response.AppAdminResponse;
 import pl.jsql.api.dto.response.AppDeveloperResponse;
+import pl.jsql.api.enums.RoleTypeEnum;
 import pl.jsql.api.model.user.Company;
 import pl.jsql.api.model.user.Role;
 import pl.jsql.api.model.user.User;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 @Repository
@@ -44,5 +47,9 @@ public interface UserDao extends CrudRepository<User, Long> {
 
     @Query("select case when count(u) > 0 then TRUE else FALSE end from User u where u.firstName = :firstName and u.lastName = :lastName and u.company = :company")
     boolean existByFullnameForCompany(@Param("firstName") String firstName, @Param("lastName") String lastName, @Param("company") Company company);
+
+    @Query("select u from User u where u.role.authority = :roleTypeEnum")
+    List<User> findByRole(@Param("roleTypeEnum") RoleTypeEnum roleTypeEnum);
+
 }
 
