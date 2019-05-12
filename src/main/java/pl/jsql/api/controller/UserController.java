@@ -8,6 +8,7 @@ import pl.jsql.api.dto.response.BasicResponse;
 import pl.jsql.api.dto.response.MessageResponse;
 import pl.jsql.api.dto.response.UserResponse;
 import pl.jsql.api.enums.RoleTypeEnum;
+import pl.jsql.api.jobs.CustomerDetailsPabblySynchronizationJob;
 import pl.jsql.api.security.annotation.Security;
 import pl.jsql.api.service.UserService;
 
@@ -75,6 +76,18 @@ public class UserController extends ValidateController {
     public BasicResponse<MessageResponse> deactivate(@PathVariable("id") Long id) {
         MessageResponse response = userService.disableDeveloperAccount(id);
         return new BasicResponse<>(200, response);
+    }
+
+    @Autowired
+    private CustomerDetailsPabblySynchronizationJob customerDetailsPabblySynchronizationJob;
+
+    @Security
+    @GetMapping("/synchronize")
+    public BasicResponse synchronize() {
+
+        customerDetailsPabblySynchronizationJob.synchronize();
+
+        return new BasicResponse<>(200);
     }
 
 }

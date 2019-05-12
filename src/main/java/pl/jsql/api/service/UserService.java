@@ -11,6 +11,7 @@ import pl.jsql.api.repo.ApplicationDao;
 import pl.jsql.api.repo.ApplicationDevelopersDao;
 import pl.jsql.api.repo.UserDao;
 import pl.jsql.api.security.service.SecurityService;
+import pl.jsql.api.service.pabbly.PabblyOnUpdateCustomerDetailsService;
 import pl.jsql.api.utils.HashingUtil;
 import pl.jsql.api.utils.TokenUtil;
 
@@ -38,6 +39,9 @@ public class UserService {
     @Autowired
     private SecurityService securityService;
 
+    @Autowired
+    private PabblyOnUpdateCustomerDetailsService pabblyOnUpdateCustomerDetailsService;
+
     public MessageResponse update(UpdateUserRequest updateUserRequest) {
 
         User currentUser = securityService.getCurrentAccount();
@@ -46,11 +50,16 @@ public class UserService {
             return new MessageResponse(true, "email_already_in_use");
         }
 
-        currentUser.email = updateUserRequest.email == null ? currentUser.email : updateUserRequest.email;
+        //currentUser.email = updateUserRequest.email == null ? currentUser.email : updateUserRequest.email;
+
         currentUser.firstName = updateUserRequest.email == null ? currentUser.firstName : updateUserRequest.firstName;
         currentUser.lastName = updateUserRequest.email == null ? currentUser.lastName : updateUserRequest.lastName;
 
         userDao.save(currentUser);
+
+        if(currentUser.role.authority == RoleTypeEnum.COMPANY_ADMIN){
+            pabblyOnUpdateCustomerDetailsService.updateCustomerDetails(currentUser.company.pabblyCustomerId, currentUser.firstName, currentUser.lastName);
+        }
 
         return new MessageResponse();
 

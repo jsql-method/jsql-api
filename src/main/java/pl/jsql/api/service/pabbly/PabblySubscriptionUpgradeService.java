@@ -36,7 +36,7 @@ public class PabblySubscriptionUpgradeService implements IPabbly {
             return;
         }
 
-        int trial = (int) requestPlan.get("trial_period");
+        int trial = (int) requestData.get("trial_days");
         String activeStr = (String) requestPlan.get("plan_active");
 
         Boolean planActive = false;

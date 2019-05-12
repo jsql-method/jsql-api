@@ -35,7 +35,7 @@ public class PabblySubscriptionCreateService implements IPabbly {
         userEmail = (String) requestData.get("email_id");
         String planDescription = (String) requestPlan.get("plan_code");
         PlansEnum plan = PlansEnum.valueOf(planDescription.toUpperCase());
-        int trial = (int) requestPlan.get("trial_period");
+        int trial = (int) requestData.get("trial_days");
 
         user = userDao.findByEmail(userEmail);
 
@@ -44,6 +44,7 @@ public class PabblySubscriptionCreateService implements IPabbly {
             UserRequest userRequest = pabblyGetCustomerService.getCustomer((String) requestData.get("customer_id"));
             userRequest.plan = plan;
             userRequest.pabblySubscriptionId = (String) requestData.get("id");
+            userRequest.pabblyCustomerId = (String) requestData.get("customer_id");
             userRequest.isTrial = trial != 0;
             userRequest.trialDays = trial;
             authService.register(userRequest);

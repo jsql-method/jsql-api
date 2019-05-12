@@ -36,7 +36,7 @@ public class PabblySubscriptionTrialExpiredService implements IPabbly {
             return;
         }
 
-        int trial = (int) requestPlan.get("trial_period");
+        int trial = (int) requestData.get("trial_days");
 
         Plan plan = planDao.findFirstByCompany(user.company);
         plan.active = false;

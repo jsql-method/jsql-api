@@ -23,4 +23,7 @@ public class Company {
     @Temporal(TemporalType.TIMESTAMP)
     public Date creationDate;
 
+    @NotNull
+    public String pabblyCustomerId;
+
 }
