@@ -7,12 +7,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import pl.jsql.api.dto.request.UserRequest;
 import pl.jsql.api.enums.RoleTypeEnum;
+import pl.jsql.api.model.payment.Plan;
 import pl.jsql.api.model.user.Company;
 import pl.jsql.api.model.user.User;
 import pl.jsql.api.repo.CompanyDao;
 import pl.jsql.api.repo.PlanDao;
 import pl.jsql.api.repo.UserDao;
 import pl.jsql.api.service.pabbly.PabblyGetCustomerService;
+import pl.jsql.api.service.pabbly.PabblyGetSubscriptionService;
 
 import java.util.List;
 
@@ -27,6 +29,12 @@ public class CustomerDetailsPabblySynchronizationJob {
 
     @Autowired
     private PabblyGetCustomerService pabblyGetCustomerService;
+
+    @Autowired
+    private PabblyGetSubscriptionService pabblyGetSubscriptionService;
+
+    @Autowired
+    private PlanDao planDao;
 
     private final static long DELAY = 86400000L; //24 h
 
@@ -50,8 +58,23 @@ public class CustomerDetailsPabblySynchronizationJob {
             if(userRequest != null){
                 updateUser(user, userRequest);
                 updateCompany(user, userRequest);
+                updatePlan(user);
             }
 
+        }
+
+    }
+
+    @Transactional
+    public void updatePlan(User user) {
+
+        Plan plan = planDao.findFirstByCompany(user.company);
+
+        Integer trialDays = pabblyGetSubscriptionService.getSubscriptionTrialDays(plan.pabblySubscriptionId);
+
+        if(trialDays != null){
+            plan.trialDays = trialDays;
+            planDao.save(plan);
         }
 
     }

@@ -40,7 +40,7 @@ public class PabblySubscriptionActivateService implements IPabbly {
         userEmail = (String) requestData.get("email_id");
         String planDescription = (String) requestPlan.get("plan_code");
         PlansEnum planEnum = PlansEnum.valueOf(planDescription.toUpperCase());
-        int trial = (int) requestPlan.get("trial_period");
+        int trial = (int) requestData.get("trial_days");
 
         user = userDao.findByEmail(userEmail);
 
