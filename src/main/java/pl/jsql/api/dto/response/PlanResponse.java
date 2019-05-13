@@ -20,5 +20,6 @@ public class PlanResponse {
     public String name;
     public Boolean trial;
     public Integer trialDays;
+    public boolean doubledSubscriptions;
 
 }

@@ -27,6 +27,10 @@ public class PlanService {
         plan.trial = userRequest.isTrial;
         plan.pabblySubscriptionId = userRequest.pabblySubscriptionId;
 
+        if(userRequest.isTrial){
+            plan.hadTrial = true;
+        }
+
         planDao.save(plan);
 
     }

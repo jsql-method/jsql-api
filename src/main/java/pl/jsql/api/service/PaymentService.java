@@ -62,6 +62,7 @@ public class PaymentService {
         planResponse.trial = plan.trial;
         planResponse.expiryDate = plan.expiryDate;
         planResponse.trialDays = plan.trialDays;
+        planResponse.doubledSubscriptions = plan.doubledSubscriptions;
 
         return planResponse;
 
