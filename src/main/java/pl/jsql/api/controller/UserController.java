@@ -6,11 +6,13 @@ import pl.jsql.api.controller.generic.ValidateController;
 import pl.jsql.api.dto.request.*;
 import pl.jsql.api.dto.response.BasicResponse;
 import pl.jsql.api.dto.response.MessageResponse;
+import pl.jsql.api.dto.response.PabblyClientPortalAccess;
 import pl.jsql.api.dto.response.UserResponse;
 import pl.jsql.api.enums.RoleTypeEnum;
 import pl.jsql.api.jobs.CustomerDetailsPabblySynchronizationJob;
 import pl.jsql.api.security.annotation.Security;
 import pl.jsql.api.service.UserService;
+import pl.jsql.api.service.pabbly.PabblyOnClientPortalAccess;
 
 import javax.validation.Valid;
 
@@ -81,7 +83,7 @@ public class UserController extends ValidateController {
     @Autowired
     private CustomerDetailsPabblySynchronizationJob customerDetailsPabblySynchronizationJob;
 
-    @Security
+    @Security(roles = {RoleTypeEnum.COMPANY_ADMIN, RoleTypeEnum.ADMIN })
     @GetMapping("/synchronize")
     public BasicResponse synchronize() {
 
@@ -89,5 +91,20 @@ public class UserController extends ValidateController {
 
         return new BasicResponse<>(200);
     }
+
+    @Autowired
+    private PabblyOnClientPortalAccess pabblyOnClientPortalAccess;
+
+    @Security(role = RoleTypeEnum.COMPANY_ADMIN)
+    @GetMapping("/pabbly-session")
+    public BasicResponse<PabblyClientPortalAccess> getPabblySession() {
+
+        PabblyClientPortalAccess pabblyClientPortalAccess = pabblyOnClientPortalAccess.getClientPortalAccess();
+
+        return new BasicResponse<>(200, pabblyClientPortalAccess);
+
+    }
+
+
 
 }
