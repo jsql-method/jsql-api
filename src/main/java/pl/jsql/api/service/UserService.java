@@ -6,9 +6,11 @@ import pl.jsql.api.dto.request.*;
 import pl.jsql.api.dto.response.MessageResponse;
 import pl.jsql.api.dto.response.UserResponse;
 import pl.jsql.api.enums.RoleTypeEnum;
+import pl.jsql.api.model.payment.Plan;
 import pl.jsql.api.model.user.User;
 import pl.jsql.api.repo.ApplicationDao;
 import pl.jsql.api.repo.ApplicationDevelopersDao;
+import pl.jsql.api.repo.PlanDao;
 import pl.jsql.api.repo.UserDao;
 import pl.jsql.api.security.service.SecurityService;
 import pl.jsql.api.service.pabbly.PabblyOnUpdateCustomerDetailsService;
@@ -131,6 +133,9 @@ public class UserService {
     @Autowired
     private PabblyService pabblyService;
 
+    @Autowired
+    private PlanDao planDao;
+
     public MessageResponse disableAccount(User currentUser, Long developerId) {
 
         User accountToDelete = currentUser;
@@ -157,6 +162,9 @@ public class UserService {
         }
 
         String email = accountToDelete.email;
+        Plan plan = planDao.findFirstByCompany(accountToDelete.company);
+        String pabblySubscriptionId = plan.pabblySubscriptionId;
+
         accountToDelete.email = TokenUtil.generateToken(accountToDelete.email);
         accountToDelete.firstName = TokenUtil.generateToken(accountToDelete.firstName);
         accountToDelete.lastName = TokenUtil.generateToken(accountToDelete.lastName);
@@ -170,7 +178,9 @@ public class UserService {
 
         userDao.save(accountToDelete);
 
-        pabblyService.deleteSubscription(email);
+        if (accountToDelete.role.authority == RoleTypeEnum.COMPANY_ADMIN) {
+            pabblyService.deleteSubscription(pabblySubscriptionId);
+        }
 
         return new MessageResponse();
 
