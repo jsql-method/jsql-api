@@ -99,15 +99,15 @@ public class PabblyGetSubscriptionService {
 
             String jsonStr = builder.toString();
 
-            HashMap json = new Gson().fromJson(builder.toString(), HashMap.class);
-            LinkedTreeMap requestData = (LinkedTreeMap) json.get("data");
-
-            trialDays = (Integer) requestData.get("trial_days");
-
             Webhook webhook = new Webhook();
             webhook.requestText = jsonStr;
             webhook.pabblyStatus = PabblyStatus.SUBSCRIPTION_GET;
             webhookDao.save(webhook);
+
+            HashMap json = new Gson().fromJson(builder.toString(), HashMap.class);
+            LinkedTreeMap requestData = (LinkedTreeMap) json.get("data");
+
+            trialDays = (int) requestData.get("trial_days");
 
         } catch (Exception e) {
             e.printStackTrace();
