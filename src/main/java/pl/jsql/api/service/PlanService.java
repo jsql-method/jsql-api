@@ -26,6 +26,7 @@ public class PlanService {
         plan.plan = userRequest.plan;
         plan.trial = userRequest.isTrial;
         plan.pabblySubscriptionId = userRequest.pabblySubscriptionId;
+        plan.trialDays = userRequest.trialDays;
 
         if(userRequest.isTrial){
             plan.hadTrial = true;

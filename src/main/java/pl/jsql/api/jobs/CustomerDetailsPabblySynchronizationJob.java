@@ -41,7 +41,6 @@ public class CustomerDetailsPabblySynchronizationJob {
     @Value("${spring.datasource.password}")
     private String databasePassword;
 
-    @Transactional
     @Scheduled(fixedDelay = DELAY)
     public void synchronize() {
 
@@ -52,6 +51,10 @@ public class CustomerDetailsPabblySynchronizationJob {
         List<User> companyAdmins = userDao.findByRole(RoleTypeEnum.COMPANY_ADMIN);
 
         for (User user : companyAdmins) {
+
+            if(user.company.pabblyCustomerId.equals("TEST")){
+                continue;
+            }
 
             UserRequest userRequest = pabblyGetCustomerService.getCustomer(user.company.pabblyCustomerId);
 
