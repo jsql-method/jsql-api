@@ -46,8 +46,6 @@ public class PabblyOnDeleteSubscriptionService {
 
     public void deleteSubscriptionOnPabbly(String subscriptionId) {
 
-        UserRequest userRequest = new UserRequest();
-
         HttpURLConnection conn = null;
 
         try {
@@ -131,17 +129,8 @@ public class PabblyOnDeleteSubscriptionService {
 
     }
 
-    public void deleteSubscription(String email) {
-
-       User user = userDao.findByEmail(email);
-
-        if (user == null) {
-            return;
-        }
-
-        Plan plan = planDao.findFirstByCompany(user.company);
-
-        this.deleteSubscriptionOnPabbly(plan.pabblySubscriptionId);
-
+    public void deleteSubscription(String pabblySubscriptionId) {
+        this.deleteSubscriptionOnPabbly(pabblySubscriptionId);
     }
+
 }
