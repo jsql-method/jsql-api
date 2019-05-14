@@ -6,15 +6,11 @@ import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import pl.jsql.api.dto.request.UserRequest;
+import pl.jsql.api.dto.response.PabblyClientPortalAccess;
 import pl.jsql.api.enums.PabblyStatus;
-import pl.jsql.api.enums.PlansEnum;
-import pl.jsql.api.model.payment.Plan;
 import pl.jsql.api.model.payment.Webhook;
-import pl.jsql.api.model.user.User;
-import pl.jsql.api.repo.PlanDao;
-import pl.jsql.api.repo.UserDao;
 import pl.jsql.api.repo.WebhookDao;
+import pl.jsql.api.security.service.SecurityService;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -25,9 +21,9 @@ import java.net.URL;
 import java.util.HashMap;
 
 @Service
-public class PabblyOnDeleteSubscriptionService {
+public class PabblyOnClientPortalAccess {
 
-    private final String CANCEL_SUBSCRIPTION = "https://payments.pabbly.com/api/v1/subscription/{subscription_id}/cancel";
+    private final String GET_CLIENT_PORTAL_ACCESS = "https://payments.pabbly.com/api/v1/portal_sessions/";
 
     @Value("${pabbly.api.key}")
     private String pabblyApiKey;
@@ -39,18 +35,17 @@ public class PabblyOnDeleteSubscriptionService {
     private WebhookDao webhookDao;
 
     @Autowired
-    private UserDao userDao;
+    private SecurityService securityService;
 
-    @Autowired
-    private PlanDao planDao;
+    public PabblyClientPortalAccess getClientPortalAccess() {
 
-    public void deleteSubscriptionOnPabbly(String subscriptionId) {
+        PabblyClientPortalAccess pabblyClientPortalAccess = null;
 
         HttpURLConnection conn = null;
 
         try {
 
-            URL url = new URL(CANCEL_SUBSCRIPTION.replace("{subscription_id}", subscriptionId));
+            URL url = new URL(GET_CLIENT_PORTAL_ACCESS);
             conn = (HttpURLConnection) url.openConnection();
 
             conn.setDoOutput(true);
@@ -64,7 +59,7 @@ public class PabblyOnDeleteSubscriptionService {
             OutputStream os = conn.getOutputStream();
 
             HashMap<String, String> request = new HashMap<>();
-            request.put("cancel_at_end", "false");
+            request.put("customer_id", securityService.getCurrentAccount().company.pabblyCustomerId);
 
             os.write(new Gson().toJson(request).getBytes());
             System.out.println("request: " + new Gson().toJson(request));
@@ -111,10 +106,17 @@ public class PabblyOnDeleteSubscriptionService {
 
             System.out.println("jsonStr : " + jsonStr);
 
+
             Webhook webhook = new Webhook();
             webhook.requestText = jsonStr;
-            webhook.pabblyStatus = PabblyStatus.SUBSCRIPTION_DELETED_MANUALLY;
+            webhook.pabblyStatus = PabblyStatus.GET_CLIENT_PORTAL_ACCESS;
             webhookDao.save(webhook);
+
+            HashMap json = new Gson().fromJson(builder.toString(), HashMap.class);
+            LinkedTreeMap requestData = (LinkedTreeMap) json.get("data");
+
+            pabblyClientPortalAccess = new PabblyClientPortalAccess();
+            pabblyClientPortalAccess.accessUrl = (String) requestData.get("access_url");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -126,11 +128,7 @@ public class PabblyOnDeleteSubscriptionService {
 
         }
 
+        return pabblyClientPortalAccess;
 
     }
-
-    public void deleteSubscription(String pabblySubscriptionId) {
-        this.deleteSubscriptionOnPabbly(pabblySubscriptionId);
-    }
-
 }

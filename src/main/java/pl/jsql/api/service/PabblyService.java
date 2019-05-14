@@ -3,6 +3,7 @@ package pl.jsql.api.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.jsql.api.enums.PabblyStatus;
+import pl.jsql.api.model.payment.Plan;
 import pl.jsql.api.service.pabbly.*;
 
 import javax.transaction.Transactional;
@@ -105,8 +106,8 @@ public class PabblyService {
     }
 
 
-    public void deleteSubscription(String email) {
-        pabblyOnDeleteSubscriptionService.deleteSubscription(email);
+    public void deleteSubscription(String pabblySubscriptionId) {
+        pabblyOnDeleteSubscriptionService.deleteSubscription(pabblySubscriptionId);
     }
 
 }

@@ -29,6 +29,7 @@ public class UserRequest {
     public String lastName;
 
     public String pabblySubscriptionId;
+    public String pabblyCustomerId;
 
     public RoleTypeEnum role;
     public Long company;
@@ -57,7 +58,7 @@ public class UserRequest {
         this.isFakeDeveloper = isFakeDeveloper;
     }
 
-    public UserRequest(String email, String password, String firstName, String lastName, String companyName, PlansEnum plan, String pabblySubscriptionId) {
+    public UserRequest(String email, String password, String firstName, String lastName, String companyName, PlansEnum plan, String pabblySubscriptionId, String pabblyCustomerId) {
         this.email = email;
         this.password = password;
         this.firstName = firstName;
@@ -65,6 +66,7 @@ public class UserRequest {
         this.companyName = companyName;
         this.plan = plan;
         this.pabblySubscriptionId = pabblySubscriptionId;
+        this.pabblyCustomerId = pabblyCustomerId;
     }
 
     @Override

@@ -45,4 +45,9 @@ public class Plan {
 
     public Integer trialDays = 0;
 
+    public boolean hadTrial = false;
+
+    public boolean doubledSubscriptions = false;
+
+
 }

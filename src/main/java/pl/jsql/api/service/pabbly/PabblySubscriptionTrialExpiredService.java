@@ -29,17 +29,14 @@ public class PabblySubscriptionTrialExpiredService implements IPabbly {
         String userEmail;
         User user;
 
-        Map<String, Object> requestTransaction = (Map<String, Object>) requestData.get("transaction");
-        Map<String, Object> requestPaymentMethod = (Map<String, Object>) requestTransaction.get("payment_method");
-
-        userEmail = (String) requestPaymentMethod.get("email");
+        userEmail = (String) requestData.get("email_id");
         user = userDao.findByEmail(userEmail);
 
         if (user == null) {
             return;
         }
 
-        int trial = (int) requestPlan.get("trial_period");
+        int trial = (int) requestData.get("trial_days");
 
         Plan plan = planDao.findFirstByCompany(user.company);
         plan.active = false;

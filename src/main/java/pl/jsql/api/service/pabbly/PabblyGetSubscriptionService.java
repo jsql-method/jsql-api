@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import pl.jsql.api.dto.request.UserRequest;
 import pl.jsql.api.enums.PabblyStatus;
-import pl.jsql.api.enums.PlansEnum;
 import pl.jsql.api.model.payment.Plan;
 import pl.jsql.api.model.payment.Webhook;
 import pl.jsql.api.model.user.User;
@@ -25,9 +24,9 @@ import java.net.URL;
 import java.util.HashMap;
 
 @Service
-public class PabblyOnDeleteSubscriptionService {
+public class PabblyGetSubscriptionService {
 
-    private final String CANCEL_SUBSCRIPTION = "https://payments.pabbly.com/api/v1/subscription/{subscription_id}/cancel";
+    private final String GET_SUBSCRIPTION = "https://payments.pabbly.com/api/v1/subscription/{subscription_id}";
 
     @Value("${pabbly.api.key}")
     private String pabblyApiKey;
@@ -44,32 +43,23 @@ public class PabblyOnDeleteSubscriptionService {
     @Autowired
     private PlanDao planDao;
 
-    public void deleteSubscriptionOnPabbly(String subscriptionId) {
+    public Integer getSubscriptionTrialDays(String subscriptionId) {
+
+        Integer trialDays = null;
 
         HttpURLConnection conn = null;
 
         try {
 
-            URL url = new URL(CANCEL_SUBSCRIPTION.replace("{subscription_id}", subscriptionId));
+            URL url = new URL(GET_SUBSCRIPTION.replace("{subscription_id}", subscriptionId));
             conn = (HttpURLConnection) url.openConnection();
 
             conn.setDoOutput(true);
-            conn.setDoInput(true);
 
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setRequestProperty("Authorization", "Basic " + Base64.encodeBase64String((pabblyApiKey + ":" + pabblySecret).getBytes()));
             conn.setUseCaches(false);
-
-            OutputStream os = conn.getOutputStream();
-
-            HashMap<String, String> request = new HashMap<>();
-            request.put("cancel_at_end", "false");
-
-            os.write(new Gson().toJson(request).getBytes());
-            System.out.println("request: " + new Gson().toJson(request));
-
-            os.flush();
 
             if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
 
@@ -109,12 +99,15 @@ public class PabblyOnDeleteSubscriptionService {
 
             String jsonStr = builder.toString();
 
-            System.out.println("jsonStr : " + jsonStr);
-
             Webhook webhook = new Webhook();
             webhook.requestText = jsonStr;
-            webhook.pabblyStatus = PabblyStatus.SUBSCRIPTION_DELETED_MANUALLY;
+            webhook.pabblyStatus = PabblyStatus.SUBSCRIPTION_GET;
             webhookDao.save(webhook);
+
+            HashMap json = new Gson().fromJson(builder.toString(), HashMap.class);
+            LinkedTreeMap requestData = (LinkedTreeMap) json.get("data");
+
+            trialDays = (int) requestData.get("trial_days");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -126,11 +119,7 @@ public class PabblyOnDeleteSubscriptionService {
 
         }
 
+        return trialDays;
 
     }
-
-    public void deleteSubscription(String pabblySubscriptionId) {
-        this.deleteSubscriptionOnPabbly(pabblySubscriptionId);
-    }
-
 }
