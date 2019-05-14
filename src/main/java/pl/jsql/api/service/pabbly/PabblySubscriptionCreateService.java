@@ -61,7 +61,7 @@ public class PabblySubscriptionCreateService implements IPabbly {
 
             System.out.println("CREATE SUBSCRIPTION AGAIN: "+plan.plan.toString());
             System.out.println("CREATE SUBSCRIPTION AGAIN HAD TRIAL: "+plan.hadTrial);
-            if(plan.hadTrial && plan.plan != PlansEnum.STARTER) {
+            if(plan.hadTrial) {
                 plan.trial = false;
                 System.out.println("CREATE SUBSCRIPTION AGAIN REMOVE TRIAL");
             }else{
