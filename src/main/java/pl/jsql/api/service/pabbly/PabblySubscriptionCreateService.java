@@ -59,8 +59,11 @@ public class PabblySubscriptionCreateService implements IPabbly {
 
             Plan plan = planDao.findFirstByCompany(user.company);
 
+            System.out.println("CREATE SUBSCRIPTION AGAIN: "+plan.plan.toString());
+            System.out.println("CREATE SUBSCRIPTION AGAIN HAD TRIAL: "+plan.hadTrial);
             if(plan.hadTrial && plan.plan != PlansEnum.STARTER) {
                 plan.trial = false;
+                System.out.println("CREATE SUBSCRIPTION AGAIN REMOVE TRIAL");
             }else{
                 plan.trial = trial != 0;
                 plan.trialDays = trial;
@@ -68,14 +71,14 @@ public class PabblySubscriptionCreateService implements IPabbly {
                 cal.add(Calendar.MONTH, 1);
 
                 plan.expiryDate = cal.getTime();
+
+                System.out.println("CREATE SUBSCRIPTION AGAIN SET AGAIN TRIAL");
             }
 
             plan.plan = planEnum;
             plan.doubledSubscriptions = true;
 
             planDao.save(plan);
-
-
 
         }
 

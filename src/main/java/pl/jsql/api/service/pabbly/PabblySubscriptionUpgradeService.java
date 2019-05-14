@@ -50,9 +50,13 @@ public class PabblySubscriptionUpgradeService implements IPabbly {
         Plan plan = planDao.findFirstByCompany(user.company);
         plan.active = planActive;
 
+        System.out.println("UPGRADE SUBSCRIPTION : "+plan.plan.toString());
+        System.out.println("UPGRADE SUBSCRIPTION HAD TRIAL : "+plan.hadTrial);
         if(!plan.hadTrial){
             plan.trial = trial != 0;
             plan.trialDays = trial;
+
+            System.out.println("UPGRADE SUBSCRIPTION SET NEW TRIAL");
         }
 
         plan.plan = planEnum;
