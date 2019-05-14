@@ -29,17 +29,14 @@ public class PabblySubscriptionUpgradeService implements IPabbly {
         String userEmail;
         User user;
 
-        Map<String, Object> requestTransaction = (Map<String, Object>) requestData.get("transaction");
-        Map<String, Object> requestPaymentMethod = (Map<String, Object>) requestTransaction.get("payment_method");
-
-        userEmail = (String) requestPaymentMethod.get("email");
+        userEmail = (String) requestData.get("email_id");
         user = userDao.findByEmail(userEmail);
 
         if (user == null) {
             return;
         }
 
-        int trial = (int) requestPlan.get("trial_period");
+        int trial = (int) requestData.get("trial_days");
         String activeStr = (String) requestPlan.get("plan_active");
 
         Boolean planActive = false;
@@ -52,8 +49,16 @@ public class PabblySubscriptionUpgradeService implements IPabbly {
 
         Plan plan = planDao.findFirstByCompany(user.company);
         plan.active = planActive;
-        plan.trial = trial != 0;
-        plan.trialDays = trial;
+
+        System.out.println("UPGRADE SUBSCRIPTION : "+plan.plan.toString());
+        System.out.println("UPGRADE SUBSCRIPTION HAD TRIAL : "+plan.hadTrial);
+        if(!plan.hadTrial){
+            plan.trial = trial != 0;
+            plan.trialDays = trial;
+
+            System.out.println("UPGRADE SUBSCRIPTION SET NEW TRIAL");
+        }
+
         plan.plan = planEnum;
 
         planDao.save(plan);

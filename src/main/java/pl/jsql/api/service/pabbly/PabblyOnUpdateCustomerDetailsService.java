@@ -1,14 +1,12 @@
 package pl.jsql.api.service.pabbly;
 
 import com.google.gson.Gson;
-import com.google.gson.internal.LinkedTreeMap;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import pl.jsql.api.dto.request.UserRequest;
 import pl.jsql.api.enums.PabblyStatus;
-import pl.jsql.api.enums.PlansEnum;
 import pl.jsql.api.model.payment.Plan;
 import pl.jsql.api.model.payment.Webhook;
 import pl.jsql.api.model.user.User;
@@ -25,9 +23,9 @@ import java.net.URL;
 import java.util.HashMap;
 
 @Service
-public class PabblyOnDeleteSubscriptionService {
+public class PabblyOnUpdateCustomerDetailsService {
 
-    private final String CANCEL_SUBSCRIPTION = "https://payments.pabbly.com/api/v1/subscription/{subscription_id}/cancel";
+    private final String UPDATE_CUSTOMER_DETAILS = "https://payments.pabbly.com/api/v1/customer/";
 
     @Value("${pabbly.api.key}")
     private String pabblyApiKey;
@@ -38,19 +36,13 @@ public class PabblyOnDeleteSubscriptionService {
     @Autowired
     private WebhookDao webhookDao;
 
-    @Autowired
-    private UserDao userDao;
-
-    @Autowired
-    private PlanDao planDao;
-
-    public void deleteSubscriptionOnPabbly(String subscriptionId) {
+    public void updateCustomerDetails(String customerId, String firstName, String lastName) {
 
         HttpURLConnection conn = null;
 
         try {
 
-            URL url = new URL(CANCEL_SUBSCRIPTION.replace("{subscription_id}", subscriptionId));
+            URL url = new URL(UPDATE_CUSTOMER_DETAILS+customerId);
             conn = (HttpURLConnection) url.openConnection();
 
             conn.setDoOutput(true);
@@ -64,7 +56,8 @@ public class PabblyOnDeleteSubscriptionService {
             OutputStream os = conn.getOutputStream();
 
             HashMap<String, String> request = new HashMap<>();
-            request.put("cancel_at_end", "false");
+            request.put("first_name", firstName);
+            request.put("last_name", lastName);
 
             os.write(new Gson().toJson(request).getBytes());
             System.out.println("request: " + new Gson().toJson(request));
@@ -113,7 +106,7 @@ public class PabblyOnDeleteSubscriptionService {
 
             Webhook webhook = new Webhook();
             webhook.requestText = jsonStr;
-            webhook.pabblyStatus = PabblyStatus.SUBSCRIPTION_DELETED_MANUALLY;
+            webhook.pabblyStatus = PabblyStatus.CUSTOMER_DETAILS_UPDATE;
             webhookDao.save(webhook);
 
         } catch (Exception e) {
@@ -127,10 +120,6 @@ public class PabblyOnDeleteSubscriptionService {
         }
 
 
-    }
-
-    public void deleteSubscription(String pabblySubscriptionId) {
-        this.deleteSubscriptionOnPabbly(pabblySubscriptionId);
     }
 
 }

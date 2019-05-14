@@ -57,10 +57,10 @@ public class AppAdminService {
 
         if (appAdmin == null) {
 
-            int usersCount = userDao.countByCompany(companyAdmin.company);
+            int usersCount = userDao.countActiveUsersByCompany(companyAdmin.company);
             int allowedUsers = planDao.findFirstByCompany(companyAdmin.company).plan.maxUsers;
 
-            if (allowedUsers <= usersCount) {
+            if (usersCount >= allowedUsers) {
                 return new MessageResponse(true,"developers_limit_reached");
             }
 

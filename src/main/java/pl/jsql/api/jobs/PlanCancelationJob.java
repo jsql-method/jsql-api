@@ -16,7 +16,7 @@ public class PlanCancelationJob {
 
     @Transactional
     @Scheduled(fixedDelay = DELAY)
-    public void clearCache()  {
+    public void cancelPlans()  {
         planDao.updatePlanSetUnactiveWhereExpiryDateCurrent();
         planDao.decrementTrialDays();
     }

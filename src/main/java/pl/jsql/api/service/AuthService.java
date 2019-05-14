@@ -82,6 +82,7 @@ public class AuthService {
             company.name = userRequest.companyName;
             company.isLicensed = true;
             company.creationDate = new Date();
+            company.pabblyCustomerId = userRequest.pabblyCustomerId;
 
             company = companyDao.save(company);
 

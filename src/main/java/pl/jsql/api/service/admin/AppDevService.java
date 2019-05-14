@@ -59,10 +59,13 @@ public class AppDevService {
 
         User user = securityService.getCurrentAccount();
 
-        int usersCount = userDao.countByCompany(user.company);
+        int usersCount = userDao.countActiveUsersByCompany(user.company);
         int allowedUsers = planDao.findFirstByCompany(user.company).plan.maxUsers;
 
-        if (allowedUsers <= usersCount) {
+        System.out.println("usersCount :" +usersCount);
+        System.out.println("allowedUsers :" +allowedUsers);
+
+        if (usersCount >= allowedUsers) {
             return new MessageResponse(true,"developers_limit_reached");
         }
 

@@ -12,6 +12,7 @@ import pl.jsql.api.enums.SettingEnum;
 import pl.jsql.api.model.dict.Setting;
 import pl.jsql.api.model.hashing.Application;
 import pl.jsql.api.model.hashing.DeveloperKey;
+import pl.jsql.api.model.hashing.Options;
 import pl.jsql.api.model.hashing.Query;
 import pl.jsql.api.model.stats.Build;
 import pl.jsql.api.model.stats.Request;
@@ -80,9 +81,12 @@ public class InitializeData {
     @Autowired
     private DeveloperKeyDao developerKeyDao;
 
+    @Autowired
+    private OptionsDao optionsDao;
+
     private void createFullCompanyAdmin(String email, String name, String surname) {
 
-        authService.register(new UserRequest(email, "x", name, surname, "JSQL Sp.z.o.o.", PlansEnum.BUSINESS, "123"));
+        authService.register(new UserRequest(email, "x", name, surname, "JSQL Sp.z.o.o.", PlansEnum.BUSINESS, "TEST", "TEST"));
 
         User user = userDao.findByEmail(email);
         userService.resetPassword(user.token, new ResetPasswordRequest("test1234"));
@@ -94,6 +98,20 @@ public class InitializeData {
         developerKey.key = email;
 
         developerKeyDao.save(developerKey);
+
+        Application application = applicationDao.selectByCompanyAdmin(user.company);
+
+        Options options = optionsDao.findByApplication(application);
+
+        options.devDatabaseConnectionPassword = "5vfcbfdg345";
+        options.devDatabaseConnectionUsername = "postgres_user2";
+        options.devDatabaseConnectionUrl = "jdbc:postgresql://172.32.1.31:5450/plugins_test?ssl=false";
+
+        options.prodDatabaseConnectionPassword = "5vfcbfdg345";
+        options.prodDatabaseConnectionUsername = "postgres_user2";
+        options.prodDatabaseConnectionUrl = "jdbc:postgresql://172.32.1.31:5450/plugins_test?ssl=false";
+
+        optionsDao.save(options);
 
     }
 
@@ -259,10 +277,16 @@ public class InitializeData {
     }
 
     public void createTestData(String email, String name, String surname) throws ParseException {
-        createFullCompanyAdmin(email, name, surname);
-      //  testBuildsData(email);
-      //  testRequestsData(email);
-    //    testQueriesData(email);
+
+        if(userDao.findByEmail(email) == null){
+
+            createFullCompanyAdmin(email, name, surname);
+            //  testBuildsData(email);
+            //  testRequestsData(email);
+            //    testQueriesData(email);
+
+        }
+
     }
 
     @PostConstruct
