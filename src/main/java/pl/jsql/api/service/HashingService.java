@@ -117,6 +117,10 @@ public class HashingService {
 
     public String hashQuery(OptionsResponse options, String sqlQuery) {
 
+        if(options.allowedPlainQueries){
+            return sqlQuery;
+        }
+
         String hash = this.generateQueryHash(options, sqlQuery);
 
         if (options.isSalt) {
