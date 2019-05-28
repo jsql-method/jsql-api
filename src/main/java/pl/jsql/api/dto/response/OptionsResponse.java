@@ -42,4 +42,28 @@ public class OptionsResponse {
 
     public DatabaseConnectionResponse developerDatabaseOptions;
 
+    @Override
+    public String toString() {
+        return "OptionsResponse{" +
+                "apiKey='" + apiKey + '\'' +
+                ", encodingAlgorithm=" + encodingAlgorithm +
+                ", isSalt=" + isSalt +
+                ", salt='" + salt + '\'' +
+                ", saltBefore=" + saltBefore +
+                ", saltAfter=" + saltAfter +
+                ", saltRandomize=" + saltRandomize +
+                ", hashLengthLikeQuery=" + hashLengthLikeQuery +
+                ", hashMinLength=" + hashMinLength +
+                ", hashMaxLength=" + hashMaxLength +
+                ", removeQueriesAfterBuild=" + removeQueriesAfterBuild +
+                ", databaseDialect=" + databaseDialect +
+                ", allowedPlainQueries=" + allowedPlainQueries +
+                ", prod=" + prod +
+                ", randomSaltBefore='" + randomSaltBefore + '\'' +
+                ", randomSaltAfter='" + randomSaltAfter + '\'' +
+                ", productionDatabaseOptions=" + productionDatabaseOptions +
+                ", developerDatabaseOptions=" + developerDatabaseOptions +
+                '}';
+    }
+
 }
