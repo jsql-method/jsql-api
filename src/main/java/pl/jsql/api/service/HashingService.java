@@ -85,37 +85,55 @@ public class HashingService {
 
     public boolean isValidSalt(OptionsResponse options, String hash) {
 
+        boolean isValid = true;
+
         if (options.isSalt) {
 
             if (options.saltRandomize) {
 
                 if (options.saltBefore) {
-                    return hash.startsWith(options.randomSaltBefore);
+                    isValid = hash.startsWith(options.randomSaltBefore);
+                    if(!isValid){
+                        return isValid;
+                    }
                 }
 
                 if (options.saltAfter) {
-                    return hash.endsWith(options.randomSaltBefore);
+                    isValid =  hash.endsWith(options.randomSaltAfter);
+                    if(!isValid){
+                        return isValid;
+                    }
                 }
 
             } else if (options.salt != null && !options.salt.isEmpty()) {
 
                 if (options.saltBefore) {
-                    return hash.startsWith(options.salt);
+                    isValid =  hash.startsWith(options.salt);
+                    if(!isValid){
+                        return isValid;
+                    }
                 }
 
                 if (options.saltAfter) {
-                    return hash.endsWith(options.salt);
+                    isValid =  hash.endsWith(options.salt);
+                    if(!isValid){
+                        return isValid;
+                    }
                 }
 
             }
 
         }
 
-        return true;
+        return isValid;
 
     }
 
     public String hashQuery(OptionsResponse options, String sqlQuery) {
+
+        if(options.allowedPlainQueries){
+            return sqlQuery;
+        }
 
         String hash = this.generateQueryHash(options, sqlQuery);
 

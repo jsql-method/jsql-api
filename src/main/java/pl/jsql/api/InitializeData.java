@@ -105,11 +105,13 @@ public class InitializeData {
 
         options.devDatabaseConnectionPassword = "5vfcbfdg345";
         options.devDatabaseConnectionUsername = "postgres_user2";
-        options.devDatabaseConnectionUrl = "jdbc:postgresql://172.32.1.31:5450/plugins_test?ssl=false";
+        options.devDatabaseConnectionUrl = "172.32.1.31:5450/plugins_test?ssl=false";
 
         options.prodDatabaseConnectionPassword = "5vfcbfdg345";
         options.prodDatabaseConnectionUsername = "postgres_user2";
-        options.prodDatabaseConnectionUrl = "jdbc:postgresql://172.32.1.31:5450/plugins_test?ssl=false";
+        options.prodDatabaseConnectionUrl = "172.32.1.31:5450/plugins_test?ssl=false";
+
+        options.removeQueriesAfterBuild = false;
 
         optionsDao.save(options);
 
