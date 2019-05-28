@@ -11,6 +11,36 @@ import java.util.Random;
  */
 public class Utils {
 
+    public static boolean isAnonime(String str){
+
+        if(str == null){
+            return true;
+        }
+
+        return str.contains("**");
+    }
+
+    public static String anonimize(String str){
+
+        String str2 = "";
+
+        if(str.length() > 4){
+            str2 += str.substring(0, 1);
+        }
+
+        for(String s : str.split("")){
+            str2 += "*";
+        }
+
+
+        if(str.length() > 4){
+            str2 += str.substring(str.length() - 1, str.length());
+        }
+
+        return str2;
+
+    }
+
     /**
      * Zwraca obecną datę w formacie JSON
      */
