@@ -16,7 +16,9 @@ import pl.jsql.api.model.hashing.Options;
 import pl.jsql.api.model.user.User;
 import pl.jsql.api.repo.*;
 import pl.jsql.api.security.service.SecurityService;
+import pl.jsql.api.utils.Utils;
 
+import javax.rmi.CORBA.Util;
 import java.util.Arrays;
 import java.util.List;
 
@@ -84,18 +86,18 @@ public class OptionsService {
         optionsResponse.randomSaltAfter = options.randomSaltAfter;
 
         DatabaseConnectionResponse prodDatabaseConnectionResponse = new DatabaseConnectionResponse();
-        prodDatabaseConnectionResponse.databaseConnectionPassword = options.prodDatabaseConnectionPassword;
+        prodDatabaseConnectionResponse.databaseConnectionPassword = Utils.anonimize(options.prodDatabaseConnectionPassword);
         prodDatabaseConnectionResponse.databaseConnectionTimeout = options.prodDatabaseConnectionTimeout;
-        prodDatabaseConnectionResponse.databaseConnectionUrl = options.prodDatabaseConnectionUrl;
-        prodDatabaseConnectionResponse.databaseConnectionUsername = options.prodDatabaseConnectionUsername;
+        prodDatabaseConnectionResponse.databaseConnectionUrl = Utils.anonimize(options.prodDatabaseConnectionUrl);
+        prodDatabaseConnectionResponse.databaseConnectionUsername = Utils.anonimize(options.prodDatabaseConnectionUsername);
 
         optionsResponse.productionDatabaseOptions = prodDatabaseConnectionResponse;
 
         DatabaseConnectionResponse devDatabaseConnectionResponse = new DatabaseConnectionResponse();
-        devDatabaseConnectionResponse.databaseConnectionPassword = options.devDatabaseConnectionPassword;
+        devDatabaseConnectionResponse.databaseConnectionPassword = Utils.anonimize(options.devDatabaseConnectionPassword);
         devDatabaseConnectionResponse.databaseConnectionTimeout = options.devDatabaseConnectionTimeout;
-        devDatabaseConnectionResponse.databaseConnectionUrl = options.devDatabaseConnectionUrl;
-        devDatabaseConnectionResponse.databaseConnectionUsername = options.devDatabaseConnectionUsername;
+        devDatabaseConnectionResponse.databaseConnectionUrl = Utils.anonimize(options.devDatabaseConnectionUrl);
+        devDatabaseConnectionResponse.databaseConnectionUsername = Utils.anonimize(options.devDatabaseConnectionUsername);
 
         optionsResponse.developerDatabaseOptions = devDatabaseConnectionResponse;
 
@@ -126,16 +128,34 @@ public class OptionsService {
         options.removeQueriesAfterBuild = optionsRequest.removeQueriesAfterBuild == null ? options.removeQueriesAfterBuild : optionsRequest.removeQueriesAfterBuild;
         options.allowedPlainQueries = optionsRequest.allowedPlainQueries == null ? options.allowedPlainQueries : optionsRequest.allowedPlainQueries;
 
-        options.prodDatabaseConnectionUsername = optionsRequest.productionDatabaseOptions.databaseConnectionUsername == null ? options.prodDatabaseConnectionUsername : optionsRequest.productionDatabaseOptions.databaseConnectionUsername;
-        options.prodDatabaseConnectionPassword = optionsRequest.productionDatabaseOptions.databaseConnectionPassword == null ? options.prodDatabaseConnectionPassword : optionsRequest.productionDatabaseOptions.databaseConnectionPassword;
-        options.prodDatabaseConnectionTimeout = optionsRequest.productionDatabaseOptions.databaseConnectionTimeout == null ? options.prodDatabaseConnectionTimeout : optionsRequest.productionDatabaseOptions.databaseConnectionTimeout;
-        options.prodDatabaseConnectionUrl = optionsRequest.productionDatabaseOptions.databaseConnectionUrl == null ? options.prodDatabaseConnectionUrl : optionsRequest.productionDatabaseOptions.databaseConnectionUrl;
+        if(!Utils.isAnonime(optionsRequest.productionDatabaseOptions.databaseConnectionUsername)){
+            options.prodDatabaseConnectionUsername = optionsRequest.productionDatabaseOptions.databaseConnectionUsername;
+        }
 
-        options.devDatabaseConnectionUsername = optionsRequest.developerDatabaseOptions.databaseConnectionUsername == null ? options.devDatabaseConnectionUsername : optionsRequest.developerDatabaseOptions.databaseConnectionUsername;
-        options.devDatabaseConnectionPassword = optionsRequest.developerDatabaseOptions.databaseConnectionPassword == null ? options.devDatabaseConnectionPassword : optionsRequest.developerDatabaseOptions.databaseConnectionPassword;
+        if(!Utils.isAnonime(optionsRequest.productionDatabaseOptions.databaseConnectionPassword)) {
+            options.prodDatabaseConnectionPassword = optionsRequest.productionDatabaseOptions.databaseConnectionPassword;
+        }
+
+        options.prodDatabaseConnectionTimeout = optionsRequest.productionDatabaseOptions.databaseConnectionTimeout == null ? options.prodDatabaseConnectionTimeout : optionsRequest.productionDatabaseOptions.databaseConnectionTimeout;
+
+        if(!Utils.isAnonime(optionsRequest.productionDatabaseOptions.databaseConnectionUrl)) {
+            options.prodDatabaseConnectionUrl = optionsRequest.productionDatabaseOptions.databaseConnectionUrl;
+        }
+
+        if(!Utils.isAnonime(optionsRequest.developerDatabaseOptions.databaseConnectionUsername)) {
+            options.devDatabaseConnectionUsername =  optionsRequest.developerDatabaseOptions.databaseConnectionUsername;
+        }
+
+        if(!Utils.isAnonime(optionsRequest.developerDatabaseOptions.databaseConnectionPassword)) {
+            options.devDatabaseConnectionPassword = optionsRequest.developerDatabaseOptions.databaseConnectionPassword;
+        }
+
         options.devDatabaseConnectionTimeout = optionsRequest.developerDatabaseOptions.databaseConnectionTimeout == null ? options.devDatabaseConnectionTimeout : optionsRequest.developerDatabaseOptions.databaseConnectionTimeout;
-        options.devDatabaseConnectionUrl = optionsRequest.developerDatabaseOptions.databaseConnectionUrl == null ? options.devDatabaseConnectionUrl : optionsRequest.developerDatabaseOptions.databaseConnectionUrl;
-        
+
+        if(!Utils.isAnonime(optionsRequest.developerDatabaseOptions.databaseConnectionUrl)) {
+            options.devDatabaseConnectionUrl = optionsRequest.developerDatabaseOptions.databaseConnectionUrl;
+        }
+
         optionsDao.save(options);
 
         return new MessageResponse();
