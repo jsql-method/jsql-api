@@ -1,5 +1,7 @@
 package pl.jsql.api.utils;
 
+import java.io.*;
+import java.net.HttpURLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
@@ -10,6 +12,38 @@ import java.util.Random;
  * @author Dawid
  */
 public class Utils {
+
+    public static String readInputStreamToString(HttpURLConnection connection, boolean error) {
+        String result = null;
+        StringBuffer sb = new StringBuffer();
+        InputStream is = null;
+
+        try {
+            is = new BufferedInputStream(error ? connection.getErrorStream() : connection.getInputStream());
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            String inputLine = "";
+            while ((inputLine = br.readLine()) != null) {
+                sb.append(inputLine);
+            }
+            result = sb.toString();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            result = null;
+        }
+        finally {
+            if (is != null) {
+                try {
+                    is.close();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return result;
+    }
 
     public static boolean isAnonime(String str){
 
