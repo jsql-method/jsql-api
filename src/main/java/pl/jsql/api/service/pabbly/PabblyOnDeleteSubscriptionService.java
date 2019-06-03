@@ -15,6 +15,7 @@ import pl.jsql.api.model.user.User;
 import pl.jsql.api.repo.PlanDao;
 import pl.jsql.api.repo.UserDao;
 import pl.jsql.api.repo.WebhookDao;
+import pl.jsql.api.utils.Utils;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -73,22 +74,8 @@ public class PabblyOnDeleteSubscriptionService {
 
             if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
 
-                InputStream inputStream = conn.getErrorStream();
-
-                if (inputStream == null) {
-                    conn.disconnect();
-                    throw new Exception("HTTP error code : " + conn.getResponseCode());
-                }
-
-                BufferedReader br = new BufferedReader(new InputStreamReader((conn.getErrorStream())));
-                StringBuilder builder = new StringBuilder();
-                while (br.ready()) {
-                    builder.append(br.readLine());
-                }
-
+                String response = Utils.readInputStreamToString(conn, true);
                 conn.disconnect();
-
-                String response = builder.toString().trim();
 
                 if (response.length() > 0 && response.contains("<div>")) {
                     response = response.substring(response.lastIndexOf("</div><div>") + 11, response.lastIndexOf("</div></body></html>"));
@@ -97,17 +84,9 @@ public class PabblyOnDeleteSubscriptionService {
                 throw new Exception("HTTP error code : " + conn.getResponseCode() + "\nHTTP error message : " + response);
             }
 
-            BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
-
-            StringBuilder builder = new StringBuilder();
-
-            while (br.ready()) {
-                builder.append(br.readLine());
-            }
+            String jsonStr = Utils.readInputStreamToString(conn, false);
 
             conn.disconnect();
-
-            String jsonStr = builder.toString();
 
             System.out.println("jsonStr : " + jsonStr);
 
