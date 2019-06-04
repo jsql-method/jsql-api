@@ -52,9 +52,9 @@ public class ApiService {
         SimpleOptionsResponse simpleOptionsResponse = new SimpleOptionsResponse();
         simpleOptionsResponse.databaseDialect = optionsResponse.databaseDialect;
 
-        if(optionsResponse.prod){
+        if (optionsResponse.prod) {
             simpleOptionsResponse.databaseConnectionTimeout = optionsResponse.productionDatabaseOptions.databaseConnectionTimeout;
-        }else{
+        } else {
             simpleOptionsResponse.databaseConnectionTimeout = optionsResponse.developerDatabaseOptions.databaseConnectionTimeout;
         }
 
@@ -125,7 +125,7 @@ public class ApiService {
             String resultHashString = resultHash.toString();
             String queryString = query.toString();
 
-            if (queryDao.findByApplicationAndUserAndHash(application, developer, resultHashString) == null) {
+            if (queryDao.findByApplicationAndUserAndHashAndArchived(application, developer, resultHashString, false) == null) {
                 Query query1 = queryService.saveQueryPair(application, developer, queryString, resultHashString, true);
                 queryService.markQueryAsUsed(query1);
             }
@@ -169,7 +169,14 @@ public class ApiService {
 
         if (optionsResponse.removeQueriesAfterBuild) {
             queryService.deleteForApplicationAndMember(application, developer);
+        }else{
+            queryDao.invalidateAllQueries(application, developer);
         }
+
+//        if (optionsResponse.allowedPlainQueries) {
+//            queryDao.updateByApplicationAndUserAndQueryAndHashNotEqual(application, developer);
+//        }
+
 
         List<QueryPairResponse> responseQueryHashList = new ArrayList<>();
 
@@ -179,16 +186,17 @@ public class ApiService {
 
                 String hash = hashingService.hashQuery(optionsResponse, query).trim();
 
-                if (queryDao.findByApplicationAndUserAndHash(application, developer, hash) == null) {
-                   queryService.saveQueryPair(application, developer, query, hash);
-                }
+//                if (!optionsResponse.allowedPlainQueries) {
+//                    queryDao.updateByApplicationAndUserAndQueriesEqual(application, developer, query);
+//                }
+
+                queryService.saveQueryPair(application, developer, query, hash);
 
                 responseQueryHashList.add(new QueryPairResponse(hash, query));
 
             }
 
         }
-
 
         statsService.saveBuild(application, developer, requestQueries.size());
 

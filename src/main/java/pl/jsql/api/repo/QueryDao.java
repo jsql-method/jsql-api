@@ -13,9 +13,9 @@ public interface QueryDao extends CrudRepository<Query, Long> {
 
     Query findByHashAndApplication(String hash, Application application);
 
-    Query findByApplicationAndUserAndQuery(Application application, User user, String query);
+    Query findByApplicationAndUserAndQueryAndArchived(Application application, User user, String query, Boolean archived);
 
-    Query findByApplicationAndUserAndHash(Application application, User user, String hash);
+    Query findByApplicationAndUserAndHashAndArchived(Application application, User user, String hash, Boolean archived);
 
     @Modifying
     @org.springframework.data.jpa.repository.Query("delete from Query q where q.application = :application and q.user = :user")
@@ -24,6 +24,18 @@ public interface QueryDao extends CrudRepository<Query, Long> {
     @Modifying
     @org.springframework.data.jpa.repository.Query("update Query q set q.used = true where q = :query")
     void markQueryAsUsed(@Param("query") Query query);
+
+    @Modifying
+    @org.springframework.data.jpa.repository.Query("update Query q set q.archived = true where q.application = :application and q.user = :developer and q.query <> q.hash")
+    void updateByApplicationAndUserAndQueryAndHashNotEqual(@Param("application") Application application, @Param("developer") User developer);
+
+    @Modifying
+    @org.springframework.data.jpa.repository.Query("update Query q set q.archived = true where q.application = :application and q.user = :developer and q.query = :query")
+    void updateByApplicationAndUserAndQueriesEqual(@Param("application") Application application, @Param("developer") User developer, @Param("query") String query);
+
+    @Modifying
+    @org.springframework.data.jpa.repository.Query("update Query q set q.archived = true where q.application = :application and q.user = :developer")
+    void invalidateAllQueries(@Param("application") Application application, @Param("developer") User developer);
 }
 
 
