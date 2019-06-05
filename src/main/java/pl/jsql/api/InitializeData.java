@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import pl.jsql.api.dto.request.ApplicationCreateRequest;
 import pl.jsql.api.dto.request.ResetPasswordRequest;
 import pl.jsql.api.dto.request.UserRequest;
+import pl.jsql.api.dto.response.MessageResponse;
 import pl.jsql.api.enums.PlansEnum;
 import pl.jsql.api.enums.RoleTypeEnum;
 import pl.jsql.api.enums.SettingEnum;
@@ -92,14 +93,26 @@ public class InitializeData {
         userService.resetPassword(user.token, new ResetPasswordRequest("test1234"));
         user = userDao.findByEmail(email);
 
-        applicationService.create(user, new ApplicationCreateRequest("Test application"), true);
+        String emailPrep = email.substring(0, email.indexOf("@"));
+        this.createApplication(user, "angular1-test-app", email, emailPrep+"-angular1@jsql.it");
+        this.createApplication(user, "angular7-test-app", email, emailPrep+"-angular7@jsql.it");
+        this.createApplication(user, "javascript-test-app", email, emailPrep+"-javascript@jsql.it");
+        this.createApplication(user, "jquery-test-app", email, emailPrep+"-jquery@jsql.it");
+        this.createApplication(user, "react-test-app", email, emailPrep+"-react@jsql.it");
+        this.createApplication(user, "vue-test-app", email, emailPrep+"-vue@jsql.it");
+
+    }
+
+    private void createApplication(User user, String name, String devKey, String apiKey) {
+
+        MessageResponse messageResponse = applicationService.create(user, new ApplicationCreateRequest(name), apiKey);
 
         DeveloperKey developerKey = developerKeyDao.findByUser(user);
-        developerKey.key = email;
+        developerKey.key = devKey;
 
         developerKeyDao.save(developerKey);
 
-        Application application = applicationDao.selectByCompanyAdmin(user.company);
+        Application application = applicationDao.findById(Long.valueOf(messageResponse.message)).orElse(null);
 
         Options options = optionsDao.findByApplication(application);
 
@@ -123,29 +136,30 @@ public class InitializeData {
     @Autowired
     private ApplicationDao applicationDao;
 
+    @Deprecated
     private void testBuildsData(String email) throws ParseException {
 
         User user = userDao.findByEmail(email);
         Application application = applicationDao.selectByCompanyAdmin(user.company);
 
-        for(int i = 0; i < 50; i++){
+        for (int i = 0; i < 50; i++) {
 
             Build build = new Build();
             build.user = user;
             build.application = application;
-            build.hashingDate = new SimpleDateFormat("dd/MM/yyyy hh/mm").parse("18/04/2019 12/"+i);
+            build.hashingDate = new SimpleDateFormat("dd/MM/yyyy hh/mm").parse("18/04/2019 12/" + i);
             build.queriesCount = RandomUtils.nextInt(10, 50);
 
             buildDao.save(build);
 
         }
 
-        for(int i = 0; i < 10; i++){
+        for (int i = 0; i < 10; i++) {
 
             Build build = new Build();
             build.user = user;
             build.application = application;
-            build.hashingDate = new SimpleDateFormat("dd/MM/yyyy hh/mm").parse("18/04/2019 "+i+"/20");
+            build.hashingDate = new SimpleDateFormat("dd/MM/yyyy hh/mm").parse("18/04/2019 " + i + "/20");
             build.queriesCount = RandomUtils.nextInt(10, 50);
 
             buildDao.save(build);
@@ -153,12 +167,12 @@ public class InitializeData {
         }
 
 
-        for(int i = 0; i < 25; i++){
+        for (int i = 0; i < 25; i++) {
 
             Build build = new Build();
             build.user = user;
             build.application = application;
-            build.hashingDate = new SimpleDateFormat("dd/MM/yyyy").parse(i+"/04/2019");
+            build.hashingDate = new SimpleDateFormat("dd/MM/yyyy").parse(i + "/04/2019");
             build.queriesCount = RandomUtils.nextInt(10, 50);
 
             buildDao.save(build);
@@ -171,17 +185,18 @@ public class InitializeData {
     @Autowired
     private RequestDao requestDao;
 
+    @Deprecated
     private void testRequestsData(String email) throws ParseException {
 
         User user = userDao.findByEmail(email);
         Application application = applicationDao.selectByCompanyAdmin(user.company);
 
-        for(int i = 0; i < 50; i++){
+        for (int i = 0; i < 50; i++) {
 
             Request request = new Request();
             request.user = user;
             request.application = application;
-            request.requestDate = new SimpleDateFormat("dd/MM/yyyy hh/mm").parse("18/04/2019 12/"+i);
+            request.requestDate = new SimpleDateFormat("dd/MM/yyyy hh/mm").parse("18/04/2019 12/" + i);
             request.queryHash = TokenUtil.generateToken(i, 50);
             request.query = "select * from user";
 
@@ -189,12 +204,12 @@ public class InitializeData {
 
         }
 
-        for(int i = 0; i < 10; i++){
+        for (int i = 0; i < 10; i++) {
 
             Request request = new Request();
             request.user = user;
             request.application = application;
-            request.requestDate = new SimpleDateFormat("dd/MM/yyyy hh/mm").parse("18/04/2019 "+i+"/20");
+            request.requestDate = new SimpleDateFormat("dd/MM/yyyy hh/mm").parse("18/04/2019 " + i + "/20");
             request.queryHash = TokenUtil.generateToken(i, 50);
             request.query = "select * from user where id = :id";
 
@@ -203,12 +218,12 @@ public class InitializeData {
         }
 
 
-        for(int i = 0; i < 25; i++){
+        for (int i = 0; i < 25; i++) {
 
             Request request = new Request();
             request.user = user;
             request.application = application;
-            request.requestDate = new SimpleDateFormat("dd/MM/yyyy").parse(i+"/04/2019");
+            request.requestDate = new SimpleDateFormat("dd/MM/yyyy").parse(i + "/04/2019");
             request.queryHash = TokenUtil.generateToken(i, 50);
             request.query = "delete from user where id = :id";
 
@@ -222,17 +237,18 @@ public class InitializeData {
     @Autowired
     private QueryDao queryDao;
 
+    @Deprecated
     private void testQueriesData(String email) throws ParseException {
 
         User user = userDao.findByEmail(email);
         Application application = applicationDao.selectByCompanyAdmin(user.company);
 
-        for(int i = 0; i < 50; i++){
+        for (int i = 0; i < 50; i++) {
 
             Query query = new Query();
             query.user = user;
             query.application = application;
-            query.queryDate = new SimpleDateFormat("dd/MM/yyyy hh/mm").parse("18/04/2019 12/"+i);
+            query.queryDate = new SimpleDateFormat("dd/MM/yyyy hh/mm").parse("18/04/2019 12/" + i);
             query.hash = TokenUtil.generateToken(i, 50);
             query.query = "select * from user";
             query.used = (i % 2) == 0;
@@ -242,12 +258,12 @@ public class InitializeData {
 
         }
 
-        for(int i = 0; i < 10; i++){
+        for (int i = 0; i < 10; i++) {
 
             Query query = new Query();
             query.user = user;
             query.application = application;
-            query.queryDate = new SimpleDateFormat("dd/MM/yyyy hh/mm").parse("18/04/2019 "+i+"/20");
+            query.queryDate = new SimpleDateFormat("dd/MM/yyyy hh/mm").parse("18/04/2019 " + i + "/20");
             query.hash = TokenUtil.generateToken(i, 50);
             query.query = "select * from user where id = :id";
             query.used = (i % 2) == 0;
@@ -259,12 +275,12 @@ public class InitializeData {
         }
 
 
-        for(int i = 0; i < 25; i++){
+        for (int i = 0; i < 25; i++) {
 
             Query query = new Query();
             query.user = user;
             query.application = application;
-            query.queryDate = new SimpleDateFormat("dd/MM/yyyy").parse(i+"/04/2019");
+            query.queryDate = new SimpleDateFormat("dd/MM/yyyy").parse(i + "/04/2019");
             query.hash = TokenUtil.generateToken(i, 50);
             query.query = "delete from user where id = :id";
             query.used = (i % 2) == 0;
@@ -280,7 +296,7 @@ public class InitializeData {
 
     public void createTestData(String email, String name, String surname) throws ParseException {
 
-        if(userDao.findByEmail(email) == null){
+        if (userDao.findByEmail(email) == null) {
 
             createFullCompanyAdmin(email, name, surname);
             //  testBuildsData(email);
