@@ -54,7 +54,7 @@ public class QueryService {
         Query query = null;
 
         if (optionsResponse.allowedPlainQueries) {
-            query = queryDao.findByApplicationAndUserAndQuery(application, user, hash);
+            query = queryDao.findByApplicationAndUserAndQueryAndArchived(application, user, hash, false);
 
             if (query == null) {
                 throw new CryptographyException("Query not found");
@@ -68,7 +68,7 @@ public class QueryService {
             throw new CryptographyException("Salt incorrect");
         }
 
-        query = queryDao.findByApplicationAndUserAndHash(application, user, hash);
+        query = queryDao.findByApplicationAndUserAndHashAndArchived(application, user, hash, false);
 
         if (query == null) {
             throw new CryptographyException("Query not found");
