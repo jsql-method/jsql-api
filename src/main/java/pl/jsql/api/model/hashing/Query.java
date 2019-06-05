@@ -39,6 +39,9 @@ public class Query {
     public Boolean dynamic;
 
     @NotNull
+    public Boolean archived = false;
+
+    @NotNull
     @JsonFormat(pattern = "dd-MM-yyyy hh:mm:ss")
     @Temporal(TemporalType.TIMESTAMP)
     public Date queryDate;
