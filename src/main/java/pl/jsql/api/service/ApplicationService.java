@@ -120,15 +120,15 @@ public class ApplicationService {
     public MessageResponse create(ApplicationCreateRequest applicationCreateRequest) {
 
         User companyAdmin = securityService.getCompanyAdmin();
-        return this.create(companyAdmin, applicationCreateRequest, false);
+        return this.create(companyAdmin, applicationCreateRequest, null);
 
     }
 
     public MessageResponse create(User companyAdmin, ApplicationCreateRequest applicationCreateRequest) {
-        return this.create(companyAdmin, applicationCreateRequest, false);
+        return this.create(companyAdmin, applicationCreateRequest, null);
     }
 
-    public MessageResponse create(User companyAdmin, ApplicationCreateRequest applicationCreateRequest, Boolean testApiKey) {
+    public MessageResponse create(User companyAdmin, ApplicationCreateRequest applicationCreateRequest, String testApiKey) {
 
         if (!this.canCreateApplication(companyAdmin)) {
             return new MessageResponse(true, "applications_limit_reached");
@@ -155,8 +155,8 @@ public class ApplicationService {
         assignNewAppsToAppAdmins(companyAdmin, application);
         initializeApplicationOptions(application);
 
-        if(testApiKey){
-            application.apiKey = companyAdmin.email;
+        if(testApiKey != null){
+            application.apiKey = testApiKey;
             applicationDao.save(application);
         }
 
