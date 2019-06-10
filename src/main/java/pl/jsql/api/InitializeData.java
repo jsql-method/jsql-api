@@ -93,6 +93,8 @@ public class InitializeData {
         userService.resetPassword(user.token, new ResetPasswordRequest("test1234"));
         user = userDao.findByEmail(email);
 
+        this.createApplication(user, "Test application", email, email);
+
         String emailPrep = email.substring(0, email.indexOf("@"));
         this.createApplication(user, "angular1-test-app", email, emailPrep+"-angular1@jsql.it");
         this.createApplication(user, "angular7-test-app", email, emailPrep+"-angular7@jsql.it");
