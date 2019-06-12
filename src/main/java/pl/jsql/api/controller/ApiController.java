@@ -1,5 +1,6 @@
 package pl.jsql.api.controller;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,8 +50,11 @@ public class ApiController extends ValidateController {
     @Security(requireActiveSession = false)
     @HashingSecurity
     @PostMapping("/hashes")
-    public ResponseEntity<BasicResponse<List<QueryPairResponse>>> hashQuery(@RequestBody List<String> request, @RequestHeader(value = DEV_KEY_HEADER, required = true) String devKey, @RequestHeader(value = API_KEY_HEADER, required = true) String apiKey) {
-        List<QueryPairResponse> response = apiService.getRequestHashesResult(request);
+    public ResponseEntity<BasicResponse<List<QueryPairResponse>>> hashQuery(@RequestBody List<String> request,
+                                                                            @RequestHeader(value = DEV_KEY_HEADER, required = true) String devKey,
+                                                                            @RequestHeader(value = API_KEY_HEADER, required = true) String apiKey,
+                                                                            @RequestHeader(value = DEVELOPMENT_HEADER, required = true) String development) {
+        List<QueryPairResponse> response = apiService.getRequestHashesResult(request, new Boolean(development));
         return new ResponseEntity<>(new BasicResponse<>(200, response), HttpStatus.OK);
     }
 

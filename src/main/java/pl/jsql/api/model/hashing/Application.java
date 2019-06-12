@@ -37,4 +37,9 @@ public class Application {
     @JoinColumn(name = "production_developer_id")
     public User productionDeveloper;
 
+    @JsonIgnore
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "development_developer_id")
+    public User developmentDeveloper;
+
 }

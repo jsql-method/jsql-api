@@ -13,8 +13,9 @@ public class QueryResponse {
     public String developerName;
     public String applicationName;
     public Long applicationId;
+    public Boolean archived;
 
-    public QueryResponse(Long id, String query, String hash, Date queryDate, Boolean used, Boolean dynamic, String developerName, String applicationName, Long applicationId) {
+    public QueryResponse(Long id, String query, String hash, Date queryDate, Boolean used, Boolean dynamic, String developerName, String applicationName, Long applicationId, Boolean archived) {
         this.id = id;
         this.query = query;
         this.hash = hash;
@@ -24,6 +25,7 @@ public class QueryResponse {
         this.developerName = developerName;
         this.applicationName = applicationName;
         this.applicationId = applicationId;
+        this.archived = archived;
     }
 
 }

@@ -156,7 +156,7 @@ public class ApiService {
 
     }
 
-    public List<QueryPairResponse> getRequestHashesResult(List<String> requestQueries) {
+    public List<QueryPairResponse> getRequestHashesResult(List<String> requestQueries, Boolean development) {
 
         OptionsResponse optionsResponse = hashingService.getClientOptions();
         Application application = applicationDao.findByApiKey(optionsResponse.apiKey);
@@ -184,7 +184,7 @@ public class ApiService {
 
             if (query.length() > 0) {
 
-                String hash = hashingService.hashQuery(optionsResponse, query).trim();
+                String hash = hashingService.hashQuery(optionsResponse, query, development).trim();
 
 //                if (!optionsResponse.allowedPlainQueries) {
 //                    queryDao.updateByApplicationAndUserAndQueriesEqual(application, developer, query);
