@@ -156,7 +156,7 @@ public class QueryExtendedDao {
 
         StringBuilder builder = new StringBuilder();
 
-        builder.append("SELECT new pl.jsql.api.dto.response.QueryResponse(t.id, t.query, t.hash, t.queryDate, t.used, t.dynamic, concat(t.user.firstName, ' ', t.user.lastName), t.application.name, t.application.id) ");
+        builder.append("SELECT new pl.jsql.api.dto.response.QueryResponse(t.id, t.query, t.hash, t.queryDate, t.used, t.dynamic, concat(t.user.firstName, ' ', t.user.lastName), t.application.name, t.application.id, t.archived) ");
         builder.append("FROM Query t where t.queryDate >= :dateFrom and t.queryDate <= :dateTo ");
         builder.append("and t.user.company = :company ");
 
@@ -234,7 +234,7 @@ public class QueryExtendedDao {
 
         StringBuilder builder = new StringBuilder();
 
-        builder.append("SELECT new pl.jsql.api.dto.response.QueryResponse(t.id, t.query, t.hash, t.queryDate, t.used, t.dynamic, concat(t.user.firstName, ' ', t.user.lastName), t.application.name, t.application.id) ");
+        builder.append("SELECT new pl.jsql.api.dto.response.QueryResponse(t.id, t.query, t.hash, t.queryDate, t.used, t.dynamic, concat(t.user.firstName, ' ', t.user.lastName), t.application.name, t.application.id, t.archived) ");
         builder.append("FROM Query t where t.queryDate >= :dateFrom and t.queryDate <= :dateTo ");
         builder.append("and t.user = :currentUser ");
 

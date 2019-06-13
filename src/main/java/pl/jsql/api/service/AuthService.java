@@ -130,6 +130,7 @@ public class AuthService {
         user.firstName = userRequest.firstName.trim();
         user.lastName = userRequest.lastName.trim();
         user.isProductionDeveloper = false;
+        user.isDevelopmentDeveloper = false;
         user.registerDate = new Date();
         user.enabled = true;
 

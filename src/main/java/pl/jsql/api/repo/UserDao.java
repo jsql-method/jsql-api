@@ -33,10 +33,10 @@ public interface UserDao extends CrudRepository<User, Long> {
     @Query("select u from User u where u.company = :company and u.role = :role")
     List<User> findByCompanyAndRole(@Param("company") Company company, @Param("role") Role role);
 
-    @Query("select new pl.jsql.api.dto.response.AppDeveloperResponse(u.id, u.email, u.firstName, u.lastName, u.enabled) from User u where u.company = :company and u.role = :role and u.isProductionDeveloper <> true")
+    @Query("select new pl.jsql.api.dto.response.AppDeveloperResponse(u.id, u.email, u.firstName, u.lastName, u.enabled) from User u where u.company = :company and u.role = :role and u.isProductionDeveloper <> true and u.isDevelopmentDeveloper <> true")
     List<AppDeveloperResponse> findyByCompanyAndRoleWithoutFake(@Param("company") Company company, @Param("role") Role role);
 
-    @Query("select count(u) from User u where u.company = :company and u.isDeleted = false and u.isProductionDeveloper = false")
+    @Query("select count(u) from User u where u.company = :company and u.isDeleted = false and u.isProductionDeveloper = false and u.isDevelopmentDeveloper = false")
     Integer countActiveUsersByCompany(@Param("company") Company company);
 
     @Query("select case when count(u) > 0 then TRUE else FALSE end from User u where u.email = :email")

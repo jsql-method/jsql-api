@@ -136,22 +136,14 @@ public class ApplicationService {
 
         Application app = applicationDao.findByNameAndCompany(applicationCreateRequest.name, companyAdmin.company);
 
-        if (app != null && !app.active) {
-            app.active = true;
-            //Nowy developer bo przy wyłączaniu aplikacji (usuwaniu) po prostu są usuwane wiązania wraz z tym developerem
-            app.productionDeveloper = this.createFakeDeveloper(applicationCreateRequest.name, companyAdmin.company);
-
-            applicationDao.save(app);
-
-            return new MessageResponse(app.id.toString());
-
-        } else if (app != null) {
+        if (app != null) {
             return new MessageResponse(true,"application_already_exists");
         }
 
-
         Application application = this.createApplication(companyAdmin, applicationCreateRequest);
         assignUserToAppMember(companyAdmin, application);
+        assignUserToAppMember(application.productionDeveloper, application);
+        assignUserToAppMember(application.developmentDeveloper, application);
         assignNewAppsToAppAdmins(companyAdmin, application);
         initializeApplicationOptions(application);
 
@@ -164,12 +156,12 @@ public class ApplicationService {
 
     }
 
-    private User createFakeDeveloper(String name, Company company) {
+    private User createFakeDeveloper(String name, Company company, Boolean isProduction) {
 
-        String email = name + "@applicationDeveloper"+company.id;
+        String email = name + "@applicationDeveloper"+company.id+"-"+(isProduction ? "prod" : "dev");
         UserRequest userRequest = new UserRequest();
         userRequest.email = email;
-        userRequest.firstName = "application";
+        userRequest.firstName = isProduction ? "Production" : "Development";
         userRequest.lastName = "developer";
         userRequest.password = RandomStringUtils.randomAlphanumeric(10);
         userRequest.company = company.id;
@@ -180,7 +172,12 @@ public class ApplicationService {
 
         User applicationDeveloper = userDao.findByEmail(email);
 
-        applicationDeveloper.isProductionDeveloper = true;
+        if(isProduction){
+            applicationDeveloper.isProductionDeveloper = true;
+        }else{
+            applicationDeveloper.isDevelopmentDeveloper = true;
+        }
+
         applicationDeveloper.enabled = true;
 
         return userDao.save(applicationDeveloper);
@@ -198,11 +195,14 @@ public class ApplicationService {
         application.active = false;
 
         developerKeyDao.deleteByUser(application.productionDeveloper);
+        developerKeyDao.deleteByUser(application.developmentDeveloper);
         applicationDevelopersDao.deleteAllByApplication(application);
         userDao.delete(application.productionDeveloper);
+        userDao.delete(application.developmentDeveloper);
 
         application.name = application.name+"=="+ TokenUtil.randomSalt();
         application.productionDeveloper = null;
+        application.developmentDeveloper = null;
         applicationDao.save(application);
 
         return new MessageResponse();
@@ -288,7 +288,8 @@ public class ApplicationService {
         application.companyAdmin = companyAdmin;
         application.name = applicationCreateRequest.name;
 
-        application.productionDeveloper = this.createFakeDeveloper(applicationCreateRequest.name, companyAdmin.company);
+        application.productionDeveloper = this.createFakeDeveloper(applicationCreateRequest.name, companyAdmin.company, true);
+        application.developmentDeveloper = this.createFakeDeveloper(applicationCreateRequest.name, companyAdmin.company, false);
         application.active = true;
 
         return applicationDao.save(application);

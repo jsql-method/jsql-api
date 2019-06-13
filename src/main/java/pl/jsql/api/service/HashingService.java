@@ -129,9 +129,9 @@ public class HashingService {
 
     }
 
-    public String hashQuery(OptionsResponse options, String sqlQuery) {
+    public String hashQuery(OptionsResponse options, String sqlQuery, Boolean development) {
 
-        if(options.allowedPlainQueries){
+        if(options.allowedPlainQueries && development){
             return sqlQuery;
         }
 

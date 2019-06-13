@@ -24,6 +24,7 @@ public class HashingSecurityInterceptor {
 
     public static final String API_KEY_HEADER = "Api-Key";
     public static final String DEV_KEY_HEADER = "Dev-Key";
+    public static final String DEVELOPMENT_HEADER = "Development";
 
     @Autowired
     private HttpServletRequest request;
