@@ -41,6 +41,7 @@ public class UserRequest {
 
     public Boolean isTrial = false;
     public Integer trialDays;
+    public String testKeyPrefix;
 
     public UserRequest() {
     }

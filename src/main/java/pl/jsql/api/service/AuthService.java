@@ -94,7 +94,7 @@ public class AuthService {
         user.enabled = false;
         user = userDao.save(user);
 
-        this.createDeveloperKey(user);
+        this.createDeveloperKey(user, userRequest.testKeyPrefix);
 
         if(userRequest.isFakeDeveloper){
             return new MessageResponse();
@@ -112,11 +112,18 @@ public class AuthService {
     }
 
 
-    private DeveloperKey createDeveloperKey(User developer) {
+    private DeveloperKey createDeveloperKey(User developer, String testKeyPrefix) {
 
         DeveloperKey developerKey = new DeveloperKey();
         developerKey.user = developer;
-        developerKey.key = HashingUtil.encode(developer.role.toString() + developer.email + developer.firstName);
+
+        if(testKeyPrefix != null){
+            developerKey.key = testKeyPrefix;
+        }else{
+            developerKey.key = HashingUtil.encode(developer.role.toString() + developer.email + developer.firstName);
+        }
+
+
 
         return developerKeyDao.save(developerKey);
 
