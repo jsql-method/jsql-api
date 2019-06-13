@@ -71,6 +71,10 @@ public class Utils {
             str2 += str.substring(str.length() - 1, str.length());
         }
 
+        if(str2.trim().equals("*")){
+            return "";
+        }
+
         return str2;
 
     }
