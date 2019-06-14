@@ -110,7 +110,7 @@ public class InitializeData {
         MessageResponse messageResponse = applicationService.create(user, new ApplicationCreateRequest(name), apiKey);
 
         DeveloperKey developerKey = developerKeyDao.findByUser(user);
-        developerKey.key = devKey;
+        developerKey.key = "dev-key-"+devKey;
 
         developerKeyDao.save(developerKey);
 
