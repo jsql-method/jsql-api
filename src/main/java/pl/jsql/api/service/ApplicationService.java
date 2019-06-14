@@ -140,7 +140,7 @@ public class ApplicationService {
             return new MessageResponse(true,"application_already_exists");
         }
 
-        Application application = this.createApplication(companyAdmin, applicationCreateRequest);
+        Application application = this.createApplication(companyAdmin, applicationCreateRequest, testApiKey);
         assignUserToAppMember(companyAdmin, application);
         assignUserToAppMember(application.productionDeveloper, application);
         assignUserToAppMember(application.developmentDeveloper, application);
@@ -156,7 +156,7 @@ public class ApplicationService {
 
     }
 
-    private User createFakeDeveloper(String name, Company company, Boolean isProduction) {
+    private User createFakeDeveloper(String name, Company company, Boolean isProduction, String testKeyPrefix) {
 
         String email = name + "@applicationDeveloper"+company.id+"-"+(isProduction ? "prod" : "dev");
         UserRequest userRequest = new UserRequest();
@@ -167,6 +167,7 @@ public class ApplicationService {
         userRequest.company = company.id;
         userRequest.role = RoleTypeEnum.APP_DEV;
         userRequest.isFakeDeveloper = true;
+        userRequest.testKeyPrefix = testKeyPrefix;
 
         authService.register(userRequest);
 
@@ -279,7 +280,7 @@ public class ApplicationService {
 
     }
 
-    public Application createApplication(User companyAdmin, ApplicationCreateRequest applicationCreateRequest) {
+    public Application createApplication(User companyAdmin, ApplicationCreateRequest applicationCreateRequest, String testApiKey) {
 
         String apiKey = this.generateApiKey(applicationCreateRequest.name);
 
@@ -288,8 +289,8 @@ public class ApplicationService {
         application.companyAdmin = companyAdmin;
         application.name = applicationCreateRequest.name;
 
-        application.productionDeveloper = this.createFakeDeveloper(applicationCreateRequest.name, companyAdmin.company, true);
-        application.developmentDeveloper = this.createFakeDeveloper(applicationCreateRequest.name, companyAdmin.company, false);
+        application.productionDeveloper = this.createFakeDeveloper(applicationCreateRequest.name, companyAdmin.company, true, "production-"+testApiKey);
+        application.developmentDeveloper = this.createFakeDeveloper(applicationCreateRequest.name, companyAdmin.company, false, "development-"+testApiKey);
         application.active = true;
 
         return applicationDao.save(application);
