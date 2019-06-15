@@ -65,6 +65,21 @@ stages:
   #PROJECT_ID 
   #BRANCH
 .invoke_pipeline: &invoke_pipeline |
+
+  if [ 0 == `curl -s -k --request GET --header "PRIVATE-TOKEN: $TOKEN" --form status=running --form ref=$BRANCH https://gitlab.jsql.it/api/v4/projects/$PROJECT_ID/pipelines | jq length` ] ; then
+          echo "No running pipelines"
+  else
+          echo "Running process exist"
+          return 0
+  fi
+
+  if [ 0 == `curl -s -k --request GET --header "PRIVATE-TOKEN: $TOKEN" --form status=pending --form ref=$BRANCH https://gitlab.jsql.it/api/v4/projects/$PROJECT_ID/pipelines | jq length` ] ; then
+          echo "No pending pipelines"
+  else
+          echo "Pending process exist"
+          return 0
+  fi
+
   PIPELINE_ID=`curl -s -k --request POST --header "PRIVATE-TOKEN: $TOKEN" --form ref=$BRANCH https://gitlab.jsql.it/api/v4/projects/$PROJECT_ID/pipeline | jq .id`
   echo "PIPELINE_ID= $PIPELINE_ID"
 
@@ -72,7 +87,7 @@ stages:
   do
     STATE=`curl -s -k --request GET --header "PRIVATE-TOKEN: $TOKEN" https://gitlab.jsql.it/api/v4/projects/$PROJECT_ID/pipelines/$PIPELINE_ID  | jq -r .status`
     echo Status pipeline $PIPELINE_ID: $STATE
-    sleep 5
+    sleep 10
     if [ $STATE = success ]  ; then
       break
     fi
