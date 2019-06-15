@@ -167,6 +167,7 @@ deploy prod:
 
 jsql-react-test-app:
   stage: deploy test app
+  image: gempesaw/curl-jq:latest
   variables:
     PROJECT_ID: 58
     BRANCH: test
@@ -178,6 +179,7 @@ jsql-react-test-app:
 
 jsql-vue-test-app:
   stage: deploy test app
+  image: gempesaw/curl-jq:latest
   variables:
     PROJECT_ID: 64
     BRANCH: test
@@ -189,6 +191,7 @@ jsql-vue-test-app:
 
 jsql-angular7-test-app:
   stage: deploy test app
+  image: gempesaw/curl-jq:latest
   variables:
     PROJECT_ID: 34
     BRANCH: test
@@ -200,6 +203,7 @@ jsql-angular7-test-app:
 
 jsql-jquery-test-app:
   stage: deploy test app
+  image: gempesaw/curl-jq:latest
   variables:
     PROJECT_ID: 50
     BRANCH: test
@@ -211,6 +215,7 @@ jsql-jquery-test-app:
 
 jsql-angular1-test-app:
   stage: deploy test app
+  image: gempesaw/curl-jq:latest
   variables:
     PROJECT_ID: 24
     BRANCH: test
@@ -222,6 +227,7 @@ jsql-angular1-test-app:
 
 jsql-javascript1-test-app:
   stage: deploy test app
+  image: gempesaw/curl-jq:latest
   variables:
     PROJECT_ID: 44
     BRANCH: test
@@ -233,6 +239,7 @@ jsql-javascript1-test-app:
 
 jsql-spring-boot-test-app:
   stage: deploy test app
+  image: gempesaw/curl-jq:latest
   variables:
     PROJECT_ID: 61
     BRANCH: test
@@ -244,6 +251,7 @@ jsql-spring-boot-test-app:
 
 jsql-grails-test-app:
   stage: deploy test app
+  image: gempesaw/curl-jq:latest
   variables:
     PROJECT_ID: 40
     BRANCH: test
@@ -255,6 +263,7 @@ jsql-grails-test-app:
 
 jsql-node-test-app:
   stage: deploy test app
+  image: gempesaw/curl-jq:latest
   variables:
     PROJECT_ID: 54
     BRANCH: test
