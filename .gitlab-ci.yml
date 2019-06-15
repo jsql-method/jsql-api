@@ -159,7 +159,7 @@ jsql-react-test-app:
     - *invoke_pipeline
   only:
     refs:
-      - prod
+      - test
 
 jsql-vue-test-app:
   stage: deploy test app
@@ -170,6 +170,81 @@ jsql-vue-test-app:
     - *invoke_pipeline
   only:
     refs:
-      - prod
+      - test
 
+jsql-angular7-test-app:
+  stage: deploy test app
+  variables:
+    PROJECT_ID: 34
+    BRANCH: test
+  script: 
+    - *invoke_pipeline
+  only:
+    refs:
+      - test
 
+jsql-jquery-test-app:
+  stage: deploy test app
+  variables:
+    PROJECT_ID: 50
+    BRANCH: test
+  script: 
+    - *invoke_pipeline
+  only:
+    refs:
+      - test
+
+jsql-angular1-test-app:
+  stage: deploy test app
+  variables:
+    PROJECT_ID: 24
+    BRANCH: test
+  script: 
+    - *invoke_pipeline
+  only:
+    refs:
+      - test
+
+jsql-javascript1-test-app:
+  stage: deploy test app
+  variables:
+    PROJECT_ID: 44
+    BRANCH: test
+  script: 
+    - *invoke_pipeline
+  only:
+    refs:
+      - test
+
+jsql-spring-boot-test-app:
+  stage: deploy test app
+  variables:
+    PROJECT_ID: 61
+    BRANCH: test
+  script: 
+    - *invoke_pipeline
+  only:
+    refs:
+      - test
+
+jsql-grails-test-app:
+  stage: deploy test app
+  variables:
+    PROJECT_ID: 40
+    BRANCH: test
+  script: 
+    - *invoke_pipeline
+  only:
+    refs:
+      - test
+
+jsql-node-test-app:
+  stage: deploy test app
+  variables:
+    PROJECT_ID: 54
+    BRANCH: test
+  script: 
+    - *invoke_pipeline
+  only:
+    refs:
+      - test            
