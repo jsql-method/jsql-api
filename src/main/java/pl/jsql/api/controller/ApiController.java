@@ -52,9 +52,8 @@ public class ApiController extends ValidateController {
     @PostMapping("/hashes")
     public ResponseEntity<BasicResponse<List<QueryPairResponse>>> hashQuery(@RequestBody List<String> request,
                                                                             @RequestHeader(value = DEV_KEY_HEADER, required = true) String devKey,
-                                                                            @RequestHeader(value = API_KEY_HEADER, required = true) String apiKey,
-                                                                            @RequestHeader(value = DEVELOPMENT_HEADER, required = true) String development) {
-        List<QueryPairResponse> response = apiService.getRequestHashesResult(request, new Boolean(development));
+                                                                            @RequestHeader(value = API_KEY_HEADER, required = true) String apiKey) {
+        List<QueryPairResponse> response = apiService.getRequestHashesResult(request);
         return new ResponseEntity<>(new BasicResponse<>(200, response), HttpStatus.OK);
     }
 

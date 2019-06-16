@@ -10,7 +10,9 @@ import pl.jsql.api.exceptions.UnauthorizedException;
 import pl.jsql.api.model.hashing.Application;
 import pl.jsql.api.model.hashing.Options;
 import pl.jsql.api.model.hashing.Query;
+import pl.jsql.api.model.user.User;
 import pl.jsql.api.repo.ApplicationDao;
+import pl.jsql.api.repo.DeveloperKeyDao;
 import pl.jsql.api.repo.OptionsDao;
 import pl.jsql.api.repo.QueryDao;
 import pl.jsql.api.security.service.SecurityService;
@@ -33,6 +35,9 @@ public class HashingService {
     @Autowired
     private SecurityService securityService;
 
+    @Autowired
+    private DeveloperKeyDao developerKeyDao;
+
     public OptionsResponse getClientOptions() {
 
         Application application = applicationDao.findByApiKey(securityService.getApiKey());
@@ -42,9 +47,11 @@ public class HashingService {
         }
 
         Options options = optionsDao.findByApplication(application);
+        User developer = developerKeyDao.findByKey(securityService.getDevKey()).user;
 
         OptionsResponse optionsResponse = new OptionsResponse();
 
+        optionsResponse.isProductionDeveloper = developer.isProductionDeveloper;
         optionsResponse.apiKey = securityService.getApiKey();
         optionsResponse.encodingAlgorithm = options.encodingAlgorithm;
         optionsResponse.isSalt = options.isSalt;
@@ -58,7 +65,7 @@ public class HashingService {
         optionsResponse.removeQueriesAfterBuild = options.removeQueriesAfterBuild;
         optionsResponse.databaseDialect = options.databaseDialect;
         optionsResponse.allowedPlainQueries = options.allowedPlainQueries;
-        optionsResponse.prod = options.prod;
+        optionsResponse.prodCache = options.prodCache;
         optionsResponse.randomSaltAfter = options.randomSaltAfter;
         optionsResponse.randomSaltBefore = options.randomSaltBefore;
 

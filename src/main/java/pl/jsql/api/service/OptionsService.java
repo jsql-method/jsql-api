@@ -5,7 +5,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.jsql.api.dto.request.OptionsRequest;
 import pl.jsql.api.dto.request.ProductionToggleRequest;
-import pl.jsql.api.dto.response.*;
+import pl.jsql.api.dto.response.DatabaseConnectionResponse;
+import pl.jsql.api.dto.response.MessageResponse;
+import pl.jsql.api.dto.response.OptionsResponse;
+import pl.jsql.api.dto.response.OptionsValuesResponse;
 import pl.jsql.api.enums.DatabaseDialectEnum;
 import pl.jsql.api.enums.EncodingEnum;
 import pl.jsql.api.enums.RoleTypeEnum;
@@ -17,10 +20,6 @@ import pl.jsql.api.model.user.User;
 import pl.jsql.api.repo.*;
 import pl.jsql.api.security.service.SecurityService;
 import pl.jsql.api.utils.Utils;
-
-import javax.rmi.CORBA.Util;
-import java.util.Arrays;
-import java.util.List;
 
 
 @Transactional
@@ -80,7 +79,7 @@ public class OptionsService {
         optionsResponse.removeQueriesAfterBuild = options.removeQueriesAfterBuild;
         optionsResponse.databaseDialect = options.databaseDialect;
         optionsResponse.allowedPlainQueries = options.allowedPlainQueries;
-        optionsResponse.prod = options.prod;
+        optionsResponse.prodCache = options.prodCache;
         optionsResponse.apiKey = application.apiKey;
         optionsResponse.randomSaltBefore = options.randomSaltBefore;
         optionsResponse.randomSaltAfter = options.randomSaltAfter;
@@ -174,6 +173,9 @@ public class OptionsService {
     }
 
 
+    /**
+     * Włacza cache
+     */
     public MessageResponse toggleProduction(Long applicationId, ProductionToggleRequest productionToggleRequest) {
 
         Application application = applicationDao.findById(applicationId).orElse(null);
@@ -183,7 +185,7 @@ public class OptionsService {
         }
 
         Options options = optionsDao.findByApplication(application);
-        options.prod = productionToggleRequest.prod;
+        options.prodCache = productionToggleRequest.prodCache;
 
         optionsDao.save(options);
 
@@ -191,11 +193,23 @@ public class OptionsService {
 
     }
 
-    public Boolean isProduction(Application application){
+//    public Boolean isProduction(Application application){
+//
+//        Options options = optionsDao.findByApplication(application);
+//        return options.prodCache;
+//
+//    }
 
-        Options options = optionsDao.findByApplication(application);
-        return options.prod;
 
+    public MessageResponse purgeOptions(Long id) {
+        //TODO
+        return null;
+    }
+
+
+    public MessageResponse purgeQueries(Long id) {
+        //TODO
+        return null;
     }
 
 }

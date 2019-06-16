@@ -162,7 +162,7 @@ public class ApplicationService {
         UserRequest userRequest = new UserRequest();
         userRequest.email = email;
         userRequest.firstName = isProduction ? "Production" : "Development";
-        userRequest.lastName = "developer";
+        userRequest.lastName = "Service";
         userRequest.password = RandomStringUtils.randomAlphanumeric(10);
         userRequest.company = company.id;
         userRequest.role = RoleTypeEnum.APP_DEV;
@@ -265,6 +265,7 @@ public class ApplicationService {
         options.removeQueriesAfterBuild = true;
         options.databaseDialect = DatabaseDialectEnum.POSTGRES;
         options.allowedPlainQueries = false;
+        options.prodCache = true;
 
         options.prodDatabaseConnectionUrl = "";
         options.prodDatabaseConnectionUsername = "";

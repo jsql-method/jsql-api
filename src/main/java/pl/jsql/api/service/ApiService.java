@@ -51,12 +51,8 @@ public class ApiService {
 
         SimpleOptionsResponse simpleOptionsResponse = new SimpleOptionsResponse();
         simpleOptionsResponse.databaseDialect = optionsResponse.databaseDialect;
-
-        if (optionsResponse.prod) {
-            simpleOptionsResponse.databaseConnectionTimeout = optionsResponse.productionDatabaseOptions.databaseConnectionTimeout;
-        } else {
-            simpleOptionsResponse.databaseConnectionTimeout = optionsResponse.developerDatabaseOptions.databaseConnectionTimeout;
-        }
+        simpleOptionsResponse.productionDatabaseConnectionTimeout = optionsResponse.productionDatabaseOptions.databaseConnectionTimeout;
+        simpleOptionsResponse.developmentDatabaseConnectionTimeout = optionsResponse.developerDatabaseOptions.databaseConnectionTimeout;
 
         return simpleOptionsResponse;
 
@@ -156,7 +152,7 @@ public class ApiService {
 
     }
 
-    public List<QueryPairResponse> getRequestHashesResult(List<String> requestQueries, Boolean development) {
+    public List<QueryPairResponse> getRequestHashesResult(List<String> requestQueries) {
 
         OptionsResponse optionsResponse = hashingService.getClientOptions();
         Application application = applicationDao.findByApiKey(optionsResponse.apiKey);
@@ -166,6 +162,11 @@ public class ApiService {
         }
 
         User developer = developerKeyDao.findByKey(securityService.getMemberKey()).user;
+
+        Boolean development = true;
+        if(developer.isProductionDeveloper || developer.isDevelopmentDeveloper){
+            development = false;
+        }
 
         if (optionsResponse.removeQueriesAfterBuild) {
             queryService.deleteForApplicationAndMember(application, developer);
