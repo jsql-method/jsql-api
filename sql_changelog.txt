@@ -8,7 +8,8 @@ CREATE TABLE public.report_error
     details text COLLATE pg_catalog."default" NOT NULL,
     error_date timestamp without time zone NOT NULL,
     params text COLLATE pg_catalog."default" NOT NULL,
-    request_ip character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    request_ip character varying(255) COLLATE pg_catalog."default",
+    title character varying(255) COLLATE pg_catalog."default" NOT NULL,
     user_id bigint,
     CONSTRAINT report_error_pkey PRIMARY KEY (id),
     CONSTRAINT fkif969ymugdj20d8113v8n49cw FOREIGN KEY (user_id)

@@ -14,7 +14,7 @@ import pl.jsql.api.model.user.User;
 import pl.jsql.api.repo.PlanDao;
 import pl.jsql.api.repo.UserDao;
 import pl.jsql.api.repo.WebhookDao;
-import pl.jsql.api.service.freshdesk.FreshdeskTicketCreateService;
+import pl.jsql.api.service.ApiService;
 import pl.jsql.api.utils.Utils;
 
 import java.io.BufferedReader;
@@ -46,7 +46,7 @@ public class PabblyGetSubscriptionService {
     private PlanDao planDao;
 
     @Autowired
-    private FreshdeskTicketCreateService freshdeskTicketCreateService;
+    private ApiService apiService;
 
     public Integer getSubscriptionTrialDays(String subscriptionId) {
 
@@ -75,7 +75,7 @@ public class PabblyGetSubscriptionService {
                     response = response.substring(response.lastIndexOf("</div><div>") + 11, response.lastIndexOf("</div></body></html>"));
                 }
 
-                freshdeskTicketCreateService.createApi("PabblyGetSubscriptionService "+conn.getResponseCode() + ", " +response);
+                apiService.reportError("PabblyGetSubscriptionService "+conn.getResponseCode() + ", " +response);
                 throw new Exception("HTTP error code : " + conn.getResponseCode() + "\nHTTP error message : " + response);
             }
 
