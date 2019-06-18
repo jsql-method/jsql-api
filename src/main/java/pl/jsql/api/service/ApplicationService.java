@@ -290,8 +290,8 @@ public class ApplicationService {
         application.companyAdmin = companyAdmin;
         application.name = applicationCreateRequest.name;
 
-        application.productionDeveloper = this.createFakeDeveloper(applicationCreateRequest.name, companyAdmin.company, true, "production-"+testApiKey);
-        application.developmentDeveloper = this.createFakeDeveloper(applicationCreateRequest.name, companyAdmin.company, false, "development-"+testApiKey);
+        application.productionDeveloper = this.createFakeDeveloper(applicationCreateRequest.name, companyAdmin.company, true, testApiKey != null ? "production-"+testApiKey : null);
+        application.developmentDeveloper = this.createFakeDeveloper(applicationCreateRequest.name, companyAdmin.company, false, testApiKey != null ? "development-"+testApiKey : null);
         application.active = true;
 
         return applicationDao.save(application);

@@ -16,6 +16,7 @@ import pl.jsql.api.repo.DeveloperKeyDao;
 import pl.jsql.api.repo.OptionsDao;
 import pl.jsql.api.repo.QueryDao;
 import pl.jsql.api.security.service.SecurityService;
+import pl.jsql.api.service.freshdesk.FreshdeskTicketCreateService;
 import pl.jsql.api.utils.HashingUtil;
 import pl.jsql.api.utils.TokenUtil;
 
@@ -43,6 +44,7 @@ public class HashingService {
         Application application = applicationDao.findByApiKey(securityService.getApiKey());
 
         if (application == null) {
+            freshdeskTicketCreateService.createApi("unauthorized_with_key: apiKey: "+securityService.getApiKey());
             throw new UnauthorizedException("unauthorized_with_key");
         }
 
@@ -174,11 +176,15 @@ public class HashingService {
 
     }
 
+    @Autowired
+    private FreshdeskTicketCreateService freshdeskTicketCreateService;
+
     private String generateQueryHash(OptionsResponse options, String sqlQuery) {
 
         Application application = applicationDao.findByApiKey(options.apiKey);
 
         if (application == null) {
+            freshdeskTicketCreateService.createApi("cannot_generate_query_hash_e1: apiKey: "+options.apiKey);
             throw new CryptographyException("cannot_generate_query_hash_e1");
         }
 
@@ -193,6 +199,7 @@ public class HashingService {
         Query query = queryDao.findByHashAndApplication(hash, application);
 
         if (query != null) {
+            freshdeskTicketCreateService.createApi("cannot_generate_query_hash_e2: apiKey: "+options.apiKey+ " hash: "+hash);
             throw new CryptographyException("cannot_generate_query_hash_e2");
         }
 
