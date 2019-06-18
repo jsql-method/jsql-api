@@ -5,6 +5,6 @@ import pl.jsql.api.enums.DatabaseDialectEnum;
 public class SimpleOptionsResponse {
 
     public DatabaseDialectEnum databaseDialect;
-    public Integer databaseConnectionTimeout;
-
+    public Integer productionDatabaseConnectionTimeout;
+    public Integer developmentDatabaseConnectionTimeout;
 }

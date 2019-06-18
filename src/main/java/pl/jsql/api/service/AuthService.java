@@ -123,8 +123,6 @@ public class AuthService {
             developerKey.key = HashingUtil.encode(developer.role.toString() + developer.email + developer.firstName);
         }
 
-
-
         return developerKeyDao.save(developerKey);
 
     }

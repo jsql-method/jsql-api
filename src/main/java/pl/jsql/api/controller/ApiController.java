@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.jsql.api.controller.generic.ValidateController;
+import pl.jsql.api.dto.request.ReportErrorRequest;
 import pl.jsql.api.dto.response.BasicResponse;
 import pl.jsql.api.dto.response.OptionsResponse;
 import pl.jsql.api.dto.response.QueryPairResponse;
@@ -15,6 +16,7 @@ import pl.jsql.api.security.annotation.Security;
 import pl.jsql.api.service.ApiService;
 import pl.jsql.api.service.HashingService;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -52,9 +54,8 @@ public class ApiController extends ValidateController {
     @PostMapping("/hashes")
     public ResponseEntity<BasicResponse<List<QueryPairResponse>>> hashQuery(@RequestBody List<String> request,
                                                                             @RequestHeader(value = DEV_KEY_HEADER, required = true) String devKey,
-                                                                            @RequestHeader(value = API_KEY_HEADER, required = true) String apiKey,
-                                                                            @RequestHeader(value = DEVELOPMENT_HEADER, required = true) String development) {
-        List<QueryPairResponse> response = apiService.getRequestHashesResult(request, new Boolean(development));
+                                                                            @RequestHeader(value = API_KEY_HEADER, required = true) String apiKey) {
+        List<QueryPairResponse> response = apiService.getRequestHashesResult(request);
         return new ResponseEntity<>(new BasicResponse<>(200, response), HttpStatus.OK);
     }
 
@@ -73,4 +74,15 @@ public class ApiController extends ValidateController {
         List<QueryPairResponse> response = apiService.getRequestQueriesResult(request, true);
         return new ResponseEntity<>(new BasicResponse<>(200, response), HttpStatus.OK);
     }
+
+    @Security(requireActiveSession = false)
+    @HashingSecurity
+    @PostMapping("/error")
+    public ResponseEntity reportError(@RequestBody ReportErrorRequest request,
+                                      @RequestHeader(value = DEV_KEY_HEADER, required = true) String devKey,
+                                      @RequestHeader(value = API_KEY_HEADER, required = true) String apiKey, HttpServletRequest servletRequest) {
+       apiService.reportError(request, servletRequest.getRemoteAddr());
+        return new ResponseEntity<>(null, HttpStatus.OK);
+    }
+
 }
