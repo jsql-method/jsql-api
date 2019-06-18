@@ -27,3 +27,5 @@ ALTER TABLE public.report_error
 	
 
 ALTER TABLE public.options RENAME prod TO prod_cache;
+
+
