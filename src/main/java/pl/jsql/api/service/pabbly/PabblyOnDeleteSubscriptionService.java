@@ -15,7 +15,7 @@ import pl.jsql.api.model.user.User;
 import pl.jsql.api.repo.PlanDao;
 import pl.jsql.api.repo.UserDao;
 import pl.jsql.api.repo.WebhookDao;
-import pl.jsql.api.service.freshdesk.FreshdeskTicketCreateService;
+import pl.jsql.api.service.ApiService;
 import pl.jsql.api.utils.Utils;
 
 import java.io.BufferedReader;
@@ -47,7 +47,7 @@ public class PabblyOnDeleteSubscriptionService {
     private PlanDao planDao;
 
     @Autowired
-    private FreshdeskTicketCreateService freshdeskTicketCreateService;
+    private ApiService apiService;
 
     public void deleteSubscriptionOnPabbly(String subscriptionId) {
 
@@ -85,7 +85,7 @@ public class PabblyOnDeleteSubscriptionService {
                     response = response.substring(response.lastIndexOf("</div><div>") + 11, response.lastIndexOf("</div></body></html>"));
                 }
 
-                freshdeskTicketCreateService.createApi("PabblyOnDeleteSubscriptionService "+conn.getResponseCode() + ", " +response);
+                apiService.reportError("PabblyOnDeleteSubscriptionService "+conn.getResponseCode() + ", " +response);
                 throw new Exception("HTTP error code : " + conn.getResponseCode() + "\nHTTP error message : " + response);
             }
 

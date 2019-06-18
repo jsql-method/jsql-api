@@ -1,6 +1,7 @@
 package pl.jsql.api.service.pabbly;
 
 import com.google.gson.Gson;
+import io.swagger.annotations.Api;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +14,7 @@ import pl.jsql.api.model.user.User;
 import pl.jsql.api.repo.PlanDao;
 import pl.jsql.api.repo.UserDao;
 import pl.jsql.api.repo.WebhookDao;
-import pl.jsql.api.service.freshdesk.FreshdeskTicketCreateService;
+import pl.jsql.api.service.ApiService;
 import pl.jsql.api.utils.Utils;
 
 import java.io.BufferedReader;
@@ -39,7 +40,7 @@ public class PabblyOnUpdateCustomerDetailsService {
     private WebhookDao webhookDao;
 
     @Autowired
-    private FreshdeskTicketCreateService freshdeskTicketCreateService;
+    private ApiService apiService;
 
     public void updateCustomerDetails(String customerId, String firstName, String lastName) {
 
@@ -78,7 +79,7 @@ public class PabblyOnUpdateCustomerDetailsService {
                     response = response.substring(response.lastIndexOf("</div><div>") + 11, response.lastIndexOf("</div></body></html>"));
                 }
 
-                freshdeskTicketCreateService.createApi("PabblyOnUpdateCustomerDetailsService "+conn.getResponseCode() + ", " +response);
+                apiService.reportError("PabblyOnUpdateCustomerDetailsService "+conn.getResponseCode() + ", " +response);
                 throw new Exception("HTTP error code : " + conn.getResponseCode() + "\nHTTP error message : " + response);
             }
 

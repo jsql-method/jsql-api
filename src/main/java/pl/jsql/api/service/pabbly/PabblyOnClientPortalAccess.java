@@ -11,7 +11,7 @@ import pl.jsql.api.enums.PabblyStatus;
 import pl.jsql.api.model.payment.Webhook;
 import pl.jsql.api.repo.WebhookDao;
 import pl.jsql.api.security.service.SecurityService;
-import pl.jsql.api.service.freshdesk.FreshdeskTicketCreateService;
+import pl.jsql.api.service.ApiService;
 import pl.jsql.api.utils.Utils;
 
 import java.io.BufferedReader;
@@ -40,7 +40,7 @@ public class PabblyOnClientPortalAccess {
     private SecurityService securityService;
 
     @Autowired
-    private FreshdeskTicketCreateService freshdeskTicketCreateService;
+    private ApiService apiService;
 
     public PabblyClientPortalAccess getClientPortalAccess() {
 
@@ -80,7 +80,7 @@ public class PabblyOnClientPortalAccess {
                     response = response.substring(response.lastIndexOf("</div><div>") + 11, response.lastIndexOf("</div></body></html>"));
                 }
 
-                freshdeskTicketCreateService.createApi("PabblyOnClientPortalAccess "+conn.getResponseCode() + ", " +response);
+                apiService.reportError("PabblyOnClientPortalAccess "+conn.getResponseCode() + ", " +response);
                 throw new Exception("HTTP error code : " + conn.getResponseCode() + "\nHTTP error message : " + response);
             }
 

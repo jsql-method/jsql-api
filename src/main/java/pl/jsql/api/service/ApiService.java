@@ -20,7 +20,7 @@ import pl.jsql.api.repo.DeveloperKeyDao;
 import pl.jsql.api.repo.QueryDao;
 import pl.jsql.api.repo.ReportErrorDao;
 import pl.jsql.api.security.service.SecurityService;
-import pl.jsql.api.service.freshdesk.FreshdeskTicketCreateService;
+import pl.jsql.api.utils.TokenUtil;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -170,13 +170,13 @@ public class ApiService {
         User developer = developerKeyDao.findByKey(securityService.getMemberKey()).user;
 
         Boolean development = true;
-        if(developer.isProductionDeveloper || developer.isDevelopmentDeveloper){
+        if (developer.isProductionDeveloper || developer.isDevelopmentDeveloper) {
             development = false;
         }
 
         if (optionsResponse.removeQueriesAfterBuild) {
             queryService.deleteForApplicationAndMember(application, developer);
-        }else{
+        } else {
             queryDao.invalidateAllQueries(application, developer);
         }
 
@@ -214,12 +214,10 @@ public class ApiService {
     @Autowired
     private ReportErrorDao reportErrorDao;
 
-    @Autowired
-    private FreshdeskTicketCreateService freshdeskTicketCreateService;
-
     public void reportError(ReportErrorRequest request, String ipRequest) {
 
         ReportError reportError = new ReportError();
+        reportError.title = "JSQL CLI error " + TokenUtil.randomSalt();
         reportError.details = request.d;
         reportError.params = new Gson().toJson(request.p);
         reportError.errorDate = new Date();
@@ -228,8 +226,19 @@ public class ApiService {
 
         reportErrorDao.save(reportError);
 
-        freshdeskTicketCreateService.createCli(reportError);
-
     }
 
+    public void reportError(String message) {
+
+        ReportError reportError = new ReportError();
+        reportError.title = "JSQL API error " + TokenUtil.randomSalt();
+        reportError.details = message;
+        reportError.params = null;
+        reportError.errorDate = new Date();
+        reportError.requestIp = null;
+        reportError.developer = null;
+
+        reportErrorDao.save(reportError);
+
+    }
 }

@@ -10,7 +10,7 @@ import pl.jsql.api.dto.request.UserRequest;
 import pl.jsql.api.enums.PabblyStatus;
 import pl.jsql.api.model.payment.Webhook;
 import pl.jsql.api.repo.WebhookDao;
-import pl.jsql.api.service.freshdesk.FreshdeskTicketCreateService;
+import pl.jsql.api.service.ApiService;
 import pl.jsql.api.utils.Utils;
 
 import java.io.BufferedReader;
@@ -36,7 +36,7 @@ public class PabblyGetCustomerService {
     private WebhookDao webhookDao;
 
     @Autowired
-    private FreshdeskTicketCreateService freshdeskTicketCreateService;
+    private ApiService apiService;
 
     public UserRequest getCustomer(String customerId) {
 
@@ -65,7 +65,7 @@ public class PabblyGetCustomerService {
                     response = response.substring(response.lastIndexOf("</div><div>") + 11, response.lastIndexOf("</div></body></html>"));
                 }
 
-                freshdeskTicketCreateService.createApi("PabblyGetCustomerService "+conn.getResponseCode() + ", " +response);
+                apiService.reportError("PabblyGetCustomerService "+conn.getResponseCode() + ", " +response);
                 throw new Exception("HTTP error code : " + conn.getResponseCode() + "\nHTTP error message : " + response);
             }
 

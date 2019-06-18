@@ -19,7 +19,6 @@ import pl.jsql.api.model.hashing.Options;
 import pl.jsql.api.model.user.User;
 import pl.jsql.api.repo.*;
 import pl.jsql.api.security.service.SecurityService;
-import pl.jsql.api.service.freshdesk.FreshdeskTicketCreateService;
 import pl.jsql.api.utils.Utils;
 
 
@@ -46,7 +45,7 @@ public class OptionsService {
     SecurityService securityService;
 
     @Autowired
-    private FreshdeskTicketCreateService freshdeskTicketCreateService;
+    private ApiService apiService;
 
     public OptionsResponse getByApplicationId(Long applicationId) {
 

@@ -19,6 +19,8 @@ public class ReportError {
     public Long id;
 
     @NotNull
+    public String title;
+
     public String requestIp;
 
     @Type(type = "org.hibernate.type.TextType")
@@ -38,5 +40,6 @@ public class ReportError {
     @JsonFormat(pattern = "dd-MM-yyyy hh:mm:ss")
     @Temporal(TemporalType.TIMESTAMP)
     public Date errorDate;
+
 
 }
