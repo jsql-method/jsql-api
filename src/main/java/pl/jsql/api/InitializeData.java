@@ -102,6 +102,7 @@ public class InitializeData {
         this.createApplication(user, "jquery-test-app", email, emailPrep+"-jquery@jsql.it");
         this.createApplication(user, "react-test-app", email, emailPrep+"-react@jsql.it");
         this.createApplication(user, "vue-test-app", email, emailPrep+"-vue@jsql.it");
+        this.createApplication(user, "php-test-app", email, emailPrep+"-php@jsql.it");
 
     }
 
