@@ -1,9 +1,11 @@
 package pl.jsql.api.service;
 
+import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.jsql.api.dto.request.QueryUpdateRequest;
+import pl.jsql.api.dto.request.ReportErrorRequest;
 import pl.jsql.api.dto.response.MessageResponse;
 import pl.jsql.api.dto.response.OptionsResponse;
 import pl.jsql.api.dto.response.QueryPairResponse;
@@ -11,13 +13,17 @@ import pl.jsql.api.dto.response.SimpleOptionsResponse;
 import pl.jsql.api.exceptions.UnauthorizedException;
 import pl.jsql.api.model.hashing.Application;
 import pl.jsql.api.model.hashing.Query;
+import pl.jsql.api.model.stats.ReportError;
 import pl.jsql.api.model.user.User;
 import pl.jsql.api.repo.ApplicationDao;
 import pl.jsql.api.repo.DeveloperKeyDao;
 import pl.jsql.api.repo.QueryDao;
+import pl.jsql.api.repo.ReportErrorDao;
 import pl.jsql.api.security.service.SecurityService;
+import pl.jsql.api.service.freshdesk.FreshdeskTicketCreateService;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Transactional
@@ -51,12 +57,8 @@ public class ApiService {
 
         SimpleOptionsResponse simpleOptionsResponse = new SimpleOptionsResponse();
         simpleOptionsResponse.databaseDialect = optionsResponse.databaseDialect;
-
-        if (optionsResponse.prod) {
-            simpleOptionsResponse.databaseConnectionTimeout = optionsResponse.productionDatabaseOptions.databaseConnectionTimeout;
-        } else {
-            simpleOptionsResponse.databaseConnectionTimeout = optionsResponse.developerDatabaseOptions.databaseConnectionTimeout;
-        }
+        simpleOptionsResponse.productionDatabaseConnectionTimeout = optionsResponse.productionDatabaseOptions.databaseConnectionTimeout;
+        simpleOptionsResponse.developmentDatabaseConnectionTimeout = optionsResponse.developerDatabaseOptions.databaseConnectionTimeout;
 
         return simpleOptionsResponse;
 
@@ -156,7 +158,7 @@ public class ApiService {
 
     }
 
-    public List<QueryPairResponse> getRequestHashesResult(List<String> requestQueries, Boolean development) {
+    public List<QueryPairResponse> getRequestHashesResult(List<String> requestQueries) {
 
         OptionsResponse optionsResponse = hashingService.getClientOptions();
         Application application = applicationDao.findByApiKey(optionsResponse.apiKey);
@@ -166,6 +168,11 @@ public class ApiService {
         }
 
         User developer = developerKeyDao.findByKey(securityService.getMemberKey()).user;
+
+        Boolean development = true;
+        if(developer.isProductionDeveloper || developer.isDevelopmentDeveloper){
+            development = false;
+        }
 
         if (optionsResponse.removeQueriesAfterBuild) {
             queryService.deleteForApplicationAndMember(application, developer);
@@ -201,6 +208,27 @@ public class ApiService {
         statsService.saveBuild(application, developer, requestQueries.size());
 
         return responseQueryHashList;
+
+    }
+
+    @Autowired
+    private ReportErrorDao reportErrorDao;
+
+    @Autowired
+    private FreshdeskTicketCreateService freshdeskTicketCreateService;
+
+    public void reportError(ReportErrorRequest request, String ipRequest) {
+
+        ReportError reportError = new ReportError();
+        reportError.details = request.d;
+        reportError.params = new Gson().toJson(request.p);
+        reportError.errorDate = new Date();
+        reportError.requestIp = ipRequest;
+        reportError.developer = developerKeyDao.findByKey(securityService.getDevKey()).user;
+
+        reportErrorDao.save(reportError);
+
+        freshdeskTicketCreateService.createCli(reportError);
 
     }
 

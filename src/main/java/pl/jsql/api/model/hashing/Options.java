@@ -60,7 +60,7 @@ public class Options {
     public DatabaseDialectEnum databaseDialect;
 
     @NotNull
-    public Boolean prod = false;
+    public Boolean prodCache = true;
 
     @NotNull
     public String randomSaltBefore = TokenUtil.randomSalt();

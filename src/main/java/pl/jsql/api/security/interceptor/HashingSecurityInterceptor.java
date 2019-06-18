@@ -62,13 +62,13 @@ public class HashingSecurityInterceptor {
             return new ResponseEntity<>(new MessageResponse(true,"Unauthorized"), HttpStatus.UNAUTHORIZED);
         }
 
-        if(!optionsService.isProduction(application) && developerKey.user.isProductionDeveloper){
-            return new ResponseEntity<>(new MessageResponse(true,"Unauthorized"), HttpStatus.UNAUTHORIZED);
-        }
-
-        if(optionsService.isProduction(application) && !developerKey.user.isProductionDeveloper){
-            return new ResponseEntity<>(new MessageResponse(true,"Unauthorized"), HttpStatus.UNAUTHORIZED);
-        }
+//        if(!optionsService.isProduction(application) && developerKey.user.isProductionDeveloper){
+//            return new ResponseEntity<>(new MessageResponse(true,"Unauthorized"), HttpStatus.UNAUTHORIZED);
+//        }
+//
+//        if(optionsService.isProduction(application) && !developerKey.user.isProductionDeveloper){
+//            return new ResponseEntity<>(new MessageResponse(true,"Unauthorized"), HttpStatus.UNAUTHORIZED);
+//        }
 
         if (applicationDevelopersDao.findByUserAndAppQuery(developerKey.user, application) == null) {
             return new ResponseEntity<>(new MessageResponse(true,"Unauthorized"), HttpStatus.UNAUTHORIZED);

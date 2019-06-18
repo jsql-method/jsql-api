@@ -45,6 +45,20 @@ public class OptionsController extends ValidateController {
     }
 
     @Security(roles = {RoleTypeEnum.ADMIN, RoleTypeEnum.COMPANY_ADMIN, RoleTypeEnum.APP_ADMIN})
+    @PatchMapping("/purge-queries/{id}")
+    public BasicResponse<MessageResponse> purgeQueries(@PathVariable("id") Long id) {
+        MessageResponse response = optionsService.purgeQueries(id);
+        return new BasicResponse<>(200, response);
+    }
+
+    @Security(roles = {RoleTypeEnum.ADMIN, RoleTypeEnum.COMPANY_ADMIN, RoleTypeEnum.APP_ADMIN})
+    @PatchMapping("/purge-options/{id}")
+    public BasicResponse<MessageResponse> purgeOptions(@PathVariable("id") Long id) {
+        MessageResponse response = optionsService.purgeOptions(id);
+        return new BasicResponse<>(200, response);
+    }
+
+    @Security(roles = {RoleTypeEnum.ADMIN, RoleTypeEnum.COMPANY_ADMIN, RoleTypeEnum.APP_ADMIN})
     @GetMapping("/values")
     public BasicResponse<OptionsValuesResponse> getOptionsValue() {
         OptionsValuesResponse response = optionsService.getValues();

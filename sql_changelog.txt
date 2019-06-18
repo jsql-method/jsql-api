@@ -1,0 +1,28 @@
+-- Table: public.report_error
+
+-- DROP TABLE public.report_error;
+
+CREATE TABLE public.report_error
+(
+    id bigint NOT NULL,
+    details text COLLATE pg_catalog."default" NOT NULL,
+    error_date timestamp without time zone NOT NULL,
+    params text COLLATE pg_catalog."default" NOT NULL,
+    request_ip character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    user_id bigint,
+    CONSTRAINT report_error_pkey PRIMARY KEY (id),
+    CONSTRAINT fkif969ymugdj20d8113v8n49cw FOREIGN KEY (user_id)
+        REFERENCES public."user" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE public.report_error
+    OWNER to postgres;
+	
+
+ALTER TABLE public.options RENAME prod TO prod_cache;

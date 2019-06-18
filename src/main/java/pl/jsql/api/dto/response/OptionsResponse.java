@@ -32,7 +32,7 @@ public class OptionsResponse {
 
     public Boolean allowedPlainQueries;
 
-    public Boolean prod;
+    public Boolean prodCache;
 
     public String randomSaltBefore;
 
@@ -41,6 +41,8 @@ public class OptionsResponse {
     public DatabaseConnectionResponse productionDatabaseOptions;
 
     public DatabaseConnectionResponse developerDatabaseOptions;
+
+    public Boolean isProductionDeveloper;
 
     @Override
     public String toString() {
@@ -58,7 +60,7 @@ public class OptionsResponse {
                 ", removeQueriesAfterBuild=" + removeQueriesAfterBuild +
                 ", databaseDialect=" + databaseDialect +
                 ", allowedPlainQueries=" + allowedPlainQueries +
-                ", prod=" + prod +
+                ", prodCache=" + prodCache +
                 ", randomSaltBefore='" + randomSaltBefore + '\'' +
                 ", randomSaltAfter='" + randomSaltAfter + '\'' +
                 ", productionDatabaseOptions=" + productionDatabaseOptions +

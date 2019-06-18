@@ -13,6 +13,7 @@ import pl.jsql.api.model.user.User;
 import pl.jsql.api.repo.PlanDao;
 import pl.jsql.api.repo.UserDao;
 import pl.jsql.api.repo.WebhookDao;
+import pl.jsql.api.service.freshdesk.FreshdeskTicketCreateService;
 import pl.jsql.api.utils.Utils;
 
 import java.io.BufferedReader;
@@ -36,6 +37,9 @@ public class PabblyOnUpdateCustomerDetailsService {
 
     @Autowired
     private WebhookDao webhookDao;
+
+    @Autowired
+    private FreshdeskTicketCreateService freshdeskTicketCreateService;
 
     public void updateCustomerDetails(String customerId, String firstName, String lastName) {
 
@@ -74,6 +78,7 @@ public class PabblyOnUpdateCustomerDetailsService {
                     response = response.substring(response.lastIndexOf("</div><div>") + 11, response.lastIndexOf("</div></body></html>"));
                 }
 
+                freshdeskTicketCreateService.createApi("PabblyOnUpdateCustomerDetailsService "+conn.getResponseCode() + ", " +response);
                 throw new Exception("HTTP error code : " + conn.getResponseCode() + "\nHTTP error message : " + response);
             }
 
