@@ -53,7 +53,7 @@ public class QueryService {
 
         Query query = null;
 
-        if (!optionsResponse.prod && optionsResponse.allowedPlainQueries && !user.isDevelopmentDeveloper) {
+        if (optionsResponse.allowedPlainQueries && !user.isDevelopmentDeveloper && !user.isProductionDeveloper) {
             query = queryDao.findByApplicationAndUserAndQueryAndArchived(application, user, hash, false);
 
             if (query == null) {

@@ -162,7 +162,7 @@ public class ApplicationService {
         UserRequest userRequest = new UserRequest();
         userRequest.email = email;
         userRequest.firstName = isProduction ? "Production" : "Development";
-        userRequest.lastName = "developer";
+        userRequest.lastName = "Service";
         userRequest.password = RandomStringUtils.randomAlphanumeric(10);
         userRequest.company = company.id;
         userRequest.role = RoleTypeEnum.APP_DEV;
@@ -265,6 +265,7 @@ public class ApplicationService {
         options.removeQueriesAfterBuild = true;
         options.databaseDialect = DatabaseDialectEnum.POSTGRES;
         options.allowedPlainQueries = false;
+        options.prodCache = true;
 
         options.prodDatabaseConnectionUrl = "";
         options.prodDatabaseConnectionUsername = "";
@@ -289,8 +290,8 @@ public class ApplicationService {
         application.companyAdmin = companyAdmin;
         application.name = applicationCreateRequest.name;
 
-        application.productionDeveloper = this.createFakeDeveloper(applicationCreateRequest.name, companyAdmin.company, true, "production-"+testApiKey);
-        application.developmentDeveloper = this.createFakeDeveloper(applicationCreateRequest.name, companyAdmin.company, false, "development-"+testApiKey);
+        application.productionDeveloper = this.createFakeDeveloper(applicationCreateRequest.name, companyAdmin.company, true, testApiKey != null ? "production-"+testApiKey : null);
+        application.developmentDeveloper = this.createFakeDeveloper(applicationCreateRequest.name, companyAdmin.company, false, testApiKey != null ? "development-"+testApiKey : null);
         application.active = true;
 
         return applicationDao.save(application);

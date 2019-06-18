@@ -7,15 +7,15 @@ public class ApplicationResponse {
     public String name;
     public String developerKey;
     public String productionKey;
-    public Boolean prod;
+    public Boolean prodCache;
 
-    public ApplicationResponse(Long id, String apiKey, String name, String developerKey, String productionKey, Boolean prod) {
+    public ApplicationResponse(Long id, String apiKey, String name, String developerKey, String productionKey, Boolean prodCache) {
         this.id = id;
         this.apiKey = apiKey;
         this.name = name;
         this.developerKey = developerKey;
         this.productionKey = productionKey;
-        this.prod = prod;
+        this.prodCache = prodCache;
     }
 
 }
