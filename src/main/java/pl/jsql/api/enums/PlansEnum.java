@@ -4,7 +4,8 @@ public enum PlansEnum {
 
     STARTER("STARTER", 1, 1),
     BUSINESS("BUSINESS", 10, 5),
-    LARGE("LARGE", 20, 15);
+    LARGE("LARGE", 20, 15),
+    UNLIMITED("UNLIMITED", 99, 99);
 
     public String name;
     public int maxApps;

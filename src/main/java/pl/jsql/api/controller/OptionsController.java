@@ -14,6 +14,7 @@ import pl.jsql.api.security.annotation.Security;
 import pl.jsql.api.service.OptionsService;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @CrossOrigin
 @RestController
@@ -44,12 +45,12 @@ public class OptionsController extends ValidateController {
         return new BasicResponse<>(200, response);
     }
 
-    @Security(roles = {RoleTypeEnum.ADMIN, RoleTypeEnum.COMPANY_ADMIN, RoleTypeEnum.APP_ADMIN})
-    @PatchMapping("/purge-queries/{id}")
-    public BasicResponse<MessageResponse> purgeQueries(@PathVariable("id") Long id) {
-        MessageResponse response = optionsService.purgeQueries(id);
-        return new BasicResponse<>(200, response);
-    }
+//    @Security(roles = {RoleTypeEnum.ADMIN, RoleTypeEnum.COMPANY_ADMIN, RoleTypeEnum.APP_ADMIN})
+//    @PatchMapping("/purge-queries/{id}")
+//    public BasicResponse<MessageResponse> purgeQueries(@PathVariable("id") Long id) {
+//        MessageResponse response = optionsService.purgeQueries(id);
+//        return new BasicResponse<>(200, response);
+//    }
 
     @Security(roles = {RoleTypeEnum.ADMIN, RoleTypeEnum.COMPANY_ADMIN, RoleTypeEnum.APP_ADMIN})
     @PatchMapping("/purge-options/{id}")

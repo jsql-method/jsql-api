@@ -6,6 +6,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pl.jsql.api.dto.response.ApplicationResponse;
+import pl.jsql.api.dto.response.CacheInfoResponse;
 import pl.jsql.api.model.hashing.Application;
 import pl.jsql.api.model.user.Company;
 import pl.jsql.api.model.user.User;
@@ -54,7 +55,7 @@ public interface ApplicationDao extends CrudRepository<Application, Long> {
     ApplicationResponse selectApplicationForAppAdmin(@Param("id") Long id, @Param("appAdmin") User appAdmin);
 
     @Query("select new pl.jsql.api.dto.response.ApplicationResponse(a.id, a.apiKey, a.name, d2.key, d.key, o.prodCache) from Application a, DeveloperKey d, DeveloperKey d2, Options o where a.id = :id and a.companyAdmin = :companyAdmin and a.productionDeveloper = d.user and a.developmentDeveloper = d2.user and o.application = a")
-    ApplicationResponse selectApplicationForCompanyAdmin(@Param("id")Long id, @Param("companyAdmin") User companyAdmin);
+    ApplicationResponse selectApplicationForCompanyAdmin(@Param("id") Long id, @Param("companyAdmin") User companyAdmin);
 
     @Query("select count(a) from Application a where a.companyAdmin = :companyAdmin and a.active = true")
     Integer countActiveApplicationsByCompanyAdmin(@Param("companyAdmin") User companyAdmin);
@@ -67,6 +68,19 @@ public interface ApplicationDao extends CrudRepository<Application, Long> {
 
     @Query("select a from Application a where a.companyAdmin in (select u from User u where u.company = :company)")
     Application selectByCompanyAdmin(@Param("company") Company company);
+
+//    @Query("select a.apiKey from Application a where a.purgeQueries = true")
+//    List<String> selectAllApiKeysWherePurgeQueries();
+
+    @Query("select a.apiKey from Application a, Options o where o.purgeOptions = true and o.application = a")
+    List<String> selectAllApiKeysWherePurgeOptions();
+
+    @Modifying
+    @Query("update Options o set o.purgeOptions = false, o.purgeQueries = false")
+    void updatePurge();
+
+//    @Query("select new pl.jsql.api.dto.response.CacheInfoResponse(a.apiKey, o.prodCache) from Application a, Options o where o.application = a")
+//    List<CacheInfoResponse> selectAllApiKeysWithProdCache();
 
 }
 

@@ -87,7 +87,7 @@ public class InitializeData {
 
     private void createFullCompanyAdmin(String email, String name, String surname) {
 
-        authService.register(new UserRequest(email, "x", name, surname, "JSQL Sp.z.o.o.", PlansEnum.BUSINESS, "TEST", "TEST"));
+        authService.register(new UserRequest(email, "x", name, surname, "JSQL Sp.z.o.o.", PlansEnum.UNLIMITED, "TEST", "TEST"));
 
         User user = userDao.findByEmail(email);
         userService.resetPassword(user.token, new ResetPasswordRequest("test1234"));
@@ -103,6 +103,10 @@ public class InitializeData {
         this.createApplication(user, "react-test-app", email, emailPrep+"-react@jsql.it");
         this.createApplication(user, "vue-test-app", email, emailPrep+"-vue@jsql.it");
         this.createApplication(user, "php-test-app", email, emailPrep+"-php@jsql.it");
+        this.createApplication(user, "laravel-test-app", email, emailPrep+"-laravel@jsql.it");
+        this.createApplication(user, "django-test-app", email, emailPrep+"-django@jsql.it");
+        this.createApplication(user, "ruby-test-app", email, emailPrep+"-ruby@jsql.it");
+        this.createApplication(user, "net-test-app", email, emailPrep+"-net@jsql.it");
 
     }
 
@@ -114,6 +118,8 @@ public class InitializeData {
         developerKey.key = "dev-key-"+devKey;
 
         developerKeyDao.save(developerKey);
+
+        System.out.println("messageResponse.message : "+messageResponse.message);
 
         Application application = applicationDao.findById(Long.valueOf(messageResponse.message)).orElse(null);
 

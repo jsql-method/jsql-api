@@ -36,6 +36,9 @@ public interface QueryDao extends CrudRepository<Query, Long> {
     @Modifying
     @org.springframework.data.jpa.repository.Query("update Query q set q.archived = true where q.application = :application and q.user = :developer")
     void invalidateAllQueries(@Param("application") Application application, @Param("developer") User developer);
+
+    Query findByApplicationAndHashAndArchived(Application application, String hash, boolean b);
+
 }
 
 
