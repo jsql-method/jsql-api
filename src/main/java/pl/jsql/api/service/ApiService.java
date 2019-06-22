@@ -158,6 +158,9 @@ public class ApiService {
 
     }
 
+    @Autowired
+    private OptionsService optionsService;
+
     public List<QueryPairResponse> getRequestHashesResult(List<String> requestQueries) {
 
         OptionsResponse optionsResponse = hashingService.getClientOptions();
@@ -169,10 +172,18 @@ public class ApiService {
 
         User developer = developerKeyDao.findByKey(securityService.getMemberKey()).user;
 
+        System.out.println("securityService.getMemberKey() : "+securityService.getMemberKey());
+        System.out.println("optionsResponse : "+optionsResponse.toString());
+        System.out.println("developer.isProductionDeveloper: "+developer.isProductionDeveloper);
+        System.out.println("developer.isDevelopmentDeveloper: "+developer.isDevelopmentDeveloper);
+
         Boolean development = true;
         if (developer.isProductionDeveloper || developer.isDevelopmentDeveloper) {
             development = false;
+      //      optionsService.purgeQueries(application.id);
         }
+
+        System.out.println("development: "+development);
 
         if (optionsResponse.removeQueriesAfterBuild) {
             queryService.deleteForApplicationAndMember(application, developer);

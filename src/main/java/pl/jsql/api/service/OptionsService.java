@@ -3,12 +3,10 @@ package pl.jsql.api.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.DigestUtils;
 import pl.jsql.api.dto.request.OptionsRequest;
 import pl.jsql.api.dto.request.ProductionToggleRequest;
-import pl.jsql.api.dto.response.DatabaseConnectionResponse;
-import pl.jsql.api.dto.response.MessageResponse;
-import pl.jsql.api.dto.response.OptionsResponse;
-import pl.jsql.api.dto.response.OptionsValuesResponse;
+import pl.jsql.api.dto.response.*;
 import pl.jsql.api.enums.DatabaseDialectEnum;
 import pl.jsql.api.enums.EncodingEnum;
 import pl.jsql.api.enums.RoleTypeEnum;
@@ -20,6 +18,9 @@ import pl.jsql.api.model.user.User;
 import pl.jsql.api.repo.*;
 import pl.jsql.api.security.service.SecurityService;
 import pl.jsql.api.utils.Utils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Transactional
@@ -196,23 +197,74 @@ public class OptionsService {
 
     }
 
-//    public Boolean isProduction(Application application){
+    public MessageResponse purgeOptions(Long applicationId) {
+
+        Application application = applicationDao.findById(applicationId).orElse(null);
+
+        if (application == null) {
+            throw new NotFoundException("application_not_found");
+        }
+
+        Options options = optionsDao.findByApplication(application);
+        options.purgeOptions = true;
+
+        optionsDao.save(options);
+
+        return new MessageResponse();
+    }
+
+
+//    public MessageResponse purgeQueries(Long applicationId) {
+//
+//        Application application = applicationDao.findById(applicationId).orElse(null);
+//
+//        if (application == null) {
+//            throw new NotFoundException("application_not_found");
+//        }
 //
 //        Options options = optionsDao.findByApplication(application);
-//        return options.prodCache;
+//        options.purgeQueries = true;
+//
+//        optionsDao.save(options);
+//
+//        return new MessageResponse();
 //
 //    }
 
+    public PurgeResponse getPurge() {
 
-    public MessageResponse purgeOptions(Long id) {
-        //TODO
-        return null;
+        PurgeResponse purgeResponse = new PurgeResponse();
+
+//        List<String> apiKeys = applicationDao.selectAllApiKeysWherePurgeQueries();
+//        purgeResponse.queries = new ArrayList<>();
+//
+//        for(String apiKey : apiKeys){
+//            purgeResponse.queries.add(DigestUtils.md5DigestAsHex(apiKey.getBytes()));
+//        }
+
+        List<String>  apiKeys = applicationDao.selectAllApiKeysWherePurgeOptions();
+        purgeResponse.options = new ArrayList<>();
+
+        for(String apiKey : apiKeys){
+            purgeResponse.options.add(DigestUtils.md5DigestAsHex(apiKey.getBytes()));
+        }
+
+        applicationDao.updatePurge();
+
+        return purgeResponse;
     }
 
-
-    public MessageResponse purgeQueries(Long id) {
-        //TODO
-        return null;
-    }
+//    public List<CacheInfoResponse> getCacheInfo() {
+//
+//        List<CacheInfoResponse> cacheInfoList = applicationDao.selectAllApiKeysWithProdCache();
+//        List<CacheInfoResponse> cacheInfo = new ArrayList<>();
+//
+//        for(CacheInfoResponse cacheInfoResponse : cacheInfoList){
+//            cacheInfoResponse.apiKey = DigestUtils.md5DigestAsHex(cacheInfoResponse.apiKey.getBytes());
+//            cacheInfo.add(cacheInfoResponse);
+//        }
+//
+//        return cacheInfo;
+//    }
 
 }

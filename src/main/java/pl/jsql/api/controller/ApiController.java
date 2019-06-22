@@ -1,31 +1,31 @@
 package pl.jsql.api.controller;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.jsql.api.controller.generic.ValidateController;
 import pl.jsql.api.dto.request.ReportErrorRequest;
-import pl.jsql.api.dto.response.BasicResponse;
-import pl.jsql.api.dto.response.OptionsResponse;
-import pl.jsql.api.dto.response.QueryPairResponse;
-import pl.jsql.api.dto.response.SimpleOptionsResponse;
+import pl.jsql.api.dto.response.*;
 import pl.jsql.api.security.annotation.HashingSecurity;
 import pl.jsql.api.security.annotation.Security;
 import pl.jsql.api.service.ApiService;
 import pl.jsql.api.service.HashingService;
+import pl.jsql.api.service.OptionsService;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 import java.util.List;
 
-import static pl.jsql.api.security.interceptor.HashingSecurityInterceptor.*;
+import static pl.jsql.api.security.interceptor.HashingSecurityInterceptor.API_KEY_HEADER;
+import static pl.jsql.api.security.interceptor.HashingSecurityInterceptor.DEV_KEY_HEADER;
 
 @CrossOrigin
 @RestController
 @RequestMapping("/api/request")
 public class ApiController extends ValidateController {
+
+    @Autowired
+    private OptionsService optionsService;
 
     @Autowired
     private ApiService apiService;
@@ -74,6 +74,20 @@ public class ApiController extends ValidateController {
         List<QueryPairResponse> response = apiService.getRequestQueriesResult(request, true);
         return new ResponseEntity<>(new BasicResponse<>(200, response), HttpStatus.OK);
     }
+
+    @Security(requireActiveSession = false)
+    @PostMapping("/purge")
+    public ResponseEntity<BasicResponse<PurgeResponse>> getPurge() {
+        PurgeResponse response = optionsService.getPurge();
+        return new ResponseEntity<>(new BasicResponse<>(200, response), HttpStatus.OK);
+    }
+
+//    @Security(requireActiveSession = false)
+//    @PostMapping("/cache-info")
+//    public ResponseEntity<BasicResponse<List<CacheInfoResponse>>> getCacheInfo() {
+//        List<CacheInfoResponse> response = optionsService.getCacheInfo();
+//        return new ResponseEntity<>(new BasicResponse<>(200, response), HttpStatus.OK);
+//    }
 
     @Security(requireActiveSession = false)
     @HashingSecurity

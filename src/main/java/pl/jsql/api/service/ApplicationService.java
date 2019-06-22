@@ -130,11 +130,14 @@ public class ApplicationService {
 
     public MessageResponse create(User companyAdmin, ApplicationCreateRequest applicationCreateRequest, String testApiKey) {
 
+        System.out.println("this.canCreateApplication(companyAdmin) : "+this.canCreateApplication(companyAdmin));
         if (!this.canCreateApplication(companyAdmin)) {
             return new MessageResponse(true, "applications_limit_reached");
         }
 
         Application app = applicationDao.findByNameAndCompany(applicationCreateRequest.name, companyAdmin.company);
+
+        System.out.println("app: "+app);
 
         if (app != null) {
             return new MessageResponse(true,"application_already_exists");
@@ -146,6 +149,8 @@ public class ApplicationService {
         assignUserToAppMember(application.developmentDeveloper, application);
         assignNewAppsToAppAdmins(companyAdmin, application);
         initializeApplicationOptions(application);
+
+        System.out.println("testApiKey : "+testApiKey);
 
         if(testApiKey != null){
             application.apiKey = testApiKey;
