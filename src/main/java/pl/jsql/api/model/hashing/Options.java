@@ -86,4 +86,8 @@ public class Options {
 
     public String devDatabaseConnectionPassword;
 
+    public Boolean purgeOptions = false;
+
+    public Boolean purgeQueries = false;
+
 }

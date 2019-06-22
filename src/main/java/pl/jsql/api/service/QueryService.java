@@ -68,7 +68,11 @@ public class QueryService {
             throw new CryptographyException("Salt incorrect");
         }
 
-        query = queryDao.findByApplicationAndUserAndHashAndArchived(application, user, hash, false);
+        if(user.isProductionDeveloper || user.isDevelopmentDeveloper){
+            query = queryDao.findByApplicationAndUserAndHashAndArchived(application, user, hash, false);
+        }else {
+            query = queryDao.findByApplicationAndHashAndArchived(application, hash, false);
+        }
 
         if (query == null) {
             throw new CryptographyException("Query not found");
